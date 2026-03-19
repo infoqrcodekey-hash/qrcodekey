@@ -401,7 +401,7 @@ function Generate() {
             icon: '🧳'
         },
         {
-            id: 'other',
+            id: 'document',
             label: t('document'),
             icon: '📄'
         },
@@ -495,7 +495,7 @@ function Generate() {
         setGenerating(true);
         try {
             const res = await __TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$src$2f$lib$2f$api$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["qrAPI"].generate({
-                qrPassword: 'TempPass12345678',
+                qrPassword: 'TempPass12345',
                 category: 'other'
             });
             setQrData(res.data.data);

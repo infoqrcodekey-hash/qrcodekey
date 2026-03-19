@@ -534,7 +534,11 @@ const authAPI = {
     getMe: ()=>api.get('/auth/me'),
     updateProfile: (data)=>api.put('/auth/me', data),
     changePassword: (data)=>api.put('/auth/change-password', data),
-    logout: ()=>api.post('/auth/logout')
+    logout: ()=>api.post('/auth/logout'),
+    deleteAccount: (data)=>api.delete('/auth/me', {
+            data
+        }),
+    exportMyData: ()=>api.get('/auth/me/export')
 };
 const qrAPI = {
     generate: (data)=>api.post('/qr/generate', data),
@@ -2432,7 +2436,8 @@ function Organizations() {
             if (isLoggedIn) fetchOrgs();
         }
     }["Organizations.useEffect"], [
-        isLoggedIn
+        isLoggedIn,
+        fetchOrgs
     ]);
     const fetchOrgs = async ()=>{
         try {

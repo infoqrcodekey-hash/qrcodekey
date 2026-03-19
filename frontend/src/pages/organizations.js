@@ -33,7 +33,8 @@ export default function Organizations() {
 
   useEffect(() => {
     if (isLoggedIn) fetchOrgs();
-  }, [isLoggedIn, fetchOrgs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn]);
 
   const fetchOrgs = async () => {
     try {

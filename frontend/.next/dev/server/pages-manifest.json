@@ -1,1 +1,13 @@
-{}
+{
+  "/": "pages/index.js",
+  "/_app": "pages/_app.js",
+  "/_document": "pages/_document.js",
+  "/_error": "pages/_error.js",
+  "/generate": "pages/generate.js",
+  "/login": "pages/login.js",
+  "/organizations": "pages/organizations.js",
+  "/pricing": "pages/pricing.js",
+  "/privacy-policy": "pages/privacy-policy.js",
+  "/register": "pages/register.js",
+  "/terms": "pages/terms.js"
+}

@@ -370,6 +370,7 @@ function Register() {
         phone: ''
     });
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react__$5b$external$5d$__$28$react$2c$__cjs$29$__["useState"])(false);
+    const [agreedToTerms, setAgreedToTerms] = (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react__$5b$external$5d$__$28$react$2c$__cjs$29$__["useState"])(false);
     const { register } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$src$2f$context$2f$AuthContext$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["useAuth"])();
     const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$src$2f$context$2f$LanguageContext$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["useLanguage"])();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$node_modules$2f$next$2f$router$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["useRouter"])();
@@ -395,6 +396,10 @@ function Register() {
             __TURBOPACK__imported__module__$5b$externals$5d2f$react$2d$hot$2d$toast__$5b$external$5d$__$28$react$2d$hot$2d$toast$2c$__esm_import$2c$__$5b$project$5d2f$frontend$2f$node_modules$2f$react$2d$hot$2d$toast$29$__["default"].error('Password must have 12+ characters, 1 uppercase, and 1 lowercase letter');
             return;
         }
+        if (!agreedToTerms) {
+            __TURBOPACK__imported__module__$5b$externals$5d2f$react$2d$hot$2d$toast__$5b$external$5d$__$28$react$2d$hot$2d$toast$2c$__esm_import$2c$__$5b$project$5d2f$frontend$2f$node_modules$2f$react$2d$hot$2d$toast$29$__["default"].error('You must agree to Terms of Service and Privacy Policy');
+            return;
+        }
         setLoading(true);
         try {
             await register(form);
@@ -413,12 +418,12 @@ function Register() {
                 className: "absolute top-5 right-5",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$src$2f$components$2f$LanguageSwitcher$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                     fileName: "[project]/frontend/src/pages/register.js",
-                    lineNumber: 58,
+                    lineNumber: 63,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/frontend/src/pages/register.js",
-                lineNumber: 57,
+                lineNumber: 62,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -434,12 +439,12 @@ function Register() {
                                     children: "🚀"
                                 }, void 0, false, {
                                     fileName: "[project]/frontend/src/pages/register.js",
-                                    lineNumber: 64,
+                                    lineNumber: 69,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/pages/register.js",
-                                lineNumber: 63,
+                                lineNumber: 68,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h1", {
@@ -447,7 +452,7 @@ function Register() {
                                 children: t('registerTitle')
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/pages/register.js",
-                                lineNumber: 66,
+                                lineNumber: 71,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -455,13 +460,13 @@ function Register() {
                                 children: t('registerSubtitle')
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/pages/register.js",
-                                lineNumber: 67,
+                                lineNumber: 72,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/frontend/src/pages/register.js",
-                        lineNumber: 62,
+                        lineNumber: 67,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("form", {
@@ -478,7 +483,7 @@ function Register() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/frontend/src/pages/register.js",
-                                        lineNumber: 72,
+                                        lineNumber: 77,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("input", {
@@ -487,36 +492,6 @@ function Register() {
                                         placeholder: t('enterName'),
                                         value: form.name,
                                         onChange: (e)=>update('name', e.target.value)
-                                    }, void 0, false, {
-                                        fileName: "[project]/frontend/src/pages/register.js",
-                                        lineNumber: 73,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/frontend/src/pages/register.js",
-                                lineNumber: 71,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("label", {
-                                        className: "label",
-                                        children: [
-                                            t('email'),
-                                            " *"
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/frontend/src/pages/register.js",
-                                        lineNumber: 77,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("input", {
-                                        type: "email",
-                                        className: "input-field",
-                                        placeholder: t('emailPlaceholder'),
-                                        value: form.email,
-                                        onChange: (e)=>update('email', e.target.value)
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/src/pages/register.js",
                                         lineNumber: 78,
@@ -533,6 +508,36 @@ function Register() {
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("label", {
                                         className: "label",
                                         children: [
+                                            t('email'),
+                                            " *"
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/frontend/src/pages/register.js",
+                                        lineNumber: 82,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("input", {
+                                        type: "email",
+                                        className: "input-field",
+                                        placeholder: t('emailPlaceholder'),
+                                        value: form.email,
+                                        onChange: (e)=>update('email', e.target.value)
+                                    }, void 0, false, {
+                                        fileName: "[project]/frontend/src/pages/register.js",
+                                        lineNumber: 83,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/frontend/src/pages/register.js",
+                                lineNumber: 81,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("label", {
+                                        className: "label",
+                                        children: [
                                             t('phone'),
                                             " (",
                                             t('optional'),
@@ -540,7 +545,7 @@ function Register() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/frontend/src/pages/register.js",
-                                        lineNumber: 82,
+                                        lineNumber: 87,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("input", {
@@ -551,13 +556,13 @@ function Register() {
                                         onChange: (e)=>update('phone', e.target.value)
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/src/pages/register.js",
-                                        lineNumber: 83,
+                                        lineNumber: 88,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/frontend/src/pages/register.js",
-                                lineNumber: 81,
+                                lineNumber: 86,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$src$2f$components$2f$PasswordInput$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -570,19 +575,72 @@ function Register() {
                                 showRequirements: true
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/pages/register.js",
-                                lineNumber: 86,
+                                lineNumber: 91,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
+                                className: "flex items-start gap-3 p-3 rounded-lg bg-indigo-500/5 border border-indigo-500/20",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("input", {
+                                        type: "checkbox",
+                                        id: "terms",
+                                        checked: agreedToTerms,
+                                        onChange: (e)=>setAgreedToTerms(e.target.checked),
+                                        className: "mt-1 w-4 h-4 accent-indigo-500 cursor-pointer"
+                                    }, void 0, false, {
+                                        fileName: "[project]/frontend/src/pages/register.js",
+                                        lineNumber: 103,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("label", {
+                                        htmlFor: "terms",
+                                        className: "text-xs text-gray-400 leading-relaxed cursor-pointer",
+                                        children: [
+                                            "By registering, I agree to the",
+                                            ' ',
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$node_modules$2f$next$2f$link$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                                href: "/terms",
+                                                className: "text-indigo-400 hover:text-indigo-300 font-semibold",
+                                                children: "Terms of Service"
+                                            }, void 0, false, {
+                                                fileName: "[project]/frontend/src/pages/register.js",
+                                                lineNumber: 112,
+                                                columnNumber: 15
+                                            }, this),
+                                            ' ',
+                                            "and",
+                                            ' ',
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$node_modules$2f$next$2f$link$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                                href: "/privacy-policy",
+                                                className: "text-indigo-400 hover:text-indigo-300 font-semibold",
+                                                children: "Privacy Policy"
+                                            }, void 0, false, {
+                                                fileName: "[project]/frontend/src/pages/register.js",
+                                                lineNumber: 116,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/frontend/src/pages/register.js",
+                                        lineNumber: 110,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/frontend/src/pages/register.js",
+                                lineNumber: 102,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("button", {
                                 type: "submit",
-                                disabled: loading,
-                                className: "btn-primary w-full flex items-center justify-center gap-2",
+                                disabled: loading || !agreedToTerms,
+                                className: "btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed",
                                 children: loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("span", {
                                     className: "animate-spin",
                                     children: "⏳"
                                 }, void 0, false, {
                                     fileName: "[project]/frontend/src/pages/register.js",
-                                    lineNumber: 97,
+                                    lineNumber: 123,
                                     columnNumber: 24
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["Fragment"], {
                                     children: [
@@ -592,13 +650,13 @@ function Register() {
                                 }, void 0, true)
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/pages/register.js",
-                                lineNumber: 96,
+                                lineNumber: 122,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/frontend/src/pages/register.js",
-                        lineNumber: 70,
+                        lineNumber: 75,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -617,18 +675,70 @@ function Register() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/frontend/src/pages/register.js",
-                                    lineNumber: 104,
+                                    lineNumber: 130,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/frontend/src/pages/register.js",
-                            lineNumber: 102,
+                            lineNumber: 128,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/frontend/src/pages/register.js",
-                        lineNumber: 101,
+                        lineNumber: 127,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
+                        className: "mt-6 pt-6 border-t border-white/10 flex justify-center gap-4 text-xs",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$node_modules$2f$next$2f$link$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                href: "/privacy-policy",
+                                className: "text-gray-500 hover:text-indigo-400 transition",
+                                children: "Privacy Policy"
+                            }, void 0, false, {
+                                fileName: "[project]/frontend/src/pages/register.js",
+                                lineNumber: 136,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("span", {
+                                className: "text-gray-700",
+                                children: "•"
+                            }, void 0, false, {
+                                fileName: "[project]/frontend/src/pages/register.js",
+                                lineNumber: 139,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$node_modules$2f$next$2f$link$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                href: "/terms",
+                                className: "text-gray-500 hover:text-indigo-400 transition",
+                                children: "Terms of Service"
+                            }, void 0, false, {
+                                fileName: "[project]/frontend/src/pages/register.js",
+                                lineNumber: 140,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("span", {
+                                className: "text-gray-700",
+                                children: "•"
+                            }, void 0, false, {
+                                fileName: "[project]/frontend/src/pages/register.js",
+                                lineNumber: 143,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$node_modules$2f$next$2f$link$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                href: "/refund-policy",
+                                className: "text-gray-500 hover:text-indigo-400 transition",
+                                children: "Refund Policy"
+                            }, void 0, false, {
+                                fileName: "[project]/frontend/src/pages/register.js",
+                                lineNumber: 144,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/frontend/src/pages/register.js",
+                        lineNumber: 135,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -639,24 +749,24 @@ function Register() {
                             children: t('backToHome')
                         }, void 0, false, {
                             fileName: "[project]/frontend/src/pages/register.js",
-                            lineNumber: 109,
+                            lineNumber: 150,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/frontend/src/pages/register.js",
-                        lineNumber: 108,
+                        lineNumber: 149,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/frontend/src/pages/register.js",
-                lineNumber: 61,
+                lineNumber: 66,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/frontend/src/pages/register.js",
-        lineNumber: 56,
+        lineNumber: 61,
         columnNumber: 5
     }, this);
 }
