@@ -129,6 +129,7 @@ app.use('/api/export', require('./routes/export'));
 app.use('/api/teams', require('./routes/teams'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/org', require('./routes/organization'));
+app.use('/api/attendance-scan', require('./routes/attendanceScan'));
 
 // ====== Static Files (Production) ======
 if (process.env.NODE_ENV === 'production') {
@@ -210,6 +211,19 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Join organization attendance room
+  socket.on('join_org_attendance', (orgId) => {
+    socket.join(`org_${orgId}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`📋 Attendance room joined: org_${orgId}`);
+    }
+  });
+
+  // Leave organization attendance room
+  socket.on('leave_org_attendance', (orgId) => {
+    socket.leave(`org_${orgId}`);
+  });
+
   // Leave QR tracking room
   socket.on('leave_qr_tracking', (qrId) => {
     socket.leave(`qr_${qrId}`);
@@ -269,6 +283,32 @@ const setupCronJobs = () => {
       if (inactive > 0) {
         console.log(`⚠️ ${inactive} QR codes inactive for 30+ days`);
       }
+    }, null, true, 'Asia/Kolkata');
+
+    // Daily at 11 PM: Auto-mark absent for members who didn't scan
+    new CronJob('0 23 * * *', async () => {
+      console.log('⏰ Running auto-absent marking...');
+      const Attendance = require('./models/Attendance');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const todayAttendances = await Attendance.find({ date: today });
+      let marked = 0;
+      for (const att of todayAttendances) {
+        for (const record of att.records) {
+          if (!record.clockIn || !record.clockIn.time) {
+            record.status = 'absent';
+            record.markedBy = 'auto_absent';
+            marked++;
+          } else if (!record.clockOut || !record.clockOut.time) {
+            record.status = 'half-day';
+            marked++;
+          }
+        }
+        att.calculateSummary();
+        await att.save();
+      }
+      console.log(`📋 Auto-marked ${marked} attendance records`);
     }, null, true, 'Asia/Kolkata');
 
     console.log('⏰ Cron jobs scheduled');

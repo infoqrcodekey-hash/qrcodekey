@@ -13,8 +13,25 @@ const attendanceRecordSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['present', 'absent', 'late', 'excused'],
+    enum: ['present', 'absent', 'late', 'excused', 'half-day'],
     default: 'absent'
+  },
+  // Clock-In data
+  clockIn: {
+    time: { type: Date, default: null },
+    lat: { type: Number, default: null },
+    lng: { type: Number, default: null }
+  },
+  // Clock-Out data
+  clockOut: {
+    time: { type: Date, default: null },
+    lat: { type: Number, default: null },
+    lng: { type: Number, default: null }
+  },
+  // Total working hours (calculated)
+  totalHours: {
+    type: Number,
+    default: 0
   },
   markedAt: {
     type: Date,
@@ -24,6 +41,11 @@ const attendanceRecordSchema = new mongoose.Schema({
     type: String,
     enum: ['qr_scan', 'manual', 'auto_absent'],
     default: 'manual'
+  },
+  scannedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
   },
   note: {
     type: String,

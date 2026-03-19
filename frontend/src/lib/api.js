@@ -152,4 +152,42 @@ export const orgAPI = {
   getReport: (groupId, startDate, endDate) => api.get(`/org/attendance/${groupId}/report?startDate=${startDate}&endDate=${endDate}`),
 };
 
+// ====== Attendance Scan API (New System) ======
+export const attendanceScanAPI = {
+  // Scan QR for clock-in/out
+  scan: (data) => api.post('/attendance-scan/scan', data),
+
+  // Get attendance dashboard
+  getDashboard: (orgId) => api.get(`/attendance-scan/dashboard/${orgId}`),
+
+  // Get member attendance history
+  getMemberHistory: (memberId, startDate, endDate) =>
+    api.get(`/attendance-scan/member/${memberId}/history?startDate=${startDate}&endDate=${endDate}`),
+
+  // Viewer access (parent/manager)
+  viewerAccess: (data) => api.post('/attendance-scan/viewer-access', data),
+
+  // Verify with QR ID + group password
+  verify: (data) => api.post('/attendance-scan/verify', data),
+
+  // Generate temp password
+  generateTempPassword: (data) => api.post('/attendance-scan/temp-password', data),
+
+  // Bulk generate QR codes
+  bulkGenerateQR: (groupId) => api.post(`/attendance-scan/bulk-qr/${groupId}`),
+
+  // Get group attendance today
+  getGroupToday: (groupId) => api.get(`/attendance-scan/group/${groupId}/today`),
+
+  // Export report
+  exportReport: (groupId, startDate, endDate) =>
+    api.get(`/attendance-scan/export/${groupId}?startDate=${startDate}&endDate=${endDate}`, { responseType: 'blob' }),
+
+  // Update org GPS location
+  updateOrgLocation: (orgId, data) => api.put(`/attendance-scan/org/${orgId}/location`, data),
+
+  // Set group master password
+  setGroupPassword: (groupId, data) => api.put(`/attendance-scan/group/${groupId}/password`, data),
+};
+
 export default api;
