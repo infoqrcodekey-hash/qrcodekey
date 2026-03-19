@@ -67,7 +67,7 @@ export default function Generate() {
     setGenerating(true);
     try {
       const res = await qrAPI.generate({
-        qrPassword: 'TempPass12345678',
+        qrPassword: 'TempPass12345', // Temporary placeholder - user sets actual password in step 2
         category: 'other'
       });
       setQrData(res.data.data);

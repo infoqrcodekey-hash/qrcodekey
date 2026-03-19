@@ -20,10 +20,14 @@ router.post('/generate', generateLimiter, validateQRCreate, generateQR);
 router.post('/bulk-generate', generateLimiter, bulkGenerateQR);
 router.post('/generate-custom', generateLimiter, generateCustomQR);
 router.get('/my-codes', getMyQRCodes);
-router.get('/:qrId', getQRCode);
+
+// ====== Specific QR routes MUST come before wildcard /:qrId ======
 router.get('/:qrId/download', downloadQR);
 router.put('/:qrId/activate', validateQRActivate, activateQR);
 router.put('/:qrId/deactivate', deactivateQR);
+
+// ====== Wildcard route MUST be last ======
+router.get('/:qrId', getQRCode);
 router.delete('/:qrId', deleteQR);
 
 module.exports = router;

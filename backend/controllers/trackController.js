@@ -193,9 +193,11 @@ exports.handleScan = async (req, res) => {
 
     // ----- Step 10: Send Notification (Premium Users) -----
     // Runs in background (won't hold response)
-    notificationService.sendScanNotification(qr, scanLog).catch(err => {
-      console.error('Notification Error:', err.message);
-    });
+    if (process.env.ENABLE_NOTIFICATIONS !== 'false') {
+      notificationService.sendScanNotification(qr, scanLog).catch(err => {
+        console.error('Notification Error:', err.message);
+      });
+    }
 
     // ----- Step 11: Send Email Notification -----
     // Fire and forget - async in background, doesn't delay response

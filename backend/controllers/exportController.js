@@ -7,11 +7,11 @@ const QRCode = require('../models/QRCode');
 const ScanLog = require('../models/ScanLog');
 
 // ====== EXPORT SCAN DATA AS CSV ======
-// GET /api/export/csv/:qrId?password=xxxx
+// POST /api/export/csv/:qrId (password in body for security)
 exports.exportCSV = async (req, res) => {
   try {
     const { qrId } = req.params;
-    const { password } = req.query;
+    const { password } = req.body;
 
     // Find QR and verify password
     const qr = await QRCode.findOne({ qrId }).select('+qrPassword');
@@ -57,14 +57,15 @@ exports.exportCSV = async (req, res) => {
 };
 
 // ====== EXPORT SCAN DATA AS JSON ======
-// GET /api/export/json/:qrId?password=xxxx
+// POST /api/export/json/:qrId (password in body for security)
 exports.exportJSON = async (req, res) => {
   try {
     const { qrId } = req.params;
-    const { password } = req.query;
+    const { password } = req.body;
 
     const qr = await QRCode.findOne({ qrId }).select('+qrPassword');
     if (!qr) return res.status(404).json({ success: false, message: 'QR Code not found' });
+    if (!qr.isActive) return res.status(400).json({ success: false, message: 'QR Code is not active' });
 
     const isMatch = await qr.matchQRPassword(password);
     if (!isMatch) return res.status(401).json({ success: false, message: 'Incorrect password' });

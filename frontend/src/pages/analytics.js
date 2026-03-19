@@ -306,10 +306,10 @@ export default function Analytics() {
   const countryDistribution = analytics.countryDistribution || [];
   const recentActivity = analytics.recentActivity || [];
 
-  // Get max values for charts
-  const maxBrowser = Math.max(...browserBreakdown.map(b => b.count || 0), 1);
-  const maxOS = Math.max(...osBreakdown.map(o => o.count || 0), 1);
-  const maxHourly = Math.max(...hourlyDistribution.map(h => h.count || 0), 1);
+  // Get max values for charts (with safety checks)
+  const maxBrowser = browserBreakdown?.length > 0 ? Math.max(...browserBreakdown.map(b => b.count || 0), 1) : 1;
+  const maxOS = osBreakdown?.length > 0 ? Math.max(...osBreakdown.map(o => o.count || 0), 1) : 1;
+  const maxHourly = hourlyDistribution?.length > 0 ? Math.max(...hourlyDistribution.map(h => h.count || 0), 1) : 1;
 
   const browserChartData = browserBreakdown.slice(0, 5).map(b => ({
     label: b.browser || 'Unknown',

@@ -16,9 +16,9 @@ exports.createTeam = async (req, res) => {
     while (await Team.findOne({ inviteCode })) { inviteCode = Team.generateInviteCode(); }
 
     const team = await Team.create({
-      name, description, owner: req.user.id,
+      name, description, owner: req.user._id,
       inviteCode,
-      members: [{ user: req.user.id, role: 'admin' }]
+      members: [{ user: req.user._id, role: 'admin' }]
     });
 
     res.status(201).json({ success: true, message: 'Team ban gayi! 🎉', data: team });
@@ -32,7 +32,7 @@ exports.createTeam = async (req, res) => {
 exports.getMyTeams = async (req, res) => {
   try {
     const teams = await Team.find({
-      $or: [{ owner: req.user.id }, { 'members.user': req.user.id }],
+      $or: [{ owner: req.user._id }, { 'members.user': req.user._id }],
       isActive: true
     }).populate('owner', 'name email').populate('members.user', 'name email').lean();
 
@@ -53,8 +53,8 @@ exports.getTeam = async (req, res) => {
 
     if (!team) return res.status(404).json({ success: false, message: 'Team nahi mili' });
 
-    const isMember = team.members.some(m => m.user?._id?.toString() === req.user.id);
-    const isOwner = team.owner?._id?.toString() === req.user.id;
+    const isMember = team.members.some(m => m.user?._id?.toString() === req.user._id);
+    const isOwner = team.owner?._id?.toString() === req.user._id;
     if (!isMember && !isOwner) return res.status(403).json({ success: false, message: 'Is team ka access nahi hai' });
 
     res.status(200).json({ success: true, data: team });
@@ -74,10 +74,10 @@ exports.joinTeam = async (req, res) => {
     if (!team) return res.status(404).json({ success: false, message: 'Galat invite code hai ya expired ho gaya' });
 
     // Already member?
-    const alreadyMember = team.members.some(m => m.user?.toString() === req.user.id);
+    const alreadyMember = team.members.some(m => m.user?.toString() === req.user._id);
     if (alreadyMember) return res.status(400).json({ success: false, message: 'Aap pehle se is team mein hain' });
 
-    team.members.push({ user: req.user.id, role: 'member' });
+    team.members.push({ user: req.user._id, role: 'member' });
     await team.save();
 
     res.status(200).json({ success: true, message: `"${team.name}" team mein join ho gaye! 🎉`, data: { teamId: team._id, teamName: team.name } });
@@ -93,11 +93,11 @@ exports.leaveTeam = async (req, res) => {
     const team = await Team.findById(req.params.teamId);
     if (!team) return res.status(404).json({ success: false, message: 'Team nahi mili' });
 
-    if (team.owner.toString() === req.user.id) {
+    if (team.owner.toString() === req.user._id) {
       return res.status(400).json({ success: false, message: 'Owner team nahi chhod sakta. Pehle ownership transfer karo ya team delete karo.' });
     }
 
-    team.members = team.members.filter(m => m.user?.toString() !== req.user.id);
+    team.members = team.members.filter(m => m.user?.toString() !== req.user._id);
     await team.save();
 
     res.status(200).json({ success: true, message: 'Team chhod di' });
@@ -110,11 +110,11 @@ exports.leaveTeam = async (req, res) => {
 // ====== REMOVE MEMBER (Owner only) ======
 exports.removeMember = async (req, res) => {
   try {
-    const team = await Team.findOne({ _id: req.params.teamId, owner: req.user.id });
+    const team = await Team.findOne({ _id: req.params.teamId, owner: req.user._id });
     if (!team) return res.status(403).json({ success: false, message: 'Sirf owner hi member remove kar sakta hai' });
 
     const { userId } = req.params;
-    if (userId === req.user.id) return res.status(400).json({ success: false, message: 'Aap khud ko remove nahi kar sakte' });
+    if (userId === req.user._id) return res.status(400).json({ success: false, message: 'Aap khud ko remove nahi kar sakte' });
 
     team.members = team.members.filter(m => m.user?.toString() !== userId);
     await team.save();
@@ -132,8 +132,8 @@ exports.getTeamQRCodes = async (req, res) => {
     const team = await Team.findById(req.params.teamId);
     if (!team) return res.status(404).json({ success: false, message: 'Team nahi mili' });
 
-    const isMember = team.members.some(m => m.user?.toString() === req.user.id);
-    const isOwner = team.owner.toString() === req.user.id;
+    const isMember = team.members.some(m => m.user?.toString() === req.user._id);
+    const isOwner = team.owner.toString() === req.user._id;
     if (!isMember && !isOwner) return res.status(403).json({ success: false, message: 'Access denied' });
 
     // Get QR codes of all team members
@@ -155,7 +155,7 @@ exports.getTeamQRCodes = async (req, res) => {
 // ====== DELETE TEAM (Owner only) ======
 exports.deleteTeam = async (req, res) => {
   try {
-    const team = await Team.findOne({ _id: req.params.teamId, owner: req.user.id });
+    const team = await Team.findOne({ _id: req.params.teamId, owner: req.user._id });
     if (!team) return res.status(403).json({ success: false, message: 'Sirf owner hi team delete kar sakta hai' });
 
     await Team.deleteOne({ _id: team._id });

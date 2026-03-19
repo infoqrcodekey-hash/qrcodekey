@@ -93,7 +93,7 @@ exports.login = async (req, res) => {
 // GET /api/auth/me
 exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     
     res.status(200).json({
       success: true,
@@ -136,7 +136,7 @@ exports.updateProfile = async (req, res) => {
       if (allowedFields[key] === undefined) delete allowedFields[key];
     });
 
-    const user = await User.findByIdAndUpdate(req.user.id, allowedFields, {
+    const user = await User.findByIdAndUpdate(req.user._id, allowedFields, {
       new: true,
       runValidators: true
     });
@@ -162,7 +162,7 @@ exports.changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    const user = await User.findById(req.user.id).select('+password');
+    const user = await User.findById(req.user._id).select('+password');
 
     // Verify current password
     const isMatch = await user.matchPassword(currentPassword);
@@ -209,7 +209,7 @@ exports.deleteAccount = async (req, res) => {
     const { password } = req.body;
 
     // Get user with password field
-    const user = await User.findById(req.user.id).select('+password');
+    const user = await User.findById(req.user._id).select('+password');
 
     if (!user) {
       return res.status(404).json({
@@ -250,7 +250,7 @@ exports.deleteAccount = async (req, res) => {
     await Team.deleteMany({ owner: user._id });
 
     // Delete the user document
-    await User.findByIdAndDelete(req.user.id);
+    await User.findByIdAndDelete(req.user._id);
 
     // Clear cookie
     res.clearCookie('token');
@@ -274,7 +274,7 @@ exports.deleteAccount = async (req, res) => {
 // Returns all user data as JSON
 exports.exportMyData = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     // Get models
     const QRCode = require('../models/QRCode');

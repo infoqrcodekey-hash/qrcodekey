@@ -108,14 +108,17 @@ exports.validateQRActivate = [
 // ====== Scan Location Validation ======
 exports.validateScanLocation = [
   body('latitude')
-    .notEmpty().withMessage('Latitude is required')
-    .isFloat({ min: -90, max: 90 }).withMessage('Please enter a valid latitude'),
+    .exists().withMessage('Latitude is required')
+    .isFloat({ min: -90, max: 90 }).withMessage('Please enter a valid latitude (-90 to 90)'),
   body('longitude')
-    .notEmpty().withMessage('Longitude is required')
-    .isFloat({ min: -180, max: 180 }).withMessage('Please enter a valid longitude'),
+    .exists().withMessage('Longitude is required')
+    .isFloat({ min: -180, max: 180 }).withMessage('Please enter a valid longitude (-180 to 180)'),
   body('accuracy')
     .optional()
     .isFloat({ min: 0 }).withMessage('Accuracy must be greater than 0'),
+  body('altitude')
+    .optional()
+    .isFloat().withMessage('Altitude must be a valid number'),
   validate
 ];
 

@@ -11,12 +11,14 @@ const att = require('../controllers/attendanceController');
 // ====== Organization CRUD ======
 router.post('/', protect, org.createOrganization);
 router.get('/', protect, org.getMyOrganizations);
+
+// ====== Shared Dashboard (public with password) - MUST be before /:id route ======
+router.post('/shared/access', org.sharedDashboardAccess);
+
+// ====== Organization Detail Routes (these come AFTER /shared/access) ======
 router.get('/:id', protect, org.getOrganization);
 router.put('/:id', protect, org.updateOrganization);
 router.delete('/:id', protect, org.deleteOrganization);
-
-// ====== Shared Dashboard (public with password) ======
-router.post('/shared/access', org.sharedDashboardAccess);
 
 // ====== Group Management ======
 router.post('/:orgId/groups', protect, org.createGroup);

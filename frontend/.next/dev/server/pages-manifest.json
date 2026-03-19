@@ -1,7 +1,1 @@
-{
-  "/": "pages/index.js",
-  "/_app": "pages/_app.js",
-  "/_document": "pages/_document.js",
-  "/forgot-password": "pages/forgot-password.js",
-  "/login": "pages/login.js"
-}
+{}

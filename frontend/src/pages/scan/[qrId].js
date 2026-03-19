@@ -416,7 +416,7 @@ export default function ScanPage() {
                     <div>
                       <label className="block text-xs font-semibold text-gray-400 mb-2">{t('category')}</label>
                       <div className="grid grid-cols-4 gap-2">
-                        {categoryOptions.map(opt => (
+                        {categoryOptions.map((opt) => (
                           <button key={opt.value} type="button"
                             onClick={() => setForm(p => ({ ...p, category: opt.value }))}
                             className={`flex flex-col items-center gap-1 p-3 rounded-2xl border transition-all duration-200 ${

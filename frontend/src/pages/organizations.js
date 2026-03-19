@@ -33,7 +33,7 @@ export default function Organizations() {
 
   useEffect(() => {
     if (isLoggedIn) fetchOrgs();
-  }, [isLoggedIn]);
+  }, [isLoggedIn, fetchOrgs]);
 
   const fetchOrgs = async () => {
     try {

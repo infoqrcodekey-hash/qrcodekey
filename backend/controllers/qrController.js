@@ -14,7 +14,7 @@ exports.generateQR = async (req, res) => {
     const { category, qrPassword, registeredName, registeredEmail, registeredPhone, message } = req.body;
 
     // Check QR limit
-    const userQRCount = await QRCode.countDocuments({ owner: req.user.id });
+    const userQRCount = await QRCode.countDocuments({ owner: req.user._id });
     const qrLimit = req.user.getQRLimit();
     
     if (userQRCount >= qrLimit) {
@@ -51,7 +51,7 @@ exports.generateQR = async (req, res) => {
     // Save to database
     const newQR = await QRCode.create({
       qrId,
-      owner: req.user.id,
+      owner: req.user._id,
       category: category || 'other',
       qrPassword,
       registeredName,
@@ -91,7 +91,7 @@ exports.activateQR = async (req, res) => {
     const { qrId } = req.params;
     const { registeredName, registeredEmail, registeredPhone, category, message, qrPassword } = req.body;
 
-    const qr = await QRCode.findOne({ qrId, owner: req.user.id });
+    const qr = await QRCode.findOne({ qrId, owner: req.user._id });
     
     if (!qr) {
       return res.status(404).json({
@@ -125,7 +125,7 @@ exports.activateQR = async (req, res) => {
 
     // Emit socket event (real-time update)
     if (req.io) {
-      req.io.to(`user_${req.user.id}`).emit('qr_activated', {
+      req.io.to(`user_${req.user._id}`).emit('qr_activated', {
         qrId: qr.qrId,
         category: qr.category,
         activatedAt: qr.activatedAt
@@ -161,13 +161,13 @@ exports.getMyQRCodes = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const [qrCodes, total] = await Promise.all([
-      QRCode.find({ owner: req.user.id })
+      QRCode.find({ owner: req.user._id })
         .select('-qrPassword')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .lean(),
-      QRCode.countDocuments({ owner: req.user.id })
+      QRCode.countDocuments({ owner: req.user._id })
     ]);
 
     res.status(200).json({
@@ -194,7 +194,7 @@ exports.getQRCode = async (req, res) => {
   try {
     const qr = await QRCode.findOne({ 
       qrId: req.params.qrId, 
-      owner: req.user.id 
+      owner: req.user._id 
     }).select('-qrPassword').lean();
 
     if (!qr) {
@@ -237,7 +237,7 @@ exports.downloadQR = async (req, res) => {
   try {
     const qr = await QRCode.findOne({ 
       qrId: req.params.qrId, 
-      owner: req.user.id 
+      owner: req.user._id 
     });
 
     if (!qr) {
@@ -279,7 +279,7 @@ exports.deleteQR = async (req, res) => {
   try {
     const qr = await QRCode.findOne({ 
       qrId: req.params.qrId, 
-      owner: req.user.id 
+      owner: req.user._id 
     });
 
     if (!qr) {
@@ -317,7 +317,7 @@ exports.bulkGenerateQR = async (req, res) => {
     const qty = Math.min(Math.max(parseInt(count) || 1, 1), 100); // max 100 at a time
 
     // Check plan limits
-    const userQRCount = await QRCode.countDocuments({ owner: req.user.id });
+    const userQRCount = await QRCode.countDocuments({ owner: req.user._id });
     const qrLimit = req.user.getQRLimit();
     const remaining = qrLimit - userQRCount;
 
@@ -337,7 +337,7 @@ exports.bulkGenerateQR = async (req, res) => {
         width: 400, margin: 2, color: { dark: '#1a1a2e', light: '#ffffff' }, errorCorrectionLevel: 'H'
       });
       const newQR = await QRCode.create({
-        qrId, owner: req.user.id, category, qrPassword: `BulkQR-${Date.now().toString(36)}-${Math.random().toString(36).substr(2,4)}`,
+        qrId, owner: req.user._id, category, qrPassword: `BulkQR-${Date.now().toString(36)}-${Math.random().toString(36).substr(2,4)}`,
         qrImageUrl: qrImageBase64, isActive: false
       });
       generated.push({ qrId: newQR.qrId, scanUrl, qrImage: qrImageBase64, category: newQR.category });
@@ -361,7 +361,7 @@ exports.generateCustomQR = async (req, res) => {
     const { category, qrPassword, registeredName, registeredEmail, registeredPhone, message,
       darkColor = '#1a1a2e', lightColor = '#ffffff', size = 400 } = req.body;
 
-    const userQRCount = await QRCode.countDocuments({ owner: req.user.id });
+    const userQRCount = await QRCode.countDocuments({ owner: req.user._id });
     if (userQRCount >= req.user.getQRLimit()) {
       return res.status(403).json({ success: false, message: 'QR limit reached. Please upgrade your plan.' });
     }
@@ -384,7 +384,7 @@ exports.generateCustomQR = async (req, res) => {
     });
 
     const newQR = await QRCode.create({
-      qrId, owner: req.user.id, category: category || 'other',
+      qrId, owner: req.user._id, category: category || 'other',
       qrPassword, registeredName, registeredEmail, registeredPhone, message,
       qrImageUrl: qrImageBase64, isActive: false
     });
@@ -405,7 +405,7 @@ exports.generateCustomQR = async (req, res) => {
 exports.deactivateQR = async (req, res) => {
   try {
     const qr = await QRCode.findOneAndUpdate(
-      { qrId: req.params.qrId, owner: req.user.id },
+      { qrId: req.params.qrId, owner: req.user._id },
       { isActive: false },
       { new: true }
     ).select('-qrPassword');

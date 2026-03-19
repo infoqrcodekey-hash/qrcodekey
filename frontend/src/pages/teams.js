@@ -37,11 +37,11 @@ export default function TeamsPage() {
       const res = await api.get('/teams/my');
       setTeams(res.data.data || []);
     } catch (err) {
-      toast.error(t('error'));
+      toast.error(err.response?.data?.message || t('error'));
     } finally {
       setLoading(false);
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, t]);
 
   useEffect(() => { loadTeams(); }, [loadTeams]);
 

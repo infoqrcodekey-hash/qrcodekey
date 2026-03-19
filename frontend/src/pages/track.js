@@ -73,10 +73,10 @@ export default function Track() {
     const diffHr = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHr / 24);
     if (diffMin < 1) return t('justNow');
-    if (diffMin < 60) return t('minutesAgo', { count: diffMin });
-    if (diffHr < 24) return t('hoursAgo', { count: diffHr });
+    if (diffMin < 60) return `${diffMin} ${t('minutesAgo') || 'minutes ago'}`;
+    if (diffHr < 24) return `${diffHr} ${t('hoursAgo') || 'hours ago'}`;
     if (diffDay === 1) return t('yesterday');
-    if (diffDay < 7) return t('daysAgo', { count: diffDay });
+    if (diffDay < 7) return `${diffDay} ${t('daysAgo') || 'days ago'}`;
     return d.toLocaleDateString('en-IN');
   };
 

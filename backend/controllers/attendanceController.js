@@ -189,8 +189,7 @@ exports.updateAttendance = async (req, res) => {
         date: targetDate,
         records: members.map(m => ({
           member: m._id, status: 'absent', markedAt: null, markedBy: 'auto_absent'
-        })),
-        createdBy: req.user._id
+        }))
       });
     }
 

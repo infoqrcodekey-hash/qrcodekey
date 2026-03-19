@@ -1,13 +1,4 @@
 self.__BUILD_MANIFEST = {
-  "/": [
-    "static/chunks/pages/index.js"
-  ],
-  "/forgot-password": [
-    "static/chunks/pages/forgot-password.js"
-  ],
-  "/login": [
-    "static/chunks/pages/login.js"
-  ],
   "__rewrites": {
     "afterFiles": [
       {

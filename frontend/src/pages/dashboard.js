@@ -269,16 +269,16 @@ export default function Dashboard() {
                 {/* Overview Stats */}
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   {[
-                    { labelKey: 'totalUsers', value: adminStats.overview.totalUsers, icon: '👤', color: 'indigo' },
-                    { labelKey: 'activeQR', value: adminStats.overview.activeQRCodes, icon: '✅', color: 'green' },
-                    { labelKey: 'totalScans', value: adminStats.overview.totalScans, icon: '📊', color: 'pink' },
-                    { labelKey: 'revenue', value: adminStats.overview.estimatedRevenue, icon: '💰', color: 'yellow' },
-                    { labelKey: 'totalQRCodes', value: adminStats.overview.totalQRCodes, icon: '📱', color: 'purple' },
-                    { labelKey: 'premiumUsers', value: adminStats.overview.premiumUsers, icon: '💎', color: 'cyan' },
+                    { labelKey: 'totalUsers', value: adminStats.overview.totalUsers, icon: '👤', color: 'indigo', bgClass: 'bg-indigo-500/5 border-indigo-500/10', textClass: 'text-indigo-400' },
+                    { labelKey: 'activeQR', value: adminStats.overview.activeQRCodes, icon: '✅', color: 'green', bgClass: 'bg-green-500/5 border-green-500/10', textClass: 'text-green-400' },
+                    { labelKey: 'totalScans', value: adminStats.overview.totalScans, icon: '📊', color: 'pink', bgClass: 'bg-pink-500/5 border-pink-500/10', textClass: 'text-pink-400' },
+                    { labelKey: 'revenue', value: adminStats.overview.estimatedRevenue, icon: '💰', color: 'yellow', bgClass: 'bg-yellow-500/5 border-yellow-500/10', textClass: 'text-yellow-400' },
+                    { labelKey: 'totalQRCodes', value: adminStats.overview.totalQRCodes, icon: '📱', color: 'purple', bgClass: 'bg-purple-500/5 border-purple-500/10', textClass: 'text-purple-400' },
+                    { labelKey: 'premiumUsers', value: adminStats.overview.premiumUsers, icon: '💎', color: 'cyan', bgClass: 'bg-cyan-500/5 border-cyan-500/10', textClass: 'text-cyan-400' },
                   ].map((s, i) => (
-                    <div key={i} className={`stat-card bg-${s.color}-500/5 border-${s.color}-500/10`}>
+                    <div key={i} className={`stat-card ${s.bgClass}`}>
                       <div className="text-lg mb-1">{s.icon}</div>
-                      <div className={`text-xl font-black text-${s.color}-400`}>{s.value}</div>
+                      <div className={`text-xl font-black ${s.textClass}`}>{s.value}</div>
                       <div className="text-[9px] text-gray-500">{t(s.labelKey)}</div>
                     </div>
                   ))}

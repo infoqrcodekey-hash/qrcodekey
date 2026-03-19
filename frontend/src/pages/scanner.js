@@ -38,7 +38,7 @@ export default function Scanner() {
       // Get available cameras
       const devices = await Html5Qrcode.getCameras();
       if (!devices || devices.length === 0) {
-        setError(t('error'));
+        setError('No cameras found. Please allow camera access.');
         return;
       }
 
@@ -74,11 +74,11 @@ export default function Scanner() {
     } catch (err) {
       console.error('Scanner Error:', err);
       if (err.toString().includes('NotAllowedError')) {
-        setError(t('error'));
+        setError('Camera permission denied. Please allow camera access in your browser settings.');
       } else if (err.toString().includes('NotFoundError')) {
-        setError(t('error'));
+        setError('No camera device found on this device.');
       } else {
-        setError(t('error'));
+        setError('Failed to start camera. Please check your device permissions.');
       }
     }
   };

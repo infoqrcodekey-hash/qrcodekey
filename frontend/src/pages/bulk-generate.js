@@ -199,7 +199,8 @@ export default function BulkGenerate() {
               <label className="label">{t('prefix')} ({t('optional')})</label>
               <input
                 type="text"
-                className="input-field uppercase"
+                className="input-field"
+                style={{ textTransform: 'uppercase' }}
                 placeholder={`${t('example')}: SHOP, BAG, CAR`}
                 value={prefix}
                 onChange={e => setPrefix(e.target.value.toUpperCase().slice(0, 10))}
