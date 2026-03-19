@@ -1,0 +1,12 @@
+__turbopack_load_page_chunks__("/shared-dashboard", [
+  "static/chunks/[root-of-the-server]__aba77b66._.js",
+  "static/chunks/9e883_next_dist_compiled_21487e10._.js",
+  "static/chunks/9e883_next_dist_shared_lib_f38e8531._.js",
+  "static/chunks/9e883_next_dist_client_e93bee36._.js",
+  "static/chunks/9e883_next_dist_5186cd8d._.js",
+  "static/chunks/9e883_react-dom_3d11c48e._.js",
+  "static/chunks/9e883_axios_lib_afe0686f._.js",
+  "static/chunks/9e883_e3d1c969._.js",
+  "static/chunks/frontend_src_pages_shared-dashboard_2da965e7._.js",
+  "static/chunks/turbopack-frontend_src_pages_shared-dashboard_58df418a._.js"
+])

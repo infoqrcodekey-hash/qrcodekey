@@ -1,0 +1,12 @@
+__turbopack_load_page_chunks__("/scanner", [
+  "static/chunks/[root-of-the-server]__46b2e9cc._.js",
+  "static/chunks/9e883_next_dist_compiled_954b8aed._.js",
+  "static/chunks/9e883_next_dist_shared_lib_294d1055._.js",
+  "static/chunks/9e883_next_dist_client_1ddf93ff._.js",
+  "static/chunks/9e883_next_dist_5186cd8d._.js",
+  "static/chunks/9e883_next_945780c0._.js",
+  "static/chunks/9e883_react-dom_3d11c48e._.js",
+  "static/chunks/9e883_e3d1c969._.js",
+  "static/chunks/frontend_src_pages_scanner_2da965e7._.js",
+  "static/chunks/turbopack-frontend_src_pages_scanner_d1a20236._.js"
+])

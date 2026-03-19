@@ -1,0 +1,9 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "YOUR_BACKEND_URL/api",
+    "NEXT_PUBLIC_SOCKET_URL": "YOUR_BACKEND_URL"
+  }
+}

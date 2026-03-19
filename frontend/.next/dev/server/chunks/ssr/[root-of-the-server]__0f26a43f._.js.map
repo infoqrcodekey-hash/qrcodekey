@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 40, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/ashvi/Downloads/qrcodekey/frontend/src/pages/_document.js"],"sourcesContent":["import { Html, Head, Main, NextScript } from 'next/document';\n\nexport default function Document() {\n  return (\n    <Html lang=\"en\">\n      <Head>\n        <meta name=\"theme-color\" content=\"#0a0a1a\" />\n      </Head>\n      <body>\n        <Main />\n        <NextScript />\n      </body>\n    </Html>\n  );\n}\n"],"names":[],"mappings":";;;;;AAAA;;;AAEe,SAAS;IACtB,qBACE,qKAAC,6IAAI;QAAC,MAAK;;0BACT,qKAAC,6IAAI;0BACH,cAAA,qKAAC;oBAAK,MAAK;oBAAc,SAAQ;;;;;;;;;;;0BAEnC,qKAAC;;kCACC,qKAAC,6IAAI;;;;;kCACL,qKAAC,mJAAU;;;;;;;;;;;;;;;;;AAInB"}}]
+}

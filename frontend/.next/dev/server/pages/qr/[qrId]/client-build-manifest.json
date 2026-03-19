@@ -1,0 +1,5 @@
+{
+  "/qr/[qrId]": [
+    "static/chunks/pages/qr/[qrId].js"
+  ]
+}

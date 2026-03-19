@@ -1,0 +1,5 @@
+{
+  "/shared-dashboard": [
+    "static/chunks/pages/shared-dashboard.js"
+  ]
+}
