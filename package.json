@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "description": "QRCodeKey - QR Code Tracking & Attendance System",
   "scripts": {
-    "start": "cd backend && npm start",
-    "dev": "cd backend && npm run dev",
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "build": "cd frontend && npm run build",
     "install-backend": "cd backend && npm install",
-    "install-frontend": "cd frontend && npm install",
-    "install-all": "npm run install-backend && npm run install-frontend",
-    "build": "cd frontend && npm run build"
+    "install-frontend": "cd frontend && npm install"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.1",
