@@ -179,6 +179,31 @@ export default function Home() {
             ))}
           </div>
         </div>
+
+        {/* Footer Links */}
+        <div className="mt-8 card p-5">
+          <div className="grid grid-cols-4 gap-2 text-center">
+            {[
+              { icon: '📖', label: t('aboutUs'), href: '/about' },
+              { icon: '✉️', label: t('contactUs'), href: '/contact' },
+              { icon: '❓', label: t('helpCenter'), href: '/help' },
+              { icon: '🤖', label: t('chatWithBot'), href: '/chatbot' },
+            ].map((item, i) => (
+              <Link key={i} href={item.href} className="p-3 rounded-xl hover:bg-white/5 transition-all group">
+                <span className="text-xl block mb-1 group-hover:scale-110 transition-transform">{item.icon}</span>
+                <div className="text-[10px] text-gray-400 font-semibold">{item.label}</div>
+              </Link>
+            ))}
+          </div>
+          <div className="text-center mt-4 pt-3 border-t border-white/5">
+            <div className="text-[10px] text-gray-600">© 2026 QRCodeKey. All rights reserved.</div>
+            <div className="flex justify-center gap-3 mt-2">
+              <Link href="/terms" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('termsOfService')}</Link>
+              <Link href="/privacy-policy" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('privacyPolicy')}</Link>
+              <Link href="/refund-policy" className="text-[10px] text-gray-500 hover:text-indigo-400">Refund Policy</Link>
+            </div>
+          </div>
+        </div>
       </main>
 
       {/* Bottom Nav */}

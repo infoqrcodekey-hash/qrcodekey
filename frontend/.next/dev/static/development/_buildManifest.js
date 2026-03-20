@@ -1,28 +1,4 @@
 self.__BUILD_MANIFEST = {
-  "/audit-log": [
-    "static/chunks/pages/audit-log.js"
-  ],
-  "/emergency-broadcast": [
-    "static/chunks/pages/emergency-broadcast.js"
-  ],
-  "/holiday-calendar": [
-    "static/chunks/pages/holiday-calendar.js"
-  ],
-  "/leave-management": [
-    "static/chunks/pages/leave-management.js"
-  ],
-  "/notifications": [
-    "static/chunks/pages/notifications.js"
-  ],
-  "/reports": [
-    "static/chunks/pages/reports.js"
-  ],
-  "/shift-management": [
-    "static/chunks/pages/shift-management.js"
-  ],
-  "/visitor-management": [
-    "static/chunks/pages/visitor-management.js"
-  ],
   "__rewrites": {
     "afterFiles": [
       {
@@ -47,6 +23,7 @@ self.__BUILD_MANIFEST = {
     "/custom-qr",
     "/dashboard",
     "/emergency-broadcast",
+    "/face-verification",
     "/forgot-password",
     "/generate",
     "/group/[id]",

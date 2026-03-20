@@ -1,12 +1,1 @@
-{
-  "/_app": "pages/_app.js",
-  "/_document": "pages/_document.js",
-  "/audit-log": "pages/audit-log.js",
-  "/emergency-broadcast": "pages/emergency-broadcast.js",
-  "/holiday-calendar": "pages/holiday-calendar.js",
-  "/leave-management": "pages/leave-management.js",
-  "/notifications": "pages/notifications.js",
-  "/reports": "pages/reports.js",
-  "/shift-management": "pages/shift-management.js",
-  "/visitor-management": "pages/visitor-management.js"
-}
+{}
