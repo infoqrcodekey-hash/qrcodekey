@@ -156,6 +156,58 @@ app.use('/api/shifts', require('./routes/shifts'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/face-verification', require('./routes/faceVerification'));
 
+// ====== Migration: Fix QR codes with localhost URLs ======
+app.get('/api/migrate-qr-urls', async (req, res) => {
+  try {
+    const QRCodeModel = require('./models/QRCode');
+    const qrcode = require('qrcode');
+    const frontendUrl = process.env.FRONTEND_URL || 'https://qrcodekey.vercel.app';
+
+    // Fix QR Code items (location tracking)
+    const allQRs = await QRCodeModel.find({});
+    let updatedQR = 0;
+
+    for (const qr of allQRs) {
+      const scanUrl = `${frontendUrl}/scan/${qr.qrId}`;
+      const qrImageBase64 = await qrcode.toDataURL(scanUrl, {
+        width: 400,
+        margin: 2,
+        color: { dark: '#1a1a2e', light: '#ffffff' },
+        errorCorrectionLevel: 'H'
+      });
+
+      qr.qrImageUrl = qrImageBase64;
+      await qr.save();
+      updatedQR++;
+    }
+
+    // Fix Group attendance QR codes
+    const GroupModel = require('./models/Group');
+    const allGroups = await GroupModel.find({ qrImage: { $exists: true } });
+    let updatedGroups = 0;
+
+    for (const group of allGroups) {
+      const scanUrl = `${frontendUrl}/attendance/scan/${group._id}`;
+      const qrImage = await qrcode.toDataURL(scanUrl, {
+        width: 300, margin: 2,
+        color: { dark: '#1a1a2e', light: '#ffffff' }
+      });
+
+      group.qrImage = qrImage;
+      await group.save();
+      updatedGroups++;
+    }
+
+    res.json({
+      success: true,
+      message: `Updated ${updatedQR} QR codes + ${updatedGroups} group QR codes with URL: ${frontendUrl}`
+    });
+  } catch (error) {
+    console.error('Migration error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // ====== Root Route (API Info) ======
 // Frontend is deployed separately on Vercel
 app.get('/', (req, res) => {
