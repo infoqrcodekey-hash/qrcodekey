@@ -130,6 +130,13 @@ app.use('/api/teams', require('./routes/teams'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/org', require('./routes/organization'));
 app.use('/api/attendance-scan', require('./routes/attendanceScan'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/leave', require('./routes/leave'));
+app.use('/api/holidays', require('./routes/holidays'));
+app.use('/api/audit', require('./routes/audit'));
+app.use('/api/visitors', require('./routes/visitors'));
+app.use('/api/shifts', require('./routes/shifts'));
+app.use('/api/reports', require('./routes/reports'));
 
 // ====== Static Files (Production) ======
 if (process.env.NODE_ENV === 'production') {

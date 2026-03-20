@@ -81,6 +81,14 @@ export default function Home() {
                 { label: 'Attendance', desc: 'QR Clock-In/Out', icon: '📷', color: 'cyan', href: '/attendance-scanner' },
                 { label: t('dashboard'), desc: t('dashboardDesc'), icon: '📋', color: 'purple', href: '/attendance-dashboard' },
                 { label: 'Organizations', desc: 'Manage Groups', icon: '🏢', color: 'blue', href: '/organizations' },
+                { label: 'Leaves', desc: 'Leave Management', icon: '📋', color: 'green', href: '/leave-management' },
+                { label: 'Holidays', desc: 'Holiday Calendar', icon: '🎉', color: 'yellow', href: '/holiday-calendar' },
+                { label: 'Visitors', desc: 'Visitor Log', icon: '👤', color: 'orange', href: '/visitor-management' },
+                { label: 'Shifts', desc: 'Shifts & OT', icon: '🕐', color: 'indigo', href: '/shift-management' },
+                { label: 'Reports', desc: 'Monthly Reports', icon: '📊', color: 'teal', href: '/reports' },
+                { label: 'Audit', desc: 'Activity Log', icon: '📜', color: 'gray', href: '/audit-log' },
+                { label: 'Alerts', desc: 'Notifications', icon: '🔔', color: 'red', href: '/notifications' },
+                { label: 'Emergency', desc: 'Broadcast Alert', icon: '🚨', color: 'red', href: '/emergency-broadcast' },
                 { label: t('profile'), desc: t('settings'), icon: '⚙️', color: 'green', href: '/profile' },
               ].map((item, i) => (
                 <Link key={i} href={item.href} className={`card p-5 hover:border-${item.color}-500/30 transition-all group`}>

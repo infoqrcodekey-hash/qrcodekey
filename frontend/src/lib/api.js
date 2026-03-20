@@ -194,4 +194,84 @@ export const attendanceScanAPI = {
   setGroupPassword: (groupId, data) => api.put(`/attendance-scan/group/${groupId}/password`, data),
 };
 
+// ============================================
+// NOTIFICATION APIs
+// ============================================
+export const notificationAPI = {
+  getAll: (page = 1, unreadOnly = false) => api.get(`/notifications?page=${page}&unreadOnly=${unreadOnly}`),
+  getUnreadCount: () => api.get('/notifications/unread-count'),
+  getSettings: (orgId) => api.get(`/notifications/settings/${orgId}`),
+  markAsRead: (id) => api.put(`/notifications/${id}/read`),
+  markAllAsRead: () => api.put('/notifications/read-all'),
+  sendEmergency: (data) => api.post('/notifications/emergency', data),
+  delete: (id) => api.delete(`/notifications/${id}`),
+};
+
+// ============================================
+// LEAVE APIs
+// ============================================
+export const leaveAPI = {
+  apply: (data) => api.post('/leave/apply', data),
+  review: (leaveId, data) => api.put(`/leave/${leaveId}/review`, data),
+  cancel: (leaveId) => api.put(`/leave/${leaveId}/cancel`),
+  getOrgLeaves: (orgId, params = '') => api.get(`/leave/org/${orgId}${params ? '?' + params : ''}`),
+  getMemberLeaves: (memberId) => api.get(`/leave/member/${memberId}`),
+  getBalance: (memberId, year) => api.get(`/leave/balance/${memberId}?year=${year || new Date().getFullYear()}`),
+  getSummary: (orgId) => api.get(`/leave/summary/${orgId}`),
+};
+
+// ============================================
+// HOLIDAY APIs
+// ============================================
+export const holidayAPI = {
+  add: (data) => api.post('/holidays', data),
+  getAll: (orgId, year) => api.get(`/holidays/${orgId}${year ? '?year=' + year : ''}`),
+  getUpcoming: (orgId) => api.get(`/holidays/upcoming/${orgId}`),
+  isHoliday: (orgId, date) => api.get(`/holidays/check/${orgId}?date=${date}`),
+  update: (id, data) => api.put(`/holidays/${id}`, data),
+  delete: (id) => api.delete(`/holidays/${id}`),
+};
+
+// ============================================
+// AUDIT LOG APIs
+// ============================================
+export const auditAPI = {
+  getLogs: (orgId, params = '') => api.get(`/audit/${orgId}${params ? '?' + params : ''}`),
+  getSummary: (orgId, days = 30) => api.get(`/audit/${orgId}/summary?days=${days}`),
+};
+
+// ============================================
+// VISITOR APIs
+// ============================================
+export const visitorAPI = {
+  register: (data) => api.post('/visitors', data),
+  checkIn: (id, data) => api.put(`/visitors/${id}/check-in`, data),
+  checkOut: (id, data) => api.put(`/visitors/${id}/check-out`, data),
+  getToday: (orgId) => api.get(`/visitors/today/${orgId}`),
+  getHistory: (orgId, params = '') => api.get(`/visitors/history/${orgId}${params ? '?' + params : ''}`),
+  scanQR: (data) => api.post('/visitors/scan', data),
+};
+
+// ============================================
+// SHIFT APIs
+// ============================================
+export const shiftAPI = {
+  create: (data) => api.post('/shifts', data),
+  getAll: (orgId) => api.get(`/shifts/${orgId}`),
+  update: (id, data) => api.put(`/shifts/${id}`, data),
+  delete: (id) => api.delete(`/shifts/${id}`),
+  logOvertime: (data) => api.post('/shifts/overtime', data),
+  getOvertime: (orgId, params = '') => api.get(`/shifts/overtime/${orgId}${params ? '?' + params : ''}`),
+  reviewOvertime: (id, data) => api.put(`/shifts/overtime/${id}/review`, data),
+};
+
+// ============================================
+// REPORT APIs
+// ============================================
+export const reportAPI = {
+  getMonthly: (orgId, month, year, groupId) => api.get(`/reports/monthly/${orgId}?month=${month}&year=${year}${groupId ? '&groupId=' + groupId : ''}`),
+  getSummary: (orgId, startDate, endDate) => api.get(`/reports/summary/${orgId}?startDate=${startDate}&endDate=${endDate}`),
+  getMemberReport: (memberId, startDate, endDate) => api.get(`/reports/member/${memberId}?startDate=${startDate}&endDate=${endDate}`),
+};
+
 export default api;
