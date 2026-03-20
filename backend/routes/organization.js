@@ -22,11 +22,13 @@ router.delete('/:id', protect, org.deleteOrganization);
 
 // ====== Group Management ======
 router.post('/:orgId/groups', protect, org.createGroup);
+router.get('/:orgId/groups', protect, org.getOrgGroups);          // Get all groups in org
 router.get('/groups/:groupId', protect, org.getGroup);
 router.put('/groups/:groupId', protect, org.updateGroup);
 router.delete('/groups/:groupId', protect, org.deleteGroup);
 
 // ====== Member Management ======
+router.get('/groups/:groupId/members', protect, org.getGroupMembers);  // Get members of group
 router.post('/groups/:groupId/members', protect, org.addMember);
 router.post('/groups/:groupId/members/bulk', protect, org.addMembers);
 router.put('/members/:memberId', protect, org.updateMember);

@@ -223,6 +223,53 @@ exports.sharedDashboardAccess = async (req, res) => {
   }
 };
 
+// ====== GET ALL GROUPS IN ORG ======
+exports.getOrgGroups = async (req, res) => {
+  try {
+    const org = await Organization.findById(req.params.orgId);
+    if (!org) return res.status(404).json({ success: false, message: 'Organization not found' });
+
+    const isAdmin = org.owner.toString() === req.user._id.toString() ||
+      org.admins.some(a => a.toString() === req.user._id.toString());
+    if (!isAdmin) return res.status(403).json({ success: false, message: 'Access denied' });
+
+    const groups = await Group.find({ organization: org._id, isActive: true }).sort('name');
+    const memberCounts = await Member.aggregate([
+      { $match: { organization: org._id, isActive: true } },
+      { $group: { _id: '$group', count: { $sum: 1 } } }
+    ]);
+    const mcMap = {};
+    memberCounts.forEach(m => { mcMap[m._id.toString()] = m.count; });
+
+    const data = groups.map(g => ({
+      ...g.toJSON(),
+      memberCount: mcMap[g._id.toString()] || 0
+    }));
+
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ====== GET GROUP MEMBERS ======
+exports.getGroupMembers = async (req, res) => {
+  try {
+    const group = await Group.findById(req.params.groupId).populate('organization', 'owner admins');
+    if (!group) return res.status(404).json({ success: false, message: 'Group not found' });
+
+    const org = group.organization;
+    const isAdmin = org.owner.toString() === req.user._id.toString() ||
+      org.admins.some(a => a.toString() === req.user._id.toString());
+    if (!isAdmin) return res.status(403).json({ success: false, message: 'Access denied' });
+
+    const members = await Member.find({ group: group._id, isActive: true }).sort('name');
+    res.json({ success: true, data: members });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // ====== CREATE GROUP ======
 exports.createGroup = async (req, res) => {
   try {

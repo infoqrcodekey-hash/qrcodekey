@@ -129,16 +129,20 @@ export const analyticsAPI = {
 export const orgAPI = {
   create: (data) => api.post('/org', data),
   getAll: () => api.get('/org'),
+  getMyOrgs: () => api.get('/org'),                                    // Alias for getAll
   getOne: (id) => api.get(`/org/${id}`),
+  getOrg: (id) => api.get(`/org/${id}`),                               // Alias for getOne
   update: (id, data) => api.put(`/org/${id}`, data),
   delete: (id) => api.delete(`/org/${id}`),
   sharedAccess: (data) => api.post('/org/shared/access', data),
   // Groups
   createGroup: (orgId, data) => api.post(`/org/${orgId}/groups`, data),
+  getGroups: (orgId) => api.get(`/org/${orgId}/groups`),               // Get all groups in org
   getGroup: (groupId) => api.get(`/org/groups/${groupId}`),
   updateGroup: (groupId, data) => api.put(`/org/groups/${groupId}`, data),
   deleteGroup: (groupId) => api.delete(`/org/groups/${groupId}`),
   // Members
+  getMembers: (orgId, groupId) => api.get(`/org/groups/${groupId}/members`),  // Get group members
   addMember: (groupId, data) => api.post(`/org/groups/${groupId}/members`, data),
   addMembers: (groupId, data) => api.post(`/org/groups/${groupId}/members/bulk`, data),
   updateMember: (memberId, data) => api.put(`/org/members/${memberId}`, data),

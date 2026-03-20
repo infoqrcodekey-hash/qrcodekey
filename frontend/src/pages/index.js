@@ -78,7 +78,9 @@ export default function Home() {
               {[
                 { label: t('generateQR'), desc: t('generateQRDesc'), icon: '➕', color: 'indigo', href: '/generate' },
                 { label: t('trackQR'), desc: t('trackQRDesc'), icon: '📍', color: 'pink', href: '/scanner' },
-                { label: t('dashboard'), desc: t('dashboardDesc'), icon: '📋', color: 'purple', href: '/dashboard' },
+                { label: 'Attendance', desc: 'QR Clock-In/Out', icon: '📷', color: 'cyan', href: '/attendance-scanner' },
+                { label: t('dashboard'), desc: t('dashboardDesc'), icon: '📋', color: 'purple', href: '/attendance-dashboard' },
+                { label: 'Organizations', desc: 'Manage Groups', icon: '🏢', color: 'blue', href: '/organizations' },
                 { label: t('profile'), desc: t('settings'), icon: '⚙️', color: 'green', href: '/profile' },
               ].map((item, i) => (
                 <Link key={i} href={item.href} className={`card p-5 hover:border-${item.color}-500/30 transition-all group`}>
@@ -118,9 +120,22 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Quick Access (no login) */}
+            <div className="grid grid-cols-2 gap-3 mt-4 mb-4">
+              <Link href="/attendance-scanner" className="card p-4 text-center hover:border-indigo-500/30 transition-all">
+                <span className="text-2xl block mb-1">📷</span>
+                <div className="font-bold text-xs text-gray-200">Attendance Scan</div>
+              </Link>
+              <Link href="/viewer-login" className="card p-4 text-center hover:border-indigo-500/30 transition-all">
+                <span className="text-2xl block mb-1">👁</span>
+                <div className="font-bold text-xs text-gray-200">View Attendance</div>
+              </Link>
+            </div>
+
             {/* Features */}
             <div className="space-y-3">
               {[
+                { icon: '📷', title: 'QR Attendance', desc: 'GPS-validated clock-in/out with QR codes' },
                 { icon: '📱', title: t('feature1Title'), desc: t('feature1Desc') },
                 { icon: '🗺️', title: t('feature2Title'), desc: t('feature2Desc') },
                 { icon: '🔔', title: t('feature3Title'), desc: t('feature3Desc') },
@@ -163,9 +178,10 @@ export default function Home() {
           <div className="max-w-lg mx-auto flex justify-around">
             {[
               { icon: '🏠', label: t('home'), href: '/' },
-              { icon: '➕', label: t('generate'), href: '/generate' },
-              { icon: '📍', label: t('track'), href: '/track' },
-              { icon: '📋', label: t('dashboard'), href: '/dashboard' },
+              { icon: '📷', label: 'Scan', href: '/attendance-scanner' },
+              { icon: '📋', label: 'Dashboard', href: '/attendance-dashboard' },
+              { icon: '🏢', label: 'Orgs', href: '/organizations' },
+              { icon: '👁', label: 'Viewer', href: '/viewer-login' },
             ].map((item, i) => (
               <Link key={i} href={item.href} className={`nav-item ${router.pathname === item.href ? 'text-indigo-400 bg-indigo-500/10' : 'text-gray-500'}`}>
                 <span className="text-lg">{item.icon}</span>
