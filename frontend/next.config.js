@@ -7,7 +7,12 @@ const nextConfig = {
     NEXT_PUBLIC_GOOGLE_MAPS_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || '',
   },
   images: {
-    domains: ['cdnjs.cloudflare.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdnjs.cloudflare.com',
+      },
+    ],
   },
   async headers() {
     return [

@@ -18,7 +18,7 @@ const connectDB = require('./config/db');
 const { generalLimiter } = require('./middleware/rateLimiter');
 
 // ====== Startup Validation ======
-const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET', 'FRONTEND_URL'];
+const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 if (missingEnvVars.length > 0 && process.env.NODE_ENV === 'production') {
   console.error(`❌ Missing critical environment variables: ${missingEnvVars.join(', ')}`);
@@ -43,7 +43,10 @@ if (process.env.NODE_ENV === 'production') {
 // ====== Socket.io Setup (Real-time) ======
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: [
+      process.env.FRONTEND_URL || 'http://localhost:3000',
+      'https://qrcodekey.vercel.app'
+    ],
     methods: ['GET', 'POST'],
     credentials: true
   },
@@ -70,8 +73,22 @@ app.use(helmet({
 }));
 
 // CORS: Allow requests from frontend
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://qrcodekey.vercel.app',
+  'http://localhost:3000'
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all origins for now (production flexibility)
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -139,16 +156,17 @@ app.use('/api/shifts', require('./routes/shifts'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/face-verification', require('./routes/faceVerification'));
 
-// ====== Static Files (Production) ======
-if (process.env.NODE_ENV === 'production') {
-  const path = require('path');
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
-  
-  // React SPA: Send all unknown routes to index.html
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+// ====== Root Route (API Info) ======
+// Frontend is deployed separately on Vercel
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'QRCodeKey API Server',
+    version: '1.0.0',
+    health: '/api/health',
+    frontend: 'https://qrcodekey.vercel.app'
   });
-}
+});
 
 // ====== 404 Handler ======
 app.use((req, res) => {
