@@ -64,6 +64,19 @@ exports.protect = async (req, res, next) => {
   }
 };
 
+// ====== Role-based Authorization ======
+exports.authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `Role '${req.user.role}' is not authorized for this action`
+      });
+    }
+    next();
+  };
+};
+
 // ====== Admin Only ======
 exports.adminOnly = (req, res, next) => {
   if (req.user.role !== 'admin') {
