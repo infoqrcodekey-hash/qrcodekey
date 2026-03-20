@@ -274,4 +274,16 @@ export const reportAPI = {
   getMemberReport: (memberId, startDate, endDate) => api.get(`/reports/member/${memberId}?startDate=${startDate}&endDate=${endDate}`),
 };
 
+// ============================================
+// FACE VERIFICATION APIs
+// ============================================
+export const faceVerificationAPI = {
+  enroll: (data) => api.post('/face-verification/enroll', data),
+  verify: (data) => api.post('/face-verification/verify', data),
+  getPending: (orgId, page = 1) => api.get(`/face-verification/pending/${orgId}?page=${page}`),
+  review: (data) => api.put('/face-verification/review', data),
+  getStatus: (orgId) => api.get(`/face-verification/status/${orgId}`),
+  getStats: (orgId) => api.get(`/face-verification/stats/${orgId}`),
+};
+
 export default api;

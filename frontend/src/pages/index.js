@@ -89,6 +89,7 @@ export default function Home() {
                 { label: 'Audit', desc: 'Activity Log', icon: '📜', color: 'gray', href: '/audit-log' },
                 { label: 'Alerts', desc: 'Notifications', icon: '🔔', color: 'red', href: '/notifications' },
                 { label: 'Emergency', desc: 'Broadcast Alert', icon: '🚨', color: 'red', href: '/emergency-broadcast' },
+                { label: 'Face Verify', desc: 'Anti-Proxy Check', icon: '🤳', color: 'cyan', href: '/face-verification' },
                 { label: t('profile'), desc: t('settings'), icon: '⚙️', color: 'green', href: '/profile' },
               ].map((item, i) => (
                 <Link key={i} href={item.href} className={`card p-5 hover:border-${item.color}-500/30 transition-all group`}>

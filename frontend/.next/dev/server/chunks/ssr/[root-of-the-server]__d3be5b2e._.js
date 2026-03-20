@@ -317,11 +317,81 @@ function Home() {
                                         href: '/scanner'
                                     },
                                     {
+                                        label: 'Attendance',
+                                        desc: 'QR Clock-In/Out',
+                                        icon: '📷',
+                                        color: 'cyan',
+                                        href: '/attendance-scanner'
+                                    },
+                                    {
                                         label: t('dashboard'),
                                         desc: t('dashboardDesc'),
                                         icon: '📋',
                                         color: 'purple',
-                                        href: '/dashboard'
+                                        href: '/attendance-dashboard'
+                                    },
+                                    {
+                                        label: 'Organizations',
+                                        desc: 'Manage Groups',
+                                        icon: '🏢',
+                                        color: 'blue',
+                                        href: '/organizations'
+                                    },
+                                    {
+                                        label: 'Leaves',
+                                        desc: 'Leave Management',
+                                        icon: '📋',
+                                        color: 'green',
+                                        href: '/leave-management'
+                                    },
+                                    {
+                                        label: 'Holidays',
+                                        desc: 'Holiday Calendar',
+                                        icon: '🎉',
+                                        color: 'yellow',
+                                        href: '/holiday-calendar'
+                                    },
+                                    {
+                                        label: 'Visitors',
+                                        desc: 'Visitor Log',
+                                        icon: '👤',
+                                        color: 'orange',
+                                        href: '/visitor-management'
+                                    },
+                                    {
+                                        label: 'Shifts',
+                                        desc: 'Shifts & OT',
+                                        icon: '🕐',
+                                        color: 'indigo',
+                                        href: '/shift-management'
+                                    },
+                                    {
+                                        label: 'Reports',
+                                        desc: 'Monthly Reports',
+                                        icon: '📊',
+                                        color: 'teal',
+                                        href: '/reports'
+                                    },
+                                    {
+                                        label: 'Audit',
+                                        desc: 'Activity Log',
+                                        icon: '📜',
+                                        color: 'gray',
+                                        href: '/audit-log'
+                                    },
+                                    {
+                                        label: 'Alerts',
+                                        desc: 'Notifications',
+                                        icon: '🔔',
+                                        color: 'red',
+                                        href: '/notifications'
+                                    },
+                                    {
+                                        label: 'Emergency',
+                                        desc: 'Broadcast Alert',
+                                        icon: '🚨',
+                                        color: 'red',
+                                        href: '/emergency-broadcast'
                                     },
                                     {
                                         label: t('profile'),
@@ -339,7 +409,7 @@ function Home() {
                                                 children: item.icon
                                             }, void 0, false, {
                                                 fileName: "[project]/frontend/src/pages/index.js",
-                                                lineNumber: 85,
+                                                lineNumber: 95,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -347,7 +417,7 @@ function Home() {
                                                 children: item.label
                                             }, void 0, false, {
                                                 fileName: "[project]/frontend/src/pages/index.js",
-                                                lineNumber: 86,
+                                                lineNumber: 96,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -355,13 +425,13 @@ function Home() {
                                                 children: item.desc
                                             }, void 0, false, {
                                                 fileName: "[project]/frontend/src/pages/index.js",
-                                                lineNumber: 87,
+                                                lineNumber: 97,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, i, true, {
                                         fileName: "[project]/frontend/src/pages/index.js",
-                                        lineNumber: 84,
+                                        lineNumber: 94,
                                         columnNumber: 17
                                     }, this))
                             }, void 0, false, {
@@ -380,7 +450,7 @@ function Home() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/frontend/src/pages/index.js",
-                                        lineNumber: 95,
+                                        lineNumber: 105,
                                         columnNumber: 17
                                     }, this),
                                     alerts.map((a, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -391,7 +461,7 @@ function Home() {
                                                     children: "📍"
                                                 }, void 0, false, {
                                                     fileName: "[project]/frontend/src/pages/index.js",
-                                                    lineNumber: 98,
+                                                    lineNumber: 108,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -402,7 +472,7 @@ function Home() {
                                                             children: a.qrId
                                                         }, void 0, false, {
                                                             fileName: "[project]/frontend/src/pages/index.js",
-                                                            lineNumber: 100,
+                                                            lineNumber: 110,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -414,13 +484,13 @@ function Home() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/frontend/src/pages/index.js",
-                                                            lineNumber: 101,
+                                                            lineNumber: 111,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/frontend/src/pages/index.js",
-                                                    lineNumber: 99,
+                                                    lineNumber: 109,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("span", {
@@ -428,19 +498,19 @@ function Home() {
                                                     children: t('live')
                                                 }, void 0, false, {
                                                     fileName: "[project]/frontend/src/pages/index.js",
-                                                    lineNumber: 103,
+                                                    lineNumber: 113,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, i, true, {
                                             fileName: "[project]/frontend/src/pages/index.js",
-                                            lineNumber: 97,
+                                            lineNumber: 107,
                                             columnNumber: 19
                                         }, this))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/frontend/src/pages/index.js",
-                                lineNumber: 94,
+                                lineNumber: 104,
                                 columnNumber: 15
                             }, this)
                         ]
@@ -455,7 +525,7 @@ function Home() {
                                         children: t('getStarted')
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/src/pages/index.js",
-                                        lineNumber: 113,
+                                        lineNumber: 123,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -463,7 +533,7 @@ function Home() {
                                         children: t('getStartedDesc')
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/src/pages/index.js",
-                                        lineNumber: 114,
+                                        lineNumber: 124,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -475,7 +545,7 @@ function Home() {
                                                 children: t('register')
                                             }, void 0, false, {
                                                 fileName: "[project]/frontend/src/pages/index.js",
-                                                lineNumber: 116,
+                                                lineNumber: 126,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$node_modules$2f$next$2f$link$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -484,24 +554,90 @@ function Home() {
                                                 children: t('login')
                                             }, void 0, false, {
                                                 fileName: "[project]/frontend/src/pages/index.js",
-                                                lineNumber: 117,
+                                                lineNumber: 127,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/frontend/src/pages/index.js",
-                                        lineNumber: 115,
+                                        lineNumber: 125,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/frontend/src/pages/index.js",
-                                lineNumber: 112,
+                                lineNumber: 122,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
+                                className: "grid grid-cols-2 gap-3 mt-4 mb-4",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$node_modules$2f$next$2f$link$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                        href: "/attendance-scanner",
+                                        className: "card p-4 text-center hover:border-indigo-500/30 transition-all",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("span", {
+                                                className: "text-2xl block mb-1",
+                                                children: "📷"
+                                            }, void 0, false, {
+                                                fileName: "[project]/frontend/src/pages/index.js",
+                                                lineNumber: 134,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
+                                                className: "font-bold text-xs text-gray-200",
+                                                children: "Attendance Scan"
+                                            }, void 0, false, {
+                                                fileName: "[project]/frontend/src/pages/index.js",
+                                                lineNumber: 135,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/frontend/src/pages/index.js",
+                                        lineNumber: 133,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$node_modules$2f$next$2f$link$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                        href: "/viewer-login",
+                                        className: "card p-4 text-center hover:border-indigo-500/30 transition-all",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("span", {
+                                                className: "text-2xl block mb-1",
+                                                children: "👁"
+                                            }, void 0, false, {
+                                                fileName: "[project]/frontend/src/pages/index.js",
+                                                lineNumber: 138,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
+                                                className: "font-bold text-xs text-gray-200",
+                                                children: "View Attendance"
+                                            }, void 0, false, {
+                                                fileName: "[project]/frontend/src/pages/index.js",
+                                                lineNumber: 139,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/frontend/src/pages/index.js",
+                                        lineNumber: 137,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/frontend/src/pages/index.js",
+                                lineNumber: 132,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
                                 className: "space-y-3",
                                 children: [
+                                    {
+                                        icon: '📷',
+                                        title: 'QR Attendance',
+                                        desc: 'GPS-validated clock-in/out with QR codes'
+                                    },
                                     {
                                         icon: '📱',
                                         title: t('feature1Title'),
@@ -533,7 +669,7 @@ function Home() {
                                                 children: f.icon
                                             }, void 0, false, {
                                                 fileName: "[project]/frontend/src/pages/index.js",
-                                                lineNumber: 130,
+                                                lineNumber: 153,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -543,7 +679,7 @@ function Home() {
                                                         children: f.title
                                                     }, void 0, false, {
                                                         fileName: "[project]/frontend/src/pages/index.js",
-                                                        lineNumber: 132,
+                                                        lineNumber: 155,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -551,30 +687,30 @@ function Home() {
                                                         children: f.desc
                                                     }, void 0, false, {
                                                         fileName: "[project]/frontend/src/pages/index.js",
-                                                        lineNumber: 133,
+                                                        lineNumber: 156,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/frontend/src/pages/index.js",
-                                                lineNumber: 131,
+                                                lineNumber: 154,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, i, true, {
                                         fileName: "[project]/frontend/src/pages/index.js",
-                                        lineNumber: 129,
+                                        lineNumber: 152,
                                         columnNumber: 17
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/pages/index.js",
-                                lineNumber: 122,
+                                lineNumber: 144,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/frontend/src/pages/index.js",
-                        lineNumber: 111,
+                        lineNumber: 121,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -588,7 +724,7 @@ function Home() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/frontend/src/pages/index.js",
-                                lineNumber: 143,
+                                lineNumber: 166,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -621,7 +757,7 @@ function Home() {
                                                 children: p.plan
                                             }, void 0, false, {
                                                 fileName: "[project]/frontend/src/pages/index.js",
-                                                lineNumber: 151,
+                                                lineNumber: 174,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -629,7 +765,7 @@ function Home() {
                                                 children: p.price
                                             }, void 0, false, {
                                                 fileName: "[project]/frontend/src/pages/index.js",
-                                                lineNumber: 152,
+                                                lineNumber: 175,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -637,24 +773,24 @@ function Home() {
                                                 children: p.features
                                             }, void 0, false, {
                                                 fileName: "[project]/frontend/src/pages/index.js",
-                                                lineNumber: 153,
+                                                lineNumber: 176,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, i, true, {
                                         fileName: "[project]/frontend/src/pages/index.js",
-                                        lineNumber: 150,
+                                        lineNumber: 173,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/pages/index.js",
-                                lineNumber: 144,
+                                lineNumber: 167,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/frontend/src/pages/index.js",
-                        lineNumber: 142,
+                        lineNumber: 165,
                         columnNumber: 9
                     }, this)
                 ]
@@ -674,19 +810,24 @@ function Home() {
                             href: '/'
                         },
                         {
-                            icon: '➕',
-                            label: t('generate'),
-                            href: '/generate'
-                        },
-                        {
-                            icon: '📍',
-                            label: t('track'),
-                            href: '/track'
+                            icon: '📷',
+                            label: 'Scan',
+                            href: '/attendance-scanner'
                         },
                         {
                             icon: '📋',
-                            label: t('dashboard'),
-                            href: '/dashboard'
+                            label: 'Dashboard',
+                            href: '/attendance-dashboard'
+                        },
+                        {
+                            icon: '🏢',
+                            label: 'Orgs',
+                            href: '/organizations'
+                        },
+                        {
+                            icon: '👁',
+                            label: 'Viewer',
+                            href: '/viewer-login'
                         }
                     ].map((item, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$node_modules$2f$next$2f$link$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {
                             href: item.href,
@@ -697,7 +838,7 @@ function Home() {
                                     children: item.icon
                                 }, void 0, false, {
                                     fileName: "[project]/frontend/src/pages/index.js",
-                                    lineNumber: 171,
+                                    lineNumber: 195,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("span", {
@@ -705,23 +846,23 @@ function Home() {
                                     children: item.label
                                 }, void 0, false, {
                                     fileName: "[project]/frontend/src/pages/index.js",
-                                    lineNumber: 172,
+                                    lineNumber: 196,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, i, true, {
                             fileName: "[project]/frontend/src/pages/index.js",
-                            lineNumber: 170,
+                            lineNumber: 194,
                             columnNumber: 15
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/frontend/src/pages/index.js",
-                    lineNumber: 163,
+                    lineNumber: 186,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/frontend/src/pages/index.js",
-                lineNumber: 162,
+                lineNumber: 185,
                 columnNumber: 9
             }, this)
         ]

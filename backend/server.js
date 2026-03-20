@@ -137,6 +137,7 @@ app.use('/api/audit', require('./routes/audit'));
 app.use('/api/visitors', require('./routes/visitors'));
 app.use('/api/shifts', require('./routes/shifts'));
 app.use('/api/reports', require('./routes/reports'));
+app.use('/api/face-verification', require('./routes/faceVerification'));
 
 // ====== Static Files (Production) ======
 if (process.env.NODE_ENV === 'production') {

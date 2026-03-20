@@ -3,6 +3,7 @@ R.c("server/chunks/ssr/9e883_5b1ee3eb._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__d3be5b2e._.js")
 R.c("server/chunks/ssr/9e883_2f8c5f27._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__0f26a43f._.js")
-R.c("server/chunks/ssr/[root-of-the-server]__20a3db06._.js")
+R.c("server/chunks/ssr/frontend_src_f9ea3416._.js")
+R.c("server/chunks/ssr/[externals]__fc711670._.js")
 R.m("[project]/frontend/node_modules/next/dist/esm/build/templates/pages.js { INNER_PAGE => \"[project]/frontend/src/pages/index.js [ssr] (ecmascript)\", INNER_DOCUMENT => \"[project]/frontend/src/pages/_document.js [ssr] (ecmascript)\", INNER_APP => \"[project]/frontend/src/pages/_app.js [ssr] (ecmascript)\" } [ssr] (ecmascript)")
 module.exports=R.m("[project]/frontend/node_modules/next/dist/esm/build/templates/pages.js { INNER_PAGE => \"[project]/frontend/src/pages/index.js [ssr] (ecmascript)\", INNER_DOCUMENT => \"[project]/frontend/src/pages/_document.js [ssr] (ecmascript)\", INNER_APP => \"[project]/frontend/src/pages/_app.js [ssr] (ecmascript)\" } [ssr] (ecmascript)").exports

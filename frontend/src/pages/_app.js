@@ -2,12 +2,24 @@
 // pages/_app.js - App Root
 // ============================================
 
+import { useEffect } from 'react';
 import '../styles/globals.css';
 import { AuthProvider } from '../context/AuthContext';
 import { LanguageProvider } from '../context/LanguageContext';
 import { Toaster } from 'react-hot-toast';
 
 export default function App({ Component, pageProps }) {
+  // Register Service Worker for PWA
+  useEffect(() => {
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        console.log('SW registered:', reg.scope);
+      }).catch((err) => {
+        console.log('SW registration failed:', err);
+      });
+    }
+  }, []);
+
   return (
     <LanguageProvider>
       <AuthProvider>

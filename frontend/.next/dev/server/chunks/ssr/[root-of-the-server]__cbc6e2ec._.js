@@ -21,6 +21,8 @@ __turbopack_context__.s([
     ()=>adminAPI,
     "analyticsAPI",
     ()=>analyticsAPI,
+    "attendanceScanAPI",
+    ()=>attendanceScanAPI,
     "authAPI",
     ()=>authAPI,
     "default",
@@ -125,16 +127,20 @@ const analyticsAPI = {
 const orgAPI = {
     create: (data)=>api.post('/org', data),
     getAll: ()=>api.get('/org'),
+    getMyOrgs: ()=>api.get('/org'),
     getOne: (id)=>api.get(`/org/${id}`),
+    getOrg: (id)=>api.get(`/org/${id}`),
     update: (id, data)=>api.put(`/org/${id}`, data),
     delete: (id)=>api.delete(`/org/${id}`),
     sharedAccess: (data)=>api.post('/org/shared/access', data),
     // Groups
     createGroup: (orgId, data)=>api.post(`/org/${orgId}/groups`, data),
+    getGroups: (orgId)=>api.get(`/org/${orgId}/groups`),
     getGroup: (groupId)=>api.get(`/org/groups/${groupId}`),
     updateGroup: (groupId, data)=>api.put(`/org/groups/${groupId}`, data),
     deleteGroup: (groupId)=>api.delete(`/org/groups/${groupId}`),
     // Members
+    getMembers: (orgId, groupId)=>api.get(`/org/groups/${groupId}/members`),
     addMember: (groupId, data)=>api.post(`/org/groups/${groupId}/members`, data),
     addMembers: (groupId, data)=>api.post(`/org/groups/${groupId}/members/bulk`, data),
     updateMember: (memberId, data)=>api.put(`/org/members/${memberId}`, data),
@@ -146,6 +152,32 @@ const orgAPI = {
     updateAttendance: (groupId, data)=>api.put(`/org/attendance/${groupId}`, data),
     lockAttendance: (groupId, data)=>api.post(`/org/attendance/${groupId}/lock`, data),
     getReport: (groupId, startDate, endDate)=>api.get(`/org/attendance/${groupId}/report?startDate=${startDate}&endDate=${endDate}`)
+};
+const attendanceScanAPI = {
+    // Scan QR for clock-in/out
+    scan: (data)=>api.post('/attendance-scan/scan', data),
+    // Get attendance dashboard
+    getDashboard: (orgId)=>api.get(`/attendance-scan/dashboard/${orgId}`),
+    // Get member attendance history
+    getMemberHistory: (memberId, startDate, endDate)=>api.get(`/attendance-scan/member/${memberId}/history?startDate=${startDate}&endDate=${endDate}`),
+    // Viewer access (parent/manager)
+    viewerAccess: (data)=>api.post('/attendance-scan/viewer-access', data),
+    // Verify with QR ID + group password
+    verify: (data)=>api.post('/attendance-scan/verify', data),
+    // Generate temp password
+    generateTempPassword: (data)=>api.post('/attendance-scan/temp-password', data),
+    // Bulk generate QR codes
+    bulkGenerateQR: (groupId)=>api.post(`/attendance-scan/bulk-qr/${groupId}`),
+    // Get group attendance today
+    getGroupToday: (groupId)=>api.get(`/attendance-scan/group/${groupId}/today`),
+    // Export report
+    exportReport: (groupId, startDate, endDate)=>api.get(`/attendance-scan/export/${groupId}?startDate=${startDate}&endDate=${endDate}`, {
+            responseType: 'blob'
+        }),
+    // Update org GPS location
+    updateOrgLocation: (orgId, data)=>api.put(`/attendance-scan/org/${orgId}/location`, data),
+    // Set group master password
+    setGroupPassword: (groupId, data)=>api.put(`/attendance-scan/group/${groupId}/password`, data)
 };
 const __TURBOPACK__default__export__ = api;
 __turbopack_async_result__();

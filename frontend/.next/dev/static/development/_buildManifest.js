@@ -1,30 +1,27 @@
 self.__BUILD_MANIFEST = {
-  "/": [
-    "static/chunks/pages/index.js"
+  "/audit-log": [
+    "static/chunks/pages/audit-log.js"
   ],
-  "/_error": [
-    "static/chunks/pages/_error.js"
+  "/emergency-broadcast": [
+    "static/chunks/pages/emergency-broadcast.js"
   ],
-  "/generate": [
-    "static/chunks/pages/generate.js"
+  "/holiday-calendar": [
+    "static/chunks/pages/holiday-calendar.js"
   ],
-  "/login": [
-    "static/chunks/pages/login.js"
+  "/leave-management": [
+    "static/chunks/pages/leave-management.js"
   ],
-  "/organizations": [
-    "static/chunks/pages/organizations.js"
+  "/notifications": [
+    "static/chunks/pages/notifications.js"
   ],
-  "/pricing": [
-    "static/chunks/pages/pricing.js"
+  "/reports": [
+    "static/chunks/pages/reports.js"
   ],
-  "/privacy-policy": [
-    "static/chunks/pages/privacy-policy.js"
+  "/shift-management": [
+    "static/chunks/pages/shift-management.js"
   ],
-  "/register": [
-    "static/chunks/pages/register.js"
-  ],
-  "/terms": [
-    "static/chunks/pages/terms.js"
+  "/visitor-management": [
+    "static/chunks/pages/visitor-management.js"
   ],
   "__rewrites": {
     "afterFiles": [
@@ -42,14 +39,23 @@ self.__BUILD_MANIFEST = {
     "/analytics",
     "/attendance/scan/[groupId]",
     "/attendance/[groupId]",
+    "/attendance-dashboard",
+    "/attendance-scanner",
+    "/audit-log",
     "/bulk-generate",
+    "/bulk-qr-attendance",
     "/custom-qr",
     "/dashboard",
+    "/emergency-broadcast",
     "/forgot-password",
     "/generate",
     "/group/[id]",
+    "/holiday-calendar",
+    "/leave-management",
     "/login",
     "/map/[qrId]",
+    "/notifications",
+    "/org-location",
     "/organization/[id]",
     "/organizations",
     "/pricing",
@@ -58,11 +64,15 @@ self.__BUILD_MANIFEST = {
     "/qr/[qrId]",
     "/refund-policy",
     "/register",
+    "/reports",
     "/scan/[qrId]",
     "/scanner",
     "/shared-dashboard",
+    "/shift-management",
     "/teams",
     "/terms",
-    "/track"
+    "/track",
+    "/viewer-login",
+    "/visitor-management"
   ]
 };self.__BUILD_MANIFEST_CB && self.__BUILD_MANIFEST_CB()
