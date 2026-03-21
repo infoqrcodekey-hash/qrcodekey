@@ -3,16 +3,22 @@
 // ============================================
 // Enables offline support & app-like experience
 
-const CACHE_NAME = 'qrcodekey-v1';
+const CACHE_NAME = 'qrcodekey-v2';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache on install
 const PRECACHE_FILES = [
   '/',
   '/login',
-  '/scan',
+  '/attendance-scanner',
+  '/about',
+  '/contact',
+  '/help',
+  '/chatbot',
   '/offline.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png'
 ];
 
 // Install: Cache core files

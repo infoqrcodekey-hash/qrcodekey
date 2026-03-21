@@ -653,6 +653,17 @@ const translations = {
     send: 'Send',
     quickQuestions: 'Quick Questions',
     chatWithBot: 'Chat with Bot',
+
+    // ── Install Prompt ──
+    installApp: 'Install QRCodeKey',
+    installAppDesc: 'Add to home screen for quick access',
+    install: 'Install',
+    notNow: 'Not now',
+    iosInstallTitle: 'Install QRCodeKey on iPhone',
+    iosStep1: 'Tap the Share button (box with arrow)',
+    iosStep2: 'Scroll down and tap "Add to Home Screen"',
+    iosStep3: 'Tap "Add" to install',
+    gotIt: 'Got it!',
   },
 
   // ══════════════════════════════════════════
@@ -1302,6 +1313,17 @@ const translations = {
     send: 'भेजें',
     quickQuestions: 'त्वरित सवाल',
     chatWithBot: 'बॉट से चैट करें',
+
+    // ── Install Prompt ──
+    installApp: 'QRCodeKey इंस्टॉल करें',
+    installAppDesc: 'त्वरित एक्सेस के लिए होम स्क्रीन पर जोड़ें',
+    install: 'इंस्टॉल',
+    notNow: 'अभी नहीं',
+    iosInstallTitle: 'iPhone पर QRCodeKey इंस्टॉल करें',
+    iosStep1: 'Share बटन (तीर वाला बॉक्स) टैप करें',
+    iosStep2: 'नीचे स्क्रॉल करें और "Add to Home Screen" टैप करें',
+    iosStep3: '"Add" टैप करके इंस्टॉल करें',
+    gotIt: 'समझ गया!',
   },
 
   // ══════════════════════════════════════════

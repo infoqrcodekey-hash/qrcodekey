@@ -1,74 +1,131 @@
 {
-  "name": "QRcodeKey - Attendance System",
-  "short_name": "QRcodeKey",
-  "description": "Organization Attendance & Verification System with QR Codes",
+  "name": "QRCodeKey - Smart Attendance & QR Tracking",
+  "short_name": "QRCodeKey",
+  "description": "Smart QR-based attendance management, real-time GPS tracking, visitor management, and workforce analytics for modern organizations.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a1a",
-  "theme_color": "#7c3aed",
+  "theme_color": "#6366f1",
   "orientation": "portrait",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "id": "com.qrcodekey.app",
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": ["business", "productivity", "utilities"],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "src": "/screenshots/home-screen.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "QRCodeKey Home Screen"
+    },
+    {
+      "src": "/screenshots/dashboard.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Attendance Dashboard"
+    },
+    {
+      "src": "/screenshots/scanner.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "QR Code Scanner"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Scan QR",
-      "url": "/scan",
+      "short_name": "Scan",
+      "url": "/attendance-scanner",
+      "description": "Scan QR code for attendance",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     },
     {
-      "name": "Attendance",
-      "url": "/attendance",
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "url": "/attendance-dashboard",
+      "description": "View attendance dashboard",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Generate QR",
+      "short_name": "Generate",
+      "url": "/generate",
+      "description": "Generate a new QR code",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     }
-  ]
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "id": "com.qrcodekey.app",
+      "url": "https://play.google.com/store/apps/details?id=com.qrcodekey.app"
+    }
+  ],
+  "prefer_related_applications": false
 }

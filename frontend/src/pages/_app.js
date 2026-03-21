@@ -7,6 +7,7 @@ import '../styles/globals.css';
 import { AuthProvider } from '../context/AuthContext';
 import { LanguageProvider } from '../context/LanguageContext';
 import { Toaster } from 'react-hot-toast';
+import InstallPrompt from '../components/InstallPrompt';
 
 export default function App({ Component, pageProps }) {
   // Register Service Worker for PWA
@@ -40,6 +41,7 @@ export default function App({ Component, pageProps }) {
             error: { iconTheme: { primary: '#ef4444', secondary: 'white' } },
           }}
         />
+        <InstallPrompt />
       </AuthProvider>
     </LanguageProvider>
   );
