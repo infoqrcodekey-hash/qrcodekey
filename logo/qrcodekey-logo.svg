@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="50%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#ec4899"/>
+    </linearGradient>
+    <linearGradient id="keyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect x="16" y="16" width="480" height="480" rx="96" ry="96" fill="url(#bgGrad)" filter="url(#shadow)"/>
+
+  <!-- Subtle inner glow -->
+  <rect x="16" y="16" width="480" height="480" rx="96" ry="96" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+
+  <!-- QR Code Pattern (simplified, stylized) -->
+  <!-- Top-left corner -->
+  <rect x="80" y="80" width="108" height="108" rx="12" fill="white" opacity="0.95"/>
+  <rect x="96" y="96" width="76" height="76" rx="8" fill="url(#bgGrad)"/>
+  <rect x="112" y="112" width="44" height="44" rx="6" fill="white" opacity="0.95"/>
+
+  <!-- Top-right corner -->
+  <rect x="324" y="80" width="108" height="108" rx="12" fill="white" opacity="0.95"/>
+  <rect x="340" y="96" width="76" height="76" rx="8" fill="url(#bgGrad)"/>
+  <rect x="356" y="112" width="44" height="44" rx="6" fill="white" opacity="0.95"/>
+
+  <!-- Bottom-left corner -->
+  <rect x="80" y="244" width="108" height="108" rx="12" fill="white" opacity="0.95"/>
+  <rect x="96" y="260" width="76" height="76" rx="8" fill="url(#bgGrad)"/>
+  <rect x="112" y="276" width="44" height="44" rx="6" fill="white" opacity="0.95"/>
+
+  <!-- QR data dots (decorative) -->
+  <rect x="208" y="80" width="36" height="36" rx="6" fill="white" opacity="0.7"/>
+  <rect x="260" y="80" width="36" height="36" rx="6" fill="white" opacity="0.5"/>
+  <rect x="208" y="132" width="36" height="36" rx="6" fill="white" opacity="0.5"/>
+  <rect x="260" y="132" width="36" height="36" rx="6" fill="white" opacity="0.7"/>
+
+  <rect x="208" y="196" width="36" height="36" rx="6" fill="white" opacity="0.6"/>
+  <rect x="260" y="196" width="36" height="36" rx="6" fill="white" opacity="0.4"/>
+  <rect x="324" y="196" width="36" height="36" rx="6" fill="white" opacity="0.5"/>
+  <rect x="376" y="196" width="56" height="36" rx="6" fill="white" opacity="0.6"/>
+
+  <rect x="80" y="196" width="36" height="28" rx="6" fill="white" opacity="0.4"/>
+  <rect x="132" y="196" width="56" height="28" rx="6" fill="white" opacity="0.5"/>
+
+  <rect x="208" y="260" width="36" height="36" rx="6" fill="white" opacity="0.5"/>
+  <rect x="260" y="260" width="36" height="36" rx="6" fill="white" opacity="0.6"/>
+  <rect x="324" y="260" width="36" height="36" rx="6" fill="white" opacity="0.4"/>
+  <rect x="376" y="260" width="56" height="36" rx="6" fill="white" opacity="0.5"/>
+
+  <rect x="208" y="312" width="56" height="36" rx="6" fill="white" opacity="0.4"/>
+  <rect x="280" y="312" width="36" height="36" rx="6" fill="white" opacity="0.6"/>
+  <rect x="332" y="312" width="36" height="36" rx="6" fill="white" opacity="0.5"/>
+  <rect x="384" y="312" width="48" height="36" rx="6" fill="white" opacity="0.4"/>
+
+  <!-- Key icon (bottom center) -->
+  <g transform="translate(180, 370)" filter="url(#glow)">
+    <!-- Key body -->
+    <circle cx="30" cy="30" r="28" fill="url(#keyGrad)" stroke="white" stroke-width="3"/>
+    <circle cx="30" cy="30" r="14" fill="none" stroke="white" stroke-width="3" opacity="0.8"/>
+    <!-- Key shaft -->
+    <rect x="54" y="22" width="80" height="16" rx="8" fill="url(#keyGrad)" stroke="white" stroke-width="2.5"/>
+    <!-- Key teeth -->
+    <rect x="108" y="34" width="12" height="16" rx="3" fill="url(#keyGrad)" stroke="white" stroke-width="2"/>
+    <rect x="126" y="34" width="12" height="20" rx="3" fill="url(#keyGrad)" stroke="white" stroke-width="2"/>
+  </g>
+
+  <!-- Small location pin -->
+  <g transform="translate(340, 375)">
+    <path d="M16 0C7.2 0 0 7.2 0 16c0 12 16 28 16 28s16-16 16-28C32 7.2 24.8 0 16 0zm0 22c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" fill="white" opacity="0.9"/>
+  </g>
+</svg>

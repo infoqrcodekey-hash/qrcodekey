@@ -55,14 +55,27 @@ export default function Contact() {
           <p className="text-sm text-gray-400">{t('contactSubtitle')}</p>
         </div>
 
+        {/* Founder Info */}
+        <div className="card p-5 animate-fadeIn">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-xl font-black shrink-0">AG</div>
+            <div>
+              <div className="font-bold text-sm text-gray-100">AG</div>
+              <div className="text-xs text-gray-400 mt-0.5">Founder & Developer</div>
+            </div>
+          </div>
+        </div>
+
         {/* Contact Info Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 animate-fadeIn">
+        <div className="grid grid-cols-2 gap-3 animate-fadeIn">
           {[
             { icon: '📧', label: t('emailUs'), value: 'info.qrcodekey@gmail.com', href: 'mailto:info.qrcodekey@gmail.com' },
-            { icon: '🕐', label: t('responseTime'), value: t('within24hrs') },
+            { icon: '📞', label: 'Phone', value: '(708) 300-5490', href: 'tel:+17083005490' },
+            { icon: '📍', label: 'Location', value: 'Chicago, USA' },
             { icon: '🌐', label: t('website'), value: 'qrcodekey.com', href: 'https://qrcodekey.com' },
+            { icon: '🕐', label: t('responseTime'), value: t('within24hrs') },
           ].map((item, i) => (
-            <div key={i} className="card p-4 text-center">
+            <div key={i} className={`card p-4 text-center ${i === 4 ? 'col-span-2' : ''}`}>
               <span className="text-2xl block mb-2">{item.icon}</span>
               <div className="text-[10px] text-gray-500 uppercase font-bold">{item.label}</div>
               {item.href ? (

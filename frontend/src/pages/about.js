@@ -90,6 +90,23 @@ export default function About() {
           </div>
         </div>
 
+        {/* Founder */}
+        <div className="card p-6 animate-fadeIn">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-2xl">👨‍💻</span>
+            <h2 className="text-lg font-bold text-gray-100">Founder</h2>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-2xl font-black shrink-0 shadow-lg shadow-indigo-500/20">AG</div>
+            <div>
+              <div className="font-bold text-base text-gray-100">AG</div>
+              <div className="text-xs text-gray-400 mt-0.5">Founder & Developer</div>
+              <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">📍 Chicago, USA</div>
+              <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">📞 (708) 300-5490</div>
+            </div>
+          </div>
+        </div>
+
         {/* Tech Stack */}
         <div className="card p-6 animate-fadeIn">
           <div className="flex items-center gap-3 mb-4">
