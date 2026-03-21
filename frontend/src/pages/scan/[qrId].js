@@ -37,6 +37,18 @@ export default function ScanPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Finder registration form state (for active QR scans)
+  const [finderForm, setFinderForm] = useState({
+    finderName: '',
+    finderPhone: '',
+    finderEmail: '',
+    finderMessage: '',
+  });
+  const [finderSubmitting, setFinderSubmitting] = useState(false);
+  const [finderSubmitted, setFinderSubmitted] = useState(false);
+  const [finderError, setFinderError] = useState('');
+  const [finderSuccess, setFinderSuccess] = useState('');
+
   const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
@@ -169,6 +181,40 @@ export default function ScanPage() {
       setError(t('serverError'));
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // ====== Finder Registration Submit ======
+  const handleFinderSubmit = async (e) => {
+    e.preventDefault();
+    setFinderError('');
+
+    if (!finderForm.finderName.trim()) return setFinderError('Please enter your name');
+    if (!finderForm.finderPhone.trim()) return setFinderError('Please enter your phone number');
+
+    setFinderSubmitting(true);
+    try {
+      const res = await fetch(`${API}/track/finder-info/${qrId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          finderName: finderForm.finderName,
+          finderPhone: finderForm.finderPhone,
+          finderEmail: finderForm.finderEmail,
+          finderMessage: finderForm.finderMessage,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setFinderSuccess(data.message || 'Your details have been sent to the owner!');
+        setFinderSubmitted(true);
+      } else {
+        setFinderError(data.message || 'Failed to submit. Please try again.');
+      }
+    } catch (err) {
+      setFinderError('Connection error. Please try again.');
+    } finally {
+      setFinderSubmitting(false);
     }
   };
 
@@ -332,6 +378,125 @@ export default function ScanPage() {
                     {t('totalScans')}: <span className="text-indigo-400 font-bold">{qrInfo?.scanCount || 1}</span>
                   </span>
                 </div>
+
+                {/* ─── FINDER REGISTRATION FORM ─── */}
+                {!finderSubmitted ? (
+                  <div className="mt-6">
+                    <div className="text-center mb-4">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/8 border border-emerald-500/15 mb-2 backdrop-blur-sm">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-xs text-emerald-400 font-bold">Found this item? Help the owner!</span>
+                      </div>
+                      <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
+                        Please fill your contact details so the owner can reach you
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleFinderSubmit} className="glass-card rounded-3xl border border-white/5 overflow-hidden">
+                      <div className="px-6 py-4 bg-gradient-to-r from-emerald-500/8 to-green-500/8 border-b border-white/5">
+                        <h3 className="font-bold text-sm text-gray-200 flex items-center gap-2">
+                          <span className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center text-xs">📋</span>
+                          Registration Form
+                        </h3>
+                      </div>
+
+                      <div className="p-6 space-y-4">
+                        {/* Finder Name */}
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-400 mb-2">
+                            Your Name <span className="text-pink-400">*</span>
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">👤</span>
+                            <input type="text" className="input-field pl-10" placeholder="Enter your full name"
+                              value={finderForm.finderName} onChange={e => setFinderForm(p => ({ ...p, finderName: e.target.value }))} required />
+                          </div>
+                        </div>
+
+                        {/* Finder Phone */}
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-400 mb-2">
+                            Your Phone <span className="text-pink-400">*</span>
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">📱</span>
+                            <input type="tel" className="input-field pl-10" placeholder="+91 98765 43210"
+                              value={finderForm.finderPhone} onChange={e => setFinderForm(p => ({ ...p, finderPhone: e.target.value }))} required />
+                          </div>
+                        </div>
+
+                        {/* Finder Email (Optional) */}
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-400 mb-2">
+                            Your Email <span className="text-gray-600 font-normal">(optional)</span>
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">📧</span>
+                            <input type="email" className="input-field pl-10" placeholder="your@email.com"
+                              value={finderForm.finderEmail} onChange={e => setFinderForm(p => ({ ...p, finderEmail: e.target.value }))} />
+                          </div>
+                        </div>
+
+                        {/* Finder Message (Optional) */}
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-400 mb-2">
+                            Message <span className="text-gray-600 font-normal">(optional)</span>
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3.5 top-3 text-gray-500 text-sm">💬</span>
+                            <textarea className="input-field pl-10 resize-none" rows={2} placeholder="Where did you find this? Any message for the owner..."
+                              value={finderForm.finderMessage} onChange={e => setFinderForm(p => ({ ...p, finderMessage: e.target.value }))} maxLength={500} />
+                          </div>
+                          <div className="text-right text-[9px] text-gray-600 mt-1">{finderForm.finderMessage.length}/500</div>
+                        </div>
+
+                        {/* Error */}
+                        {finderError && (
+                          <div className="p-4 rounded-2xl bg-red-500/8 border border-red-500/15 flex items-center gap-3">
+                            <span className="text-lg shrink-0">❌</span>
+                            <p className="text-xs text-red-400 font-medium">{finderError}</p>
+                          </div>
+                        )}
+
+                        {/* Submit Button */}
+                        <button type="submit" disabled={finderSubmitting}
+                          className="w-full py-4 rounded-2xl font-bold text-sm text-white transition-all duration-300
+                            bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500
+                            hover:from-emerald-400 hover:via-green-400 hover:to-teal-400
+                            hover:shadow-xl hover:shadow-emerald-500/20 hover:scale-[1.01]
+                            active:scale-[0.99]
+                            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                            flex items-center justify-center gap-2">
+                          {finderSubmitting ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              Sending...
+                            </>
+                          ) : (
+                            <>📤 Send My Details to Owner</>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+
+                    <p className="text-center text-[10px] text-gray-600 mt-4 max-w-xs mx-auto leading-relaxed">
+                      🔒 Your information will only be shared with the item owner
+                    </p>
+                  </div>
+                ) : (
+                  /* Finder Submitted Success */
+                  <div className="mt-6 glass-card rounded-3xl p-8 text-center border border-emerald-500/10">
+                    <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/10 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+                      <span className="text-4xl">🎉</span>
+                    </div>
+                    <h3 className="font-black text-lg text-emerald-400 mb-2">Thank You!</h3>
+                    <p className="text-sm text-gray-400 mb-4">{finderSuccess}</p>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/8 border border-emerald-500/15">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="text-xs text-emerald-400 font-bold">Owner has been notified</span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

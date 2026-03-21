@@ -339,6 +339,69 @@ exports.sendScanNotification = async (ownerEmail, qrId, scanData) => {
   }
 };
 
+// ====== Send Finder Registration Notification ======
+/**
+ * Notify QR owner that someone found their item and submitted contact info
+ */
+exports.sendFinderNotification = async (ownerEmail, qrId, finderData) => {
+  if (!emailTransporter || !ownerEmail) return false;
+
+  try {
+    const { finderName, finderPhone, finderEmail, finderMessage, category, registeredName } = finderData;
+    const emoji = categoryEmoji[category] || '📦';
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: 'Segoe UI', sans-serif; background-color: #0f172a; margin: 0; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #1e293b; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+          <div style="background: linear-gradient(135deg, #10b981, #059669); padding: 32px 24px; text-align: center; color: white;">
+            <h1 style="margin: 0; font-size: 24px;">🎉 Someone Found Your ${emoji} ${category}!</h1>
+          </div>
+          <div style="padding: 32px 24px; color: #e2e8f0;">
+            <p style="font-size: 16px;">Good news! Someone scanned your QR Code <strong>${qrId}</strong> and submitted their contact information.</p>
+
+            <div style="background-color: #0f172a; border-left: 4px solid #10b981; border-radius: 8px; padding: 20px; margin: 24px 0;">
+              <div style="font-size: 14px; font-weight: 600; color: #10b981; margin-bottom: 12px; text-transform: uppercase;">Finder Details</div>
+              <p style="margin: 8px 0; color: #e2e8f0;"><strong>👤 Name:</strong> ${finderName}</p>
+              <p style="margin: 8px 0; color: #e2e8f0;"><strong>📱 Phone:</strong> <a href="tel:${finderPhone}" style="color: #6366f1; text-decoration: none;">${finderPhone}</a></p>
+              <p style="margin: 8px 0; color: #e2e8f0;"><strong>📧 Email:</strong> ${finderEmail}</p>
+              <p style="margin: 8px 0; color: #e2e8f0;"><strong>💬 Message:</strong> ${finderMessage}</p>
+            </div>
+
+            <div style="background-color: #0f172a; border-left: 4px solid #6366f1; border-radius: 8px; padding: 20px; margin: 24px 0;">
+              <div style="font-size: 14px; font-weight: 600; color: #6366f1; margin-bottom: 12px; text-transform: uppercase;">Your QR Code</div>
+              <p style="margin: 8px 0; color: #e2e8f0;"><strong>🏷️ QR ID:</strong> ${qrId}</p>
+              <p style="margin: 8px 0; color: #e2e8f0;"><strong>${emoji} Category:</strong> ${category}</p>
+              <p style="margin: 8px 0; color: #e2e8f0;"><strong>👤 Registered:</strong> ${registeredName || 'N/A'}</p>
+            </div>
+
+            <a href="tel:${finderPhone}" style="display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; margin: 16px 0;">📞 Call Finder Now</a>
+          </div>
+          <div style="background-color: #0f172a; padding: 20px 24px; text-align: center; border-top: 1px solid #334155;">
+            <p style="font-size: 12px; color: #64748b; margin: 0;">QRCodeKey - Real-time Location Tracking System</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    await emailTransporter.sendMail({
+      from: `"QRCodeKey" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
+      to: ownerEmail,
+      subject: `🎉 Someone found your ${emoji} ${category}! - ${qrId} | Contact: ${finderName}`,
+      html
+    });
+
+    console.log(`📧 Finder notification sent to ${ownerEmail} for QR: ${qrId}`);
+    return true;
+  } catch (error) {
+    console.error('❌ Finder email error:', error.message);
+    return false;
+  }
+};
+
 // ====== Send Test Email ======
 /**
  * Send a test email to verify email service is configured correctly

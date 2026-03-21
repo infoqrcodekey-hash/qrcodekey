@@ -105,6 +105,32 @@ const ScanLogSchema = new mongoose.Schema({
     default: null
   },
 
+  // ---------- Finder Info (filled by person who scans) ----------
+  finderName: {
+    type: String,
+    default: null,
+    maxlength: 100
+  },
+  finderPhone: {
+    type: String,
+    default: null,
+    maxlength: 20
+  },
+  finderEmail: {
+    type: String,
+    default: null,
+    maxlength: 100
+  },
+  finderMessage: {
+    type: String,
+    default: null,
+    maxlength: 500
+  },
+  finderSubmittedAt: {
+    type: Date,
+    default: null
+  },
+
   // ---------- Notification Status ----------
   notificationSent: {
     email: { type: Boolean, default: false },

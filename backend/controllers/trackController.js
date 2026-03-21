@@ -423,5 +423,95 @@ exports.activatePublic = async (req, res) => {
   }
 };
 
+// ====== FINDER REGISTRATION (PUBLIC - Scanner fills contact form) ======
+// POST /api/track/finder-info/:qrId
+// When someone scans an active QR, they can submit their contact details
+exports.submitFinderInfo = async (req, res) => {
+  try {
+    const { qrId } = req.params;
+    const { finderName, finderPhone, finderEmail, finderMessage } = req.body;
+
+    if (!finderName || !finderPhone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name and phone number are required'
+      });
+    }
+
+    // Find the QR Code
+    const qr = await QRCode.findOne({ qrId });
+    if (!qr) {
+      return res.status(404).json({ success: false, message: 'QR Code not found' });
+    }
+
+    // Find the most recent scan log for this QR (the current scan)
+    const recentScan = await ScanLog.findOne({ qrId: qr.qrId })
+      .sort({ createdAt: -1 });
+
+    if (recentScan) {
+      // Update the most recent scan log with finder info
+      recentScan.finderName = finderName;
+      recentScan.finderPhone = finderPhone;
+      recentScan.finderEmail = finderEmail || null;
+      recentScan.finderMessage = finderMessage || null;
+      recentScan.finderSubmittedAt = new Date();
+      await recentScan.save({ validateBeforeSave: false });
+    }
+
+    // Real-time WebSocket notification to owner
+    if (req.io) {
+      req.io.to(`user_${qr.owner}`).emit('finder_registered', {
+        qrId: qr.qrId,
+        category: qr.category,
+        finderName,
+        finderPhone,
+        finderMessage: finderMessage || '',
+        time: new Date()
+      });
+    }
+
+    // Send email notification to owner about finder
+    try {
+      const owner = await User.findById(qr.owner);
+      if (owner && owner.email && qr.notifyEmail) {
+        const emailService = require('../services/emailService');
+        emailService.sendFinderNotification(
+          owner.email,
+          qr.qrId,
+          {
+            finderName,
+            finderPhone,
+            finderEmail: finderEmail || 'Not provided',
+            finderMessage: finderMessage || 'No message',
+            category: qr.category,
+            registeredName: qr.registeredName
+          }
+        ).catch(err => {
+          console.error('Finder Email Error:', err.message);
+        });
+      }
+    } catch (emailErr) {
+      console.error('Finder notification error:', emailErr.message);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Your contact details have been sent to the owner! Thank you for helping!',
+      data: {
+        qrId: qr.qrId,
+        registeredName: qr.registeredName,
+        category: qr.category
+      }
+    });
+
+  } catch (error) {
+    console.error('Finder Info Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error submitting your details. Please try again.'
+    });
+  }
+};
+
 // ====== LIVE LOCATION STREAM (WebSocket Based) ======
 // This is handled by Socket.io - setup in server.js
