@@ -122,7 +122,7 @@ async function sendEmail(owner, qrCode, scanLog, locationText) {
     `;
 
     await emailTransporter.sendMail({
-      from: `"${process.env.FROM_NAME || 'QR Tracker'}" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
+      from: `"${process.env.SMTP_FROM_NAME || process.env.FROM_NAME || 'QRCodeKey'}" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
       to: owner.email,
       subject: `🔔 QR Scan Alert - ${qrCode.qrId} scanned from ${locationText}`,
       html
@@ -210,10 +210,10 @@ exports.sendTestEmail = async (email) => {
   
   try {
     await emailTransporter.sendMail({
-      from: `"QR Tracker" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
+      from: `"${process.env.SMTP_FROM_NAME || 'QRCodeKey'}" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
       to: email,
-      subject: '✅ QR Tracker - Test Email',
-      html: '<h2>Email service working! ✅</h2><p>Your notification system is working correctly.</p>'
+      subject: '✅ QRCodeKey - Test Email',
+      html: '<h2>Email service working! ✅</h2><p>Your QRCodeKey notification system is working correctly.</p>'
     });
     return { success: true, message: 'Test email sent!' };
   } catch (error) {
