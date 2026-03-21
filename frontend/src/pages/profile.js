@@ -227,11 +227,12 @@ export default function Profile() {
         {/* Subscription */}
         <div className="card p-5">
           <div className="text-xs font-bold text-gray-400 mb-4">💎 {t('subscription')}</div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {[
-              { plan: 'free', price: '$0', features: '5 QR\nManual Track' },
-              { plan: 'pro', price: '$3.99/mo', features: '50 QR\nPush + Email', popular: true },
-              { plan: 'business', price: '$11.99/mo', features: 'Unlimited\nSMS + All' },
+              { plan: 'free', price: '$0', features: 'Unlimited QR\nNo Alerts' },
+              { plan: 'starter', price: '$0.99/mo', features: '1 QR Alerts\nEmail + Push' },
+              { plan: 'pro', price: '$4.99/mo', features: '5 QR Alerts\nEmail+SMS+Push', popular: true },
+              { plan: 'unlimited', price: '$14.99/mo', features: 'Unlimited Alerts\nAll + API' },
             ].map((p, i) => (
               <div key={i} className={`p-3 rounded-xl text-center transition-all ${
                 user.plan === p.plan

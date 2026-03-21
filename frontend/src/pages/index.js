@@ -321,22 +321,30 @@ export default function Home() {
           </div>
         )}
 
-        {/* Pricing */}
+        {/* Pricing - Notification Subscriptions */}
         <div className="card p-5 mb-6">
-          <h3 className="font-bold text-sm text-indigo-400 mb-4">💎 {t('pricing')}</h3>
-          <div className="grid grid-cols-3 gap-2">
+          <h3 className="font-bold text-sm text-indigo-400 mb-1">🔔 Notification Plans</h3>
+          <p className="text-[10px] text-gray-500 mb-4">QR generation free — pay only for instant scan alerts</p>
+          <div className="grid grid-cols-2 gap-2">
             {[
-              { plan: t('free'), price: '$0', features: t('freeFeatures'), key: 'free' },
-              { plan: t('pro'), price: '$3.99/mo', features: t('proFeatures'), popular: true, key: 'pro' },
-              { plan: t('enterprise'), price: '$11.99/mo', features: t('enterpriseFeatures'), key: 'enterprise' },
+              { plan: 'Free', price: '$0', desc: 'Unlimited QR codes', sub: 'No notifications', icon: '🆓' },
+              { plan: 'Starter', price: '$0.99/mo', desc: '1 QR with alerts', sub: 'Email + Push', icon: '🔔' },
+              { plan: 'Pro', price: '$4.99/mo', desc: '5 QR with alerts', sub: 'Email + SMS + Push', popular: true, icon: '💎' },
+              { plan: 'Unlimited', price: '$14.99/mo', desc: 'Unlimited QR alerts', sub: 'All notifications + API', icon: '👑' },
             ].map((p, i) => (
-              <div key={i} className={`p-3 rounded-xl text-center ${p.popular ? 'bg-indigo-500/15 border border-indigo-500/30' : 'bg-white/3 border border-white/5'}`}>
+              <div key={i} className={`p-3 rounded-xl text-center relative ${p.popular ? 'bg-indigo-500/15 border border-indigo-500/30' : 'bg-white/3 border border-white/5'}`}>
+                {p.popular && <div className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-indigo-500 rounded-full text-[8px] text-white font-bold">POPULAR</div>}
+                <span className="text-lg block mb-1">{p.icon}</span>
                 <div className={`text-[10px] font-bold ${p.popular ? 'text-indigo-400' : 'text-gray-500'}`}>{p.plan}</div>
-                <div className="text-base font-black text-gray-200 my-1">{p.price}</div>
-                <div className="text-[9px] text-gray-500 leading-tight">{p.features}</div>
+                <div className="text-sm font-black text-gray-200 my-1">{p.price}</div>
+                <div className="text-[9px] text-gray-400">{p.desc}</div>
+                <div className="text-[8px] text-gray-600">{p.sub}</div>
               </div>
             ))}
           </div>
+          <Link href="/pricing" className="block text-center mt-3 text-[10px] text-indigo-400 hover:text-indigo-300 font-semibold">
+            View all plans & yearly discounts →
+          </Link>
         </div>
 
         {/* Footer Links */}

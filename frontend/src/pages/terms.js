@@ -79,19 +79,25 @@ export default function Terms() {
               <div className="bg-white/5 p-4 rounded-lg space-y-2">
                 <h3 className="font-semibold text-gray-200">Free Plan</h3>
                 <p className="text-sm text-gray-400">Price: $0/month</p>
-                <p className="text-sm text-gray-400">Features: 5 QR codes, manual tracking only</p>
+                <p className="text-sm text-gray-400">Features: Unlimited QR code generation, manual tracking, basic dashboard</p>
+              </div>
+
+              <div className="bg-white/5 p-4 rounded-lg space-y-2">
+                <h3 className="font-semibold text-gray-200">Starter Plan</h3>
+                <p className="text-sm text-gray-400">Price: $0.99/month (billed monthly) or 20% off annually</p>
+                <p className="text-sm text-gray-400">Features: 1 QR code with instant notifications, email + push alerts, GPS location in alert</p>
               </div>
 
               <div className="bg-white/5 p-4 rounded-lg space-y-2">
                 <h3 className="font-semibold text-gray-200">Pro Plan</h3>
-                <p className="text-sm text-gray-400">Price: $4.99/month (billed monthly) or discounted annually</p>
-                <p className="text-sm text-gray-400">Features: 50 QR codes, push notifications, email alerts</p>
+                <p className="text-sm text-gray-400">Price: $4.99/month (billed monthly) or 30% off annually</p>
+                <p className="text-sm text-gray-400">Features: 5 QR codes with notifications, email + SMS + push alerts, priority support</p>
               </div>
 
               <div className="bg-white/5 p-4 rounded-lg space-y-2">
-                <h3 className="font-semibold text-gray-200">Business Plan</h3>
-                <p className="text-sm text-gray-400">Price: $11.99/month (billed monthly) or discounted annually</p>
-                <p className="text-sm text-gray-400">Features: Unlimited QR codes, SMS alerts, API access, team management</p>
+                <h3 className="font-semibold text-gray-200">Unlimited Plan</h3>
+                <p className="text-sm text-gray-400">Price: $14.99/month (billed monthly) or 50% off annually</p>
+                <p className="text-sm text-gray-400">Features: Unlimited QR codes with notifications, all alert types, API access, dedicated support</p>
               </div>
 
               <p className="text-gray-400 text-sm mt-4">
