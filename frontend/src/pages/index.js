@@ -251,20 +251,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Quick Access for visitors */}
-        {!showLoggedIn && (
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <Link href="/attendance-scanner" className="card p-4 text-center hover:border-indigo-500/30 transition-all">
-              <span className="text-2xl block mb-1">📷</span>
-              <div className="font-bold text-xs text-gray-200">Attendance Scan</div>
-            </Link>
-            <Link href="/viewer-login" className="card p-4 text-center hover:border-indigo-500/30 transition-all">
-              <span className="text-2xl block mb-1">👁</span>
-              <div className="font-bold text-xs text-gray-200">View Attendance</div>
-            </Link>
-          </div>
-        )}
-
         {/* Register CTA for non-logged in */}
         {!showLoggedIn && (
           <div className="card p-6 text-center mb-6 border-indigo-500/15">
@@ -321,8 +307,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* Pricing - Notification Subscriptions */}
-        <div className="card p-5 mb-6">
+        {/* Pricing - Notification Subscriptions (only for logged-in users) */}
+        {showLoggedIn && <div className="card p-5 mb-6">
           <h3 className="font-bold text-sm text-indigo-400 mb-1">🔔 Notification Plans</h3>
           <p className="text-[10px] text-gray-500 mb-4">QR generation free — pay only for instant scan alerts</p>
           <div className="grid grid-cols-2 gap-2">
@@ -345,31 +331,35 @@ export default function Home() {
           <Link href="/pricing" className="block text-center mt-3 text-[10px] text-indigo-400 hover:text-indigo-300 font-semibold">
             View all plans & yearly discounts →
           </Link>
-        </div>
+        </div>}
 
-        {/* Footer Links */}
-        <div className="card p-5">
-          <div className="grid grid-cols-4 gap-2 text-center">
-            {[
-              { icon: '📖', label: t('aboutUs'), href: '/about' },
-              { icon: '✉️', label: t('contactUs'), href: '/contact' },
-              { icon: '❓', label: t('helpCenter'), href: '/help' },
-              { icon: '🤖', label: t('chatWithBot'), href: '/chatbot' },
-            ].map((item, i) => (
-              <Link key={i} href={item.href} className="p-3 rounded-xl hover:bg-white/5 transition-all group">
-                <span className="text-xl block mb-1 group-hover:scale-110 transition-transform">{item.icon}</span>
-                <div className="text-[10px] text-gray-400 font-semibold">{item.label}</div>
-              </Link>
-            ))}
-          </div>
-          <div className="text-center mt-4 pt-3 border-t border-white/5">
-            <div className="text-[10px] text-gray-600">© 2026 QRCodeKey by Ashvinkumar Chaudhari. All rights reserved.</div>
-            <div className="text-[9px] text-gray-600 mt-0.5">647 Rose Ln, Bartlett, IL 60103, USA</div>
-            <div className="flex justify-center gap-3 mt-2">
-              <Link href="/terms" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('termsOfService')}</Link>
-              <Link href="/privacy-policy" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('privacyPolicy')}</Link>
-              <Link href="/refund-policy" className="text-[10px] text-gray-500 hover:text-indigo-400">Refund Policy</Link>
+        {/* Footer Links - Full menu for logged in, minimal for visitors */}
+        {showLoggedIn && (
+          <div className="card p-5 mb-6">
+            <div className="grid grid-cols-4 gap-2 text-center">
+              {[
+                { icon: '📖', label: t('aboutUs'), href: '/about' },
+                { icon: '✉️', label: t('contactUs'), href: '/contact' },
+                { icon: '❓', label: t('helpCenter'), href: '/help' },
+                { icon: '🤖', label: t('chatWithBot'), href: '/chatbot' },
+              ].map((item, i) => (
+                <Link key={i} href={item.href} className="p-3 rounded-xl hover:bg-white/5 transition-all group">
+                  <span className="text-xl block mb-1 group-hover:scale-110 transition-transform">{item.icon}</span>
+                  <div className="text-[10px] text-gray-400 font-semibold">{item.label}</div>
+                </Link>
+              ))}
             </div>
+          </div>
+        )}
+
+        {/* Copyright Footer - Always visible */}
+        <div className="text-center py-4">
+          <div className="text-[10px] text-gray-600">© 2026 QRCodeKey by Ashvinkumar Chaudhari. All rights reserved.</div>
+          <div className="text-[9px] text-gray-600 mt-0.5">647 Rose Ln, Bartlett, IL 60103, USA</div>
+          <div className="flex justify-center gap-3 mt-2">
+            <Link href="/terms" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('termsOfService')}</Link>
+            <Link href="/privacy-policy" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('privacyPolicy')}</Link>
+            <Link href="/refund-policy" className="text-[10px] text-gray-500 hover:text-indigo-400">Refund Policy</Link>
           </div>
         </div>
       </main>
