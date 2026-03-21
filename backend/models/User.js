@@ -37,8 +37,13 @@ const UserSchema = new mongoose.Schema({
   // ---------- Subscription ----------
   plan: {
     type: String,
-    enum: ['free', 'pro', 'business'],
+    enum: ['free', 'starter', 'pro', 'unlimited', 'business'], // business kept for backward compat
     default: 'free'
+  },
+  billingCycle: {
+    type: String,
+    enum: ['monthly', 'yearly'],
+    default: 'monthly'
   },
   planExpiry: {
     type: Date,
@@ -114,10 +119,15 @@ UserSchema.methods.isPremium = function() {
   return true;
 };
 
-// ====== QR Limit Check ======
+// ====== QR Limit (generation - all plans unlimited) ======
 UserSchema.methods.getQRLimit = function() {
-  const limits = { free: 5, pro: 50, business: 999999 };
-  return limits[this.plan] || 5;
+  return 999999; // All plans get unlimited QR generation
+};
+
+// ====== Notification QR Limit (how many QR codes get notifications) ======
+UserSchema.methods.getNotificationQRLimit = function() {
+  const limits = { free: 0, starter: 1, pro: 5, unlimited: 999999, business: 999999 };
+  return limits[this.plan] || 0;
 };
 
 module.exports = mongoose.model('User', UserSchema);

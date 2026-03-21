@@ -36,7 +36,25 @@ exports.sendScanNotification = async (qrCode, scanLog) => {
       return;
     }
 
-    const locationText = scanLog.address?.city !== 'Unknown' 
+    // Check notification QR limit per plan
+    // Starter: 1 QR, Pro: 5 QR, Unlimited: no limit
+    const notifyLimit = owner.getNotificationQRLimit();
+    if (notifyLimit > 0 && notifyLimit < 999999) {
+      // Count how many QR codes this user has with notifications enabled
+      const QRCode = require('../models/QRCode');
+      const notifyEnabledCount = await QRCode.countDocuments({
+        owner: owner._id,
+        notifyOnScan: true,
+        _id: { $lte: qrCode._id } // only count QRs created before or equal to this one
+      });
+
+      if (notifyEnabledCount > notifyLimit) {
+        console.log(`ℹ️ QR notification limit reached for ${owner.email} (plan: ${owner.plan}, limit: ${notifyLimit})`);
+        return;
+      }
+    }
+
+    const locationText = scanLog.address?.city !== 'Unknown'
       ? `${scanLog.address.city}, ${scanLog.address.country}`
       : `Lat: ${scanLog.latitude.toFixed(4)}, Lng: ${scanLog.longitude.toFixed(4)}`;
 
@@ -45,8 +63,8 @@ exports.sendScanNotification = async (qrCode, scanLog) => {
       await sendEmail(owner, qrCode, scanLog, locationText);
     }
 
-    // ----- SMS Notification -----
-    if (qrCode.notifySMS && owner.phone) {
+    // ----- SMS Notification (Pro and Unlimited only) -----
+    if (qrCode.notifySMS && owner.phone && (owner.plan === 'pro' || owner.plan === 'unlimited' || owner.plan === 'business')) {
       await sendSMS(owner, qrCode, locationText);
     }
 
@@ -98,7 +116,7 @@ async function sendEmail(owner, qrCode, scanLog, locationText) {
           </a>
         </div>
         <div style="background: #f1f5f9; padding: 12px; text-align: center;">
-          <p style="font-size: 11px; color: #888; margin: 0;">QR Tracker - Real-time Location Tracking System</p>
+          <p style="font-size: 11px; color: #888; margin: 0;">QRCodeKey - Real-time Location Tracking System</p>
         </div>
       </div>
     `;

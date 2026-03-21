@@ -6,21 +6,30 @@
 const crypto = require('crypto');
 const User = require('../models/User');
 
-// Plan configuration
+// Plan configuration - Notification Subscription Plans
+// USD pricing: Starter $0.99, Pro $4.99, Unlimited $14.99
+// Razorpay uses INR (paise) — converted at approx ₹83/USD
 const PLANS = {
+  starter: {
+    name: 'Starter Plan',
+    monthly: { price: 8200, duration: 30 },    // ~$0.99 = ₹82
+    yearly: { price: 78800, duration: 365 },    // ~$9.50 = ₹788 (20% off)
+    notifyQRLimit: 1,
+    features: ['1 QR with Notifications', 'Email + Push Alerts', 'GPS Location in Alert']
+  },
   pro: {
     name: 'Pro Plan',
-    price: 29900, // ₹299 in paise (Razorpay uses paise)
-    duration: 30, // days
-    qrLimit: 50,
-    features: ['50 QR Codes', 'Email + Push Notifications', 'Priority Support']
+    monthly: { price: 41400, duration: 30 },    // ~$4.99 = ₹414
+    yearly: { price: 347700, duration: 365 },   // ~$41.90 = ₹3477 (30% off)
+    notifyQRLimit: 5,
+    features: ['5 QR with Notifications', 'Email + SMS + Push Alerts', 'Priority Support']
   },
-  business: {
-    name: 'Business Plan',
-    price: 99900, // ₹999 in paise
-    duration: 30,
-    qrLimit: 999999,
-    features: ['Unlimited QR Codes', 'Email + SMS + Push', 'API Access', 'Priority Support']
+  unlimited: {
+    name: 'Unlimited Plan',
+    monthly: { price: 124400, duration: 30 },   // ~$14.99 = ₹1244
+    yearly: { price: 746900, duration: 365 },   // ~$89.99 = ₹7469 (50% off)
+    notifyQRLimit: 999999,
+    features: ['Unlimited QR Notifications', 'Email + SMS + Push', 'API Access', 'Dedicated Support']
   }
 };
 
@@ -31,8 +40,11 @@ exports.getPlans = (req, res) => {
     success: true,
     data: Object.entries(PLANS).map(([id, plan]) => ({
       id,
-      ...plan,
-      priceDisplay: `₹${plan.price / 100}/month`
+      name: plan.name,
+      monthlyPrice: plan.monthly.price / 100,
+      yearlyPrice: plan.yearly.price / 100,
+      notifyQRLimit: plan.notifyQRLimit,
+      features: plan.features
     }))
   });
 };
@@ -41,13 +53,14 @@ exports.getPlans = (req, res) => {
 // POST /api/payment/create-order
 exports.createOrder = async (req, res) => {
   try {
-    const { planId } = req.body;
+    const { planId, billingCycle = 'monthly' } = req.body;
 
     if (!PLANS[planId]) {
       return res.status(400).json({ success: false, message: 'Invalid plan selected' });
     }
 
     const plan = PLANS[planId];
+    const billing = billingCycle === 'yearly' ? plan.yearly : plan.monthly;
 
     // Initialize Razorpay
     const Razorpay = require('razorpay');
@@ -58,12 +71,13 @@ exports.createOrder = async (req, res) => {
 
     // Create Razorpay order
     const order = await razorpay.orders.create({
-      amount: plan.price,
+      amount: billing.price,
       currency: 'INR',
       receipt: `order_${req.user.id}_${Date.now()}`,
       notes: {
         userId: req.user.id.toString(),
         planId: planId,
+        billingCycle: billingCycle,
         userName: req.user.name,
         userEmail: req.user.email
       }
@@ -76,6 +90,7 @@ exports.createOrder = async (req, res) => {
         amount: order.amount,
         currency: order.currency,
         planName: plan.name,
+        billingCycle,
         keyId: process.env.RAZORPAY_KEY_ID,
         user: {
           name: req.user.name,
@@ -95,7 +110,7 @@ exports.createOrder = async (req, res) => {
 // POST /api/payment/verify
 exports.verifyPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planId } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planId, billingCycle = 'monthly' } = req.body;
 
     // Verify signature
     const generatedSignature = crypto
@@ -113,18 +128,20 @@ exports.verifyPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid plan' });
     }
 
+    const billing = billingCycle === 'yearly' ? plan.yearly : plan.monthly;
     const expiry = new Date();
-    expiry.setDate(expiry.getDate() + plan.duration);
+    expiry.setDate(expiry.getDate() + billing.duration);
 
     const user = await User.findByIdAndUpdate(req.user.id, {
       plan: planId,
+      billingCycle: billingCycle,
       planExpiry: expiry,
       $push: {
         paymentHistory: {
           orderId: razorpay_order_id,
           paymentId: razorpay_payment_id,
           plan: planId,
-          amount: plan.price / 100,
+          amount: billing.price / 100,
           currency: 'INR',
           status: 'paid',
           paidAt: new Date()
@@ -137,6 +154,7 @@ exports.verifyPayment = async (req, res) => {
       message: `${plan.name} activated successfully! 🎉`,
       data: {
         plan: user.plan,
+        billingCycle: user.billingCycle,
         planExpiry: user.planExpiry,
         paymentId: razorpay_payment_id
       }
@@ -190,16 +208,19 @@ exports.webhook = async (req, res) => {
     if (event === 'payment.captured' && payment) {
       const userId = payment.notes?.userId;
       const planId = payment.notes?.planId;
+      const billingCycle = payment.notes?.billingCycle || 'monthly';
 
       if (userId && planId && PLANS[planId]) {
+        const billing = billingCycle === 'yearly' ? PLANS[planId].yearly : PLANS[planId].monthly;
         const expiry = new Date();
-        expiry.setDate(expiry.getDate() + PLANS[planId].duration);
+        expiry.setDate(expiry.getDate() + billing.duration);
 
         await User.findByIdAndUpdate(userId, {
           plan: planId,
+          billingCycle: billingCycle,
           planExpiry: expiry
         });
-        console.log(`✅ Webhook: Plan ${planId} activated for user ${userId}`);
+        console.log(`✅ Webhook: Plan ${planId} (${billingCycle}) activated for user ${userId}`);
       }
     }
 
