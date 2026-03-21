@@ -141,8 +141,37 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Features */}
+            {/* Two Modes */}
             <div className="space-y-3">
+              <h3 className="font-bold text-sm text-gray-300 text-center">{t('howItWorks')}</h3>
+
+              {/* Mode 1 */}
+              <div className="card p-4 border-indigo-500/20">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">📱</span>
+                  <div>
+                    <div className="font-bold text-sm text-indigo-400">{t('mode1Title')}</div>
+                    <div className="text-[10px] text-gray-500">{t('mode1Tag')}</div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 leading-relaxed">{t('mode1Note')}</p>
+              </div>
+
+              {/* Mode 2 */}
+              <div className="card p-4 border-pink-500/20">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">🏢</span>
+                  <div>
+                    <div className="font-bold text-sm text-pink-400">{t('mode2Title')}</div>
+                    <div className="text-[10px] text-gray-500">{t('mode2Tag')}</div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 leading-relaxed">{t('mode2Note')}</p>
+              </div>
+            </div>
+
+            {/* Features */}
+            <div className="space-y-3 mt-3">
               {[
                 { icon: '📷', title: 'QR Attendance', desc: 'GPS-validated clock-in/out with QR codes' },
                 { icon: '📱', title: t('feature1Title'), desc: t('feature1Desc') },

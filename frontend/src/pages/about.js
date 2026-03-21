@@ -49,6 +49,73 @@ export default function About() {
           </p>
         </div>
 
+        {/* Two Modes */}
+        <div className="space-y-4 animate-fadeIn">
+          <h2 className="text-lg font-bold text-gray-100 text-center">{t('howItWorks')}</h2>
+
+          {/* Mode 1: Personal Tracking */}
+          <div className="card p-6 border-indigo-500/20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-xl shrink-0">📱</div>
+              <div>
+                <h3 className="font-bold text-base text-indigo-400">{t('mode1Title')}</h3>
+                <span className="text-[10px] text-indigo-400/60 font-semibold uppercase">{t('mode1Tag')}</span>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {[
+                { step: '1', icon: '➕', text: t('mode1Step1') },
+                { step: '2', icon: '📲', text: t('mode1Step2') },
+                { step: '3', icon: '✅', text: t('mode1Step3') },
+                { step: '4', icon: '📍', text: t('mode1Step4') },
+                { step: '5', icon: '🗺️', text: t('mode1Step5') },
+              ].map((s, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0 mt-0.5">{s.step}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{s.icon}</span>
+                    <span className="text-sm text-gray-300">{s.text}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/15">
+              <p className="text-xs text-indigo-300">{t('mode1Note')}</p>
+            </div>
+          </div>
+
+          {/* Mode 2: Organization Attendance */}
+          <div className="card p-6 border-pink-500/20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center text-xl shrink-0">🏢</div>
+              <div>
+                <h3 className="font-bold text-base text-pink-400">{t('mode2Title')}</h3>
+                <span className="text-[10px] text-pink-400/60 font-semibold uppercase">{t('mode2Tag')}</span>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {[
+                { step: '1', icon: '🏢', text: t('mode2Step1') },
+                { step: '2', icon: '📍', text: t('mode2Step2') },
+                { step: '3', icon: '📷', text: t('mode2Step3') },
+                { step: '4', icon: '✅', text: t('mode2Step4') },
+                { step: '5', icon: '❌', text: t('mode2Step5') },
+              ].map((s, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center text-[10px] font-bold text-pink-400 shrink-0 mt-0.5">{s.step}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{s.icon}</span>
+                    <span className="text-sm text-gray-300">{s.text}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 p-3 bg-pink-500/10 rounded-xl border border-pink-500/15">
+              <p className="text-xs text-pink-300">{t('mode2Note')}</p>
+            </div>
+          </div>
+        </div>
+
         {/* What We Offer */}
         <div className="card p-6 animate-fadeIn">
           <div className="flex items-center gap-3 mb-4">

@@ -15,6 +15,8 @@ export default function Help() {
 
   const faqs = [
     { q: t('faq1Q'), a: t('faq1A'), category: 'general' },
+    { q: t('faq9Q'), a: t('faq9A'), category: 'general' },
+    { q: t('faq10Q'), a: t('faq10A'), category: 'general' },
     { q: t('faq2Q'), a: t('faq2A'), category: 'qr' },
     { q: t('faq3Q'), a: t('faq3A'), category: 'attendance' },
     { q: t('faq4Q'), a: t('faq4A'), category: 'attendance' },
