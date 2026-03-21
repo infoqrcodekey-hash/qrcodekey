@@ -58,10 +58,11 @@ export default function Contact() {
         {/* Founder Info */}
         <div className="card p-5 animate-fadeIn">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-xl font-black shrink-0">AG</div>
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-xl font-black shrink-0">AC</div>
             <div>
-              <div className="font-bold text-sm text-gray-100">AG</div>
+              <div className="font-bold text-sm text-gray-100">Ashvinkumar Chaudhari</div>
               <div className="text-xs text-gray-400 mt-0.5">Founder & Developer</div>
+              <div className="text-[10px] text-gray-500 mt-0.5">647 Rose Ln, Bartlett, IL 60103, USA</div>
             </div>
           </div>
         </div>
@@ -71,7 +72,7 @@ export default function Contact() {
           {[
             { icon: '📧', label: t('emailUs'), value: 'info.qrcodekey@gmail.com', href: 'mailto:info.qrcodekey@gmail.com' },
             { icon: '📞', label: 'Phone', value: '(708) 300-5490', href: 'tel:+17083005490' },
-            { icon: '📍', label: 'Location', value: 'Chicago, USA' },
+            { icon: '📍', label: 'Location', value: '647 Rose Ln, Bartlett, IL 60103, USA' },
             { icon: '🌐', label: t('website'), value: 'qrcodekey.com', href: 'https://qrcodekey.com' },
             { icon: '🕐', label: t('responseTime'), value: t('within24hrs') },
           ].map((item, i) => (

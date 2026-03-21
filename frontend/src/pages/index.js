@@ -1,8 +1,8 @@
 // ============================================
-// pages/index.js - Home Page
+// pages/index.js - Home Page (Redesigned)
 // ============================================
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -15,6 +15,12 @@ export default function Home() {
   const { t } = useLanguage();
   const router = useRouter();
   const [alerts, setAlerts] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchPassword, setSearchPassword] = useState('');
+  const [searchResult, setSearchResult] = useState(null);
+  const [searching, setSearching] = useState(false);
+  const menuRef = useRef(null);
 
   // Real-time scan alerts
   useEffect(() => {
@@ -24,6 +30,38 @@ export default function Home() {
     });
     return cleanup;
   }, [isLoggedIn]);
+
+  // Close menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // QR Search handler
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    setSearching(true);
+    setSearchResult(null);
+    try {
+      const API = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetch(`${API}/api/qr/search?qrId=${encodeURIComponent(searchQuery)}&password=${encodeURIComponent(searchPassword)}`);
+      const data = await res.json();
+      if (res.ok && data) {
+        setSearchResult(data);
+      } else {
+        setSearchResult({ error: 'QR Code not found or wrong password' });
+      }
+    } catch (err) {
+      setSearchResult({ error: 'Search failed. Try again.' });
+    }
+    setSearching(false);
+  };
 
   if (loading) {
     return (
@@ -47,12 +85,71 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {isLoggedIn ? (
-              <>
-                <span className="text-[10px] text-gray-400 truncate max-w-[60px] hidden sm:inline">👤 {user?.name}</span>
-                <button onClick={logout} className="text-[10px] text-red-400 hover:text-red-300 font-semibold">{t('logout')}</button>
-              </>
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform"
+                >
+                  ☰
+                </button>
+
+                {/* Dropdown Menu */}
+                {menuOpen && (
+                  <div className="absolute right-0 top-12 w-64 bg-[rgba(15,12,40,0.98)] backdrop-blur-xl rounded-2xl border border-[rgba(99,102,241,0.25)] shadow-2xl shadow-black/50 overflow-hidden z-50 animate-slideUp">
+                    {/* User info */}
+                    <div className="p-4 border-b border-white/5">
+                      <div className="text-sm font-bold text-gray-200">👤 {user?.name}</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5">{user?.email}</div>
+                    </div>
+
+                    {/* Menu items */}
+                    <div className="p-2 max-h-[60vh] overflow-y-auto">
+                      {[
+                        { label: t('generateQR'), icon: '➕', href: '/generate', color: 'indigo' },
+                        { label: t('trackQR'), icon: '📍', href: '/scanner', color: 'pink' },
+                        { label: 'Attendance Scan', icon: '📷', href: '/attendance-scanner', color: 'cyan' },
+                        { label: t('dashboard'), icon: '📋', href: '/attendance-dashboard', color: 'purple' },
+                        { label: 'Organizations', icon: '🏢', href: '/organizations', color: 'blue' },
+                        { label: 'Leave Management', icon: '📋', href: '/leave-management', color: 'green' },
+                        { label: 'Holiday Calendar', icon: '🎉', href: '/holiday-calendar', color: 'yellow' },
+                        { label: 'Visitor Management', icon: '👤', href: '/visitor-management', color: 'orange' },
+                        { label: 'Shift Management', icon: '🕐', href: '/shift-management', color: 'indigo' },
+                        { label: 'Reports', icon: '📊', href: '/reports', color: 'teal' },
+                        { label: 'Audit Log', icon: '📜', href: '/audit-log', color: 'gray' },
+                        { label: 'Notifications', icon: '🔔', href: '/notifications', color: 'red' },
+                        { label: 'Emergency Broadcast', icon: '🚨', href: '/emergency-broadcast', color: 'red' },
+                        { label: 'Face Verification', icon: '🤳', href: '/face-verification', color: 'cyan' },
+                        { label: t('profile'), icon: '⚙️', href: '/profile', color: 'green' },
+                      ].map((item, i) => (
+                        <Link
+                          key={i}
+                          href={item.href}
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all"
+                        >
+                          <span className="text-lg">{item.icon}</span>
+                          <span className="text-sm text-gray-300 font-medium">{item.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+
+                    {/* Logout */}
+                    <div className="p-2 border-t border-white/5">
+                      <button
+                        onClick={() => { logout(); setMenuOpen(false); }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 transition-all text-red-400"
+                      >
+                        <span className="text-lg">🚪</span>
+                        <span className="text-sm font-medium">{t('logout')}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
-              <Link href="/login" className="text-xs text-indigo-400 font-bold hover:text-indigo-300">{t('login')} →</Link>
+              <Link href="/login" className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 text-white text-xs font-bold hover:opacity-90 transition-all shadow-lg shadow-indigo-500/20">
+                {t('login')} →
+              </Link>
             )}
             <LanguageSwitcher />
           </div>
@@ -60,10 +157,10 @@ export default function Home() {
       </header>
 
       <main className="max-w-lg mx-auto px-5 pt-8">
-        {/* Hero */}
+        {/* Hero - Clean QR Focus */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 animate-float">
-            <span className="text-4xl">📍</span>
+          <div className="w-24 h-24 mx-auto mb-5 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-2xl shadow-indigo-500/40 animate-float">
+            <span className="text-5xl">📍</span>
           </div>
           <h1 className="text-3xl font-black gradient-text mb-2">{t('heroTitle')}</h1>
           <p className="text-sm text-gray-400 max-w-xs mx-auto leading-relaxed">
@@ -71,128 +168,166 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Quick Actions */}
-        {isLoggedIn ? (
-          <>
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {[
-                { label: t('generateQR'), desc: t('generateQRDesc'), icon: '➕', color: 'indigo', href: '/generate' },
-                { label: t('trackQR'), desc: t('trackQRDesc'), icon: '📍', color: 'pink', href: '/scanner' },
-                { label: 'Attendance', desc: 'QR Clock-In/Out', icon: '📷', color: 'cyan', href: '/attendance-scanner' },
-                { label: t('dashboard'), desc: t('dashboardDesc'), icon: '📋', color: 'purple', href: '/attendance-dashboard' },
-                { label: 'Organizations', desc: 'Manage Groups', icon: '🏢', color: 'blue', href: '/organizations' },
-                { label: 'Leaves', desc: 'Leave Management', icon: '📋', color: 'green', href: '/leave-management' },
-                { label: 'Holidays', desc: 'Holiday Calendar', icon: '🎉', color: 'yellow', href: '/holiday-calendar' },
-                { label: 'Visitors', desc: 'Visitor Log', icon: '👤', color: 'orange', href: '/visitor-management' },
-                { label: 'Shifts', desc: 'Shifts & OT', icon: '🕐', color: 'indigo', href: '/shift-management' },
-                { label: 'Reports', desc: 'Monthly Reports', icon: '📊', color: 'teal', href: '/reports' },
-                { label: 'Audit', desc: 'Activity Log', icon: '📜', color: 'gray', href: '/audit-log' },
-                { label: 'Alerts', desc: 'Notifications', icon: '🔔', color: 'red', href: '/notifications' },
-                { label: 'Emergency', desc: 'Broadcast Alert', icon: '🚨', color: 'red', href: '/emergency-broadcast' },
-                { label: 'Face Verify', desc: 'Anti-Proxy Check', icon: '🤳', color: 'cyan', href: '/face-verification' },
-                { label: t('profile'), desc: t('settings'), icon: '⚙️', color: 'green', href: '/profile' },
-              ].map((item, i) => (
-                <Link key={i} href={item.href} className={`card p-5 hover:border-${item.color}-500/30 transition-all group`}>
-                  <span className="text-2xl block mb-2 group-hover:scale-110 transition-transform">{item.icon}</span>
-                  <div className="font-bold text-sm text-gray-200">{item.label}</div>
-                  <div className="text-[11px] text-gray-500 mt-0.5">{item.desc}</div>
-                </Link>
-              ))}
+        {/* Main Actions - Scan & Download */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <Link href="/scanner" className="card p-5 text-center hover:border-indigo-500/30 transition-all group border-indigo-500/15">
+            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-indigo-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span className="text-3xl">📷</span>
             </div>
+            <div className="font-bold text-sm text-gray-200">{t('trackQR')}</div>
+            <div className="text-[10px] text-gray-500 mt-1">Scan any QR code</div>
+          </Link>
+          <Link href="/generate" className="card p-5 text-center hover:border-pink-500/30 transition-all group border-pink-500/15">
+            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-pink-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span className="text-3xl">⬇️</span>
+            </div>
+            <div className="font-bold text-sm text-gray-200">{t('generateQR')}</div>
+            <div className="text-[10px] text-gray-500 mt-1">Download QR code</div>
+          </Link>
+        </div>
 
-            {/* Real-time Alerts */}
-            {alerts.length > 0 && (
-              <div className="card p-4 mb-6 border-red-500/20">
-                <div className="text-xs font-bold text-red-400 mb-3">🔴 {t('liveAlerts')}</div>
-                {alerts.map((a, i) => (
-                  <div key={i} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
-                    <span className="text-lg">📍</span>
-                    <div className="flex-1">
-                      <div className="text-xs font-bold text-gray-200">{a.qrId}</div>
-                      <div className="text-[10px] text-gray-500">{a.location} • {a.category}</div>
-                    </div>
-                    <span className="text-[10px] text-red-400 font-semibold">{t('live')}</span>
+        {/* Search Bar - QR Code Search */}
+        {isLoggedIn && (
+          <div className="card p-5 mb-6 border-indigo-500/15">
+            <h3 className="font-bold text-sm text-gray-200 mb-3">🔍 Search QR Code</h3>
+            <form onSubmit={handleSearch} className="space-y-3">
+              <input
+                type="text"
+                className="input-field"
+                placeholder="Enter QR Code ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <input
+                type="password"
+                className="input-field"
+                placeholder="Password (if protected)"
+                value={searchPassword}
+                onChange={(e) => setSearchPassword(e.target.value)}
+              />
+              <button
+                type="submit"
+                disabled={searching || !searchQuery.trim()}
+                className="btn-primary w-full text-sm"
+              >
+                {searching ? '🔄 Searching...' : '🔍 Search & Track on Map'}
+              </button>
+            </form>
+
+            {/* Search Result */}
+            {searchResult && (
+              <div className="mt-4">
+                {searchResult.error ? (
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400">
+                    ❌ {searchResult.error}
                   </div>
-                ))}
+                ) : (
+                  <div className="space-y-3">
+                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
+                      <div className="text-sm font-bold text-green-400">✅ QR Code Found!</div>
+                      <div className="text-xs text-gray-400 mt-1">
+                        {searchResult.category && <span>Category: {searchResult.category}</span>}
+                      </div>
+                    </div>
+                    {searchResult.locations && searchResult.locations.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-xs font-bold text-gray-300">📍 Scan Locations:</div>
+                        {searchResult.locations.map((loc, i) => (
+                          <a
+                            key={i}
+                            href={`https://www.google.com/maps?q=${loc.lat},${loc.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all"
+                          >
+                            <div className="text-xs text-indigo-400">🗺️ Location {i + 1}</div>
+                            <div className="text-[10px] text-gray-500">{loc.address || `${loc.lat}, ${loc.lng}`}</div>
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                    <Link href={`/map/${searchResult.qrId || searchQuery}`} className="btn-primary w-full text-center block text-sm">
+                      🗺️ View on Full Map
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
-          </>
-        ) : (
-          /* Not Logged In - CTA */
-          <div className="space-y-4">
-            <div className="card p-6 text-center">
-              <h2 className="font-bold text-lg text-gray-200 mb-2">{t('getStarted')}</h2>
-              <p className="text-xs text-gray-400 mb-5">{t('getStartedDesc')}</p>
-              <div className="flex gap-3">
-                <Link href="/register" className="btn-primary flex-1 text-center block">{t('register')}</Link>
-                <Link href="/login" className="btn-secondary flex-1 text-center block">{t('login')}</Link>
-              </div>
+          </div>
+        )}
+
+        {/* Quick Access for visitors */}
+        {!isLoggedIn && (
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <Link href="/attendance-scanner" className="card p-4 text-center hover:border-indigo-500/30 transition-all">
+              <span className="text-2xl block mb-1">📷</span>
+              <div className="font-bold text-xs text-gray-200">Attendance Scan</div>
+            </Link>
+            <Link href="/viewer-login" className="card p-4 text-center hover:border-indigo-500/30 transition-all">
+              <span className="text-2xl block mb-1">👁</span>
+              <div className="font-bold text-xs text-gray-200">View Attendance</div>
+            </Link>
+          </div>
+        )}
+
+        {/* Register CTA for non-logged in */}
+        {!isLoggedIn && (
+          <div className="card p-6 text-center mb-6 border-indigo-500/15">
+            <h2 className="font-bold text-lg text-gray-200 mb-2">{t('getStarted')}</h2>
+            <p className="text-xs text-gray-400 mb-5">{t('getStartedDesc')}</p>
+            <div className="flex gap-3">
+              <Link href="/register" className="btn-primary flex-1 text-center block">{t('register')}</Link>
+              <Link href="/login" className="btn-secondary flex-1 text-center block">{t('login')}</Link>
             </div>
+          </div>
+        )}
 
-            {/* Quick Access (no login) */}
-            <div className="grid grid-cols-2 gap-3 mt-4 mb-4">
-              <Link href="/attendance-scanner" className="card p-4 text-center hover:border-indigo-500/30 transition-all">
-                <span className="text-2xl block mb-1">📷</span>
-                <div className="font-bold text-xs text-gray-200">Attendance Scan</div>
-              </Link>
-              <Link href="/viewer-login" className="card p-4 text-center hover:border-indigo-500/30 transition-all">
-                <span className="text-2xl block mb-1">👁</span>
-                <div className="font-bold text-xs text-gray-200">View Attendance</div>
-              </Link>
-            </div>
-
-            {/* Two Modes */}
-            <div className="space-y-3">
-              <h3 className="font-bold text-sm text-gray-300 text-center">{t('howItWorks')}</h3>
-
-              {/* Mode 1 */}
-              <div className="card p-4 border-indigo-500/20">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-2xl">📱</span>
-                  <div>
-                    <div className="font-bold text-sm text-indigo-400">{t('mode1Title')}</div>
-                    <div className="text-[10px] text-gray-500">{t('mode1Tag')}</div>
-                  </div>
+        {/* Real-time Alerts for logged-in */}
+        {isLoggedIn && alerts.length > 0 && (
+          <div className="card p-4 mb-6 border-red-500/20">
+            <div className="text-xs font-bold text-red-400 mb-3">🔴 {t('liveAlerts')}</div>
+            {alerts.map((a, i) => (
+              <div key={i} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
+                <span className="text-lg">📍</span>
+                <div className="flex-1">
+                  <div className="text-xs font-bold text-gray-200">{a.qrId}</div>
+                  <div className="text-[10px] text-gray-500">{a.location} • {a.category}</div>
                 </div>
-                <p className="text-xs text-gray-400 leading-relaxed">{t('mode1Note')}</p>
+                <span className="text-[10px] text-red-400 font-semibold">{t('live')}</span>
               </div>
+            ))}
+          </div>
+        )}
 
-              {/* Mode 2 */}
-              <div className="card p-4 border-pink-500/20">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-2xl">🏢</span>
-                  <div>
-                    <div className="font-bold text-sm text-pink-400">{t('mode2Title')}</div>
-                    <div className="text-[10px] text-gray-500">{t('mode2Tag')}</div>
-                  </div>
+        {/* How it Works - for visitors */}
+        {!isLoggedIn && (
+          <div className="space-y-3 mb-6">
+            <h3 className="font-bold text-sm text-gray-300 text-center">{t('howItWorks')}</h3>
+            <div className="card p-4 border-indigo-500/20">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-2xl">📱</span>
+                <div>
+                  <div className="font-bold text-sm text-indigo-400">{t('mode1Title')}</div>
+                  <div className="text-[10px] text-gray-500">{t('mode1Tag')}</div>
                 </div>
-                <p className="text-xs text-gray-400 leading-relaxed">{t('mode2Note')}</p>
               </div>
+              <p className="text-xs text-gray-400 leading-relaxed">{t('mode1Note')}</p>
             </div>
-
-            {/* Features */}
-            <div className="space-y-3 mt-3">
-              {[
-                { icon: '📷', title: 'QR Attendance', desc: 'GPS-validated clock-in/out with QR codes' },
-                { icon: '📱', title: t('feature1Title'), desc: t('feature1Desc') },
-                { icon: '🗺️', title: t('feature2Title'), desc: t('feature2Desc') },
-                { icon: '🔔', title: t('feature3Title'), desc: t('feature3Desc') },
-                { icon: '🔒', title: t('feature4Title'), desc: t('feature4Desc') },
-              ].map((f, i) => (
-                <div key={i} className="card p-4 flex items-start gap-4 animate-slideUp" style={{ animationDelay: `${i * 0.1}s` }}>
-                  <span className="text-2xl">{f.icon}</span>
-                  <div>
-                    <div className="font-bold text-sm text-gray-200">{f.title}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">{f.desc}</div>
-                  </div>
+            <div className="card p-4 border-pink-500/20">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-2xl">🏢</span>
+                <div>
+                  <div className="font-bold text-sm text-pink-400">{t('mode2Title')}</div>
+                  <div className="text-[10px] text-gray-500">{t('mode2Tag')}</div>
                 </div>
-              ))}
+              </div>
+              <p className="text-xs text-gray-400 leading-relaxed">{t('mode2Note')}</p>
             </div>
           </div>
         )}
 
         {/* Pricing */}
-        <div className="mt-8 card p-5">
+        <div className="card p-5 mb-6">
           <h3 className="font-bold text-sm text-indigo-400 mb-4">💎 {t('pricing')}</h3>
           <div className="grid grid-cols-3 gap-2">
             {[
@@ -210,7 +345,7 @@ export default function Home() {
         </div>
 
         {/* Footer Links */}
-        <div className="mt-8 card p-5">
+        <div className="card p-5">
           <div className="grid grid-cols-4 gap-2 text-center">
             {[
               { icon: '📖', label: t('aboutUs'), href: '/about' },
@@ -225,7 +360,8 @@ export default function Home() {
             ))}
           </div>
           <div className="text-center mt-4 pt-3 border-t border-white/5">
-            <div className="text-[10px] text-gray-600">© 2026 QRCodeKey. All rights reserved.</div>
+            <div className="text-[10px] text-gray-600">© 2026 QRCodeKey by Ashvinkumar Chaudhari. All rights reserved.</div>
+            <div className="text-[9px] text-gray-600 mt-0.5">647 Rose Ln, Bartlett, IL 60103, USA</div>
             <div className="flex justify-center gap-3 mt-2">
               <Link href="/terms" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('termsOfService')}</Link>
               <Link href="/privacy-policy" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('privacyPolicy')}</Link>
@@ -235,7 +371,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Bottom Nav */}
+      {/* Bottom Nav - Only for logged in */}
       {isLoggedIn && (
         <nav className="fixed bottom-0 inset-x-0 z-50 bg-[rgba(10,10,30,0.92)] backdrop-blur-xl border-t border-[rgba(99,102,241,0.12)] py-2 px-4">
           <div className="max-w-lg mx-auto flex justify-around">

@@ -182,7 +182,10 @@ export default function Terms() {
               For questions about these Terms of Service, please contact us at:
             </p>
             <div className="space-y-2 text-sm mt-3">
-              <p className="text-gray-300"><strong>Email:</strong> <a href="mailto:info.qrcodekey@gmail.com" className="text-indigo-400 hover:text-indigo-300">info.qrcodekey@gmail.com</a></p>
+              <p className="text-gray-300"><strong>Name:</strong> Ashvinkumar Chaudhari</p>
+              <p className="text-gray-300"><strong>Address:</strong> 647 Rose Ln, Bartlett, IL 60103, USA</p>
+              <p className="text-gray-300"><strong>Email:</strong> <a href="mailto:ashvinc1984@gmail.com" className="text-indigo-400 hover:text-indigo-300">ashvinc1984@gmail.com</a></p>
+              <p className="text-gray-300"><strong>Phone:</strong> <a href="tel:+17083005490" className="text-indigo-400 hover:text-indigo-300">(708) 300-5490</a></p>
               <p className="text-gray-400">Response time: Within 7 business days</p>
             </div>
           </section>
