@@ -4,7 +4,7 @@
 // QR ID + Password → Last Seen Location PROMINENT DISPLAY
 // Scanner error aaye ya na aaye → Last location hamesha dikhega
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { trackAPI } from '../lib/api';
 import { joinQRTracking, onNewScan, leaveQRTracking } from '../lib/socket';
 import Link from 'next/link';
@@ -85,6 +85,86 @@ export default function Track() {
 
   const getOpenStreetMapUrl = (lat, lng) =>
     `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}&zoom=15`;
+
+  // Inline mini-map using Leaflet
+  const MiniMap = ({ lat, lng, locations: locs }) => {
+    const mapContainerRef = useRef(null);
+    const mapInstanceRef = useRef(null);
+
+    useEffect(() => {
+      if (!mapContainerRef.current || mapInstanceRef.current) return;
+      if (typeof window === 'undefined') return;
+
+      const L = require('leaflet');
+
+      const map = L.map(mapContainerRef.current, {
+        center: [lat, lng],
+        zoom: 13,
+        zoomControl: true,
+        attributionControl: false,
+        dragging: true,
+        scrollWheelZoom: true,
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(map);
+
+      // Add main marker
+      const mainIcon = L.divIcon({
+        html: '<div style="width:16px;height:16px;background:#ef4444;border:2px solid white;border-radius:50%;box-shadow:0 0 10px rgba(239,68,68,0.6)"></div>',
+        className: '',
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+      });
+      L.marker([lat, lng], { icon: mainIcon }).addTo(map)
+        .bindPopup('<b>Last Known Location</b>');
+
+      // Add scan history markers if available
+      if (locs && locs.length > 0) {
+        const scanIcon = L.divIcon({
+          html: '<div style="width:10px;height:10px;background:#6366f1;border:2px solid white;border-radius:50%;"></div>',
+          className: '',
+          iconSize: [10, 10],
+          iconAnchor: [5, 5],
+        });
+
+        const points = [[lat, lng]];
+        locs.forEach((loc, i) => {
+          if (loc.latitude && loc.longitude && loc.latitude !== 0) {
+            L.marker([loc.latitude, loc.longitude], { icon: i === 0 ? mainIcon : scanIcon }).addTo(map);
+            points.push([loc.latitude, loc.longitude]);
+          }
+        });
+
+        if (points.length > 1) {
+          const bounds = L.latLngBounds(points);
+          map.fitBounds(bounds, { padding: [30, 30] });
+        }
+      }
+
+      mapInstanceRef.current = map;
+
+      // Fix map rendering after container becomes visible
+      setTimeout(() => map.invalidateSize(), 200);
+
+      return () => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
+        }
+      };
+    }, [lat, lng]);
+
+    return (
+      <div
+        ref={mapContainerRef}
+        style={{ width: '100%', height: '250px', borderRadius: '16px', overflow: 'hidden' }}
+        className="border border-indigo-500/20"
+      />
+    );
+  };
 
   return (
     <>
@@ -254,9 +334,26 @@ export default function Track() {
                 <div className="card p-6 text-center border-yellow-500/20">
                   <span className="text-4xl block mb-3">⚠️</span>
                   <h3 className="font-bold text-yellow-400 mb-1">{t('noGPSLocation')}</h3>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 mb-3">
                     {t('noGPSLocationDesc')}
                   </p>
+                  {result.qrInfo.totalScans === 0 && (
+                    <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-400">
+                      💡 This QR has not been scanned yet. When someone scans it, their location will appear here.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Inline Map */}
+              {result.qrInfo.lastKnownLocation?.latitude && (
+                <div className="card p-3 border-indigo-500/15">
+                  <div className="text-[10px] font-bold text-indigo-400 mb-2">🗺️ Live Map</div>
+                  <MiniMap
+                    lat={result.qrInfo.lastKnownLocation.latitude}
+                    lng={result.qrInfo.lastKnownLocation.longitude}
+                    locations={result.locations}
+                  />
                 </div>
               )}
 

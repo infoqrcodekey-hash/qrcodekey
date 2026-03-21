@@ -1,172 +1,157 @@
 // ============================================
-// components/MapView.js - Google Maps Component
+// components/MapView.js - Leaflet Map Component
 // ============================================
-// Uses Google Maps JavaScript API
+// Uses OpenStreetMap + Leaflet (FREE - no API key needed)
 // Dynamic import (ssr: false) se use karo
 
 import { useEffect, useRef, useState } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || '';
-
-function loadGoogleMaps() {
-  return new Promise((resolve, reject) => {
-    if (window.google?.maps) { resolve(window.google.maps); return; }
-
-    // Check if script is already loading
-    if (document.querySelector('script[src*="maps.googleapis.com"]')) {
-      const check = setInterval(() => {
-        if (window.google?.maps) { clearInterval(check); resolve(window.google.maps); }
-      }, 100);
-      setTimeout(() => { clearInterval(check); reject(new Error('Google Maps timeout')); }, 10000);
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=geometry`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      if (window.google?.maps) resolve(window.google.maps);
-      else reject(new Error('Google Maps not available'));
-    };
-    script.onerror = () => reject(new Error('Failed to load Google Maps'));
-    document.head.appendChild(script);
+// Fix Leaflet default marker icon issue with Next.js
+const createIcon = (color, size) => {
+  return L.divIcon({
+    html: `<div style="
+      width:${size}px;height:${size}px;
+      background:${color};
+      border:2px solid white;
+      border-radius:50%;
+      box-shadow:0 2px 8px rgba(0,0,0,0.4);
+    "></div>`,
+    className: '',
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2],
   });
-}
+};
+
+const latestIcon = L.divIcon({
+  html: `<div style="
+    width:20px;height:20px;
+    background:#ef4444;
+    border:3px solid white;
+    border-radius:50%;
+    box-shadow:0 0 12px rgba(239,68,68,0.6), 0 2px 8px rgba(0,0,0,0.4);
+    animation: pulse 1.5s infinite;
+  "></div>
+  <style>@keyframes pulse{0%,100%{box-shadow:0 0 12px rgba(239,68,68,0.6)}50%{box-shadow:0 0 24px rgba(239,68,68,0.9)}}</style>`,
+  className: '',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+  popupAnchor: [0, -12],
+});
+
+const normalIcon = createIcon('#6366f1', 12);
 
 export default function MapView({ locations = [], selectedScan, onSelectScan, qrInfo }) {
   const mapRef = useRef(null);
-  const googleMapRef = useRef(null);
+  const leafletMapRef = useRef(null);
   const markersRef = useRef([]);
   const polylineRef = useRef(null);
-  const infoWindowRef = useRef(null);
-  const [mapError, setMapError] = useState(false);
 
+  // Initialize map
   useEffect(() => {
     if (typeof window === 'undefined' || !mapRef.current) return;
-    if (googleMapRef.current) return;
+    if (leafletMapRef.current) return;
 
-    if (!GOOGLE_MAPS_KEY) {
-      setMapError(true);
-      return;
-    }
-
-    loadGoogleMaps().then(maps => {
-      const map = new maps.Map(mapRef.current, {
-        center: { lat: 20.5937, lng: 78.9629 }, // India
-        zoom: 5,
-        mapId: 'qrcodekey-dark',
-        disableDefaultUI: false,
-        zoomControl: true,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: true,
-        styles: [
-          { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
-          { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a2e' }] },
-          { elementType: 'labels.text.fill', stylers: [{ color: '#8b8ba7' }] },
-          { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2a2a4a' }] },
-          { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1a1a3e' }] },
-          { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3a3a5e' }] },
-          { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0e1a2b' }] },
-          { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#4e6d8c' }] },
-          { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#1e1e3e' }] },
-          { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#6b6b8a' }] },
-          { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#1e1e3e' }] },
-          { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#2a2a4a' }] },
-        ],
-      });
-
-      infoWindowRef.current = new maps.InfoWindow();
-      googleMapRef.current = map;
-      addMarkers(maps, map, locations);
-    }).catch(err => {
-      console.error('Google Maps load error:', err);
-      setMapError(true);
+    const map = L.map(mapRef.current, {
+      center: [20.5937, 78.9629], // India center
+      zoom: 5,
+      zoomControl: true,
+      attributionControl: true,
     });
 
+    // Dark tile layer
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(map);
+
+    leafletMapRef.current = map;
+
+    // Add markers if locations already available
+    if (locations.length > 0) {
+      addMarkers(map, locations);
+    }
+
     return () => {
-      clearMarkers();
-      googleMapRef.current = null;
+      if (leafletMapRef.current) {
+        leafletMapRef.current.remove();
+        leafletMapRef.current = null;
+      }
     };
   }, []);
 
+  // Update markers when locations change
   useEffect(() => {
-    if (!googleMapRef.current || locations.length === 0) return;
-    loadGoogleMaps().then(maps => {
-      addMarkers(maps, googleMapRef.current, locations);
-    });
+    if (!leafletMapRef.current || locations.length === 0) return;
+    addMarkers(leafletMapRef.current, locations);
   }, [locations]);
 
+  // Pan to selected scan
   useEffect(() => {
-    if (!googleMapRef.current || !selectedScan) return;
+    if (!leafletMapRef.current || !selectedScan) return;
     if (selectedScan.latitude && selectedScan.longitude) {
-      googleMapRef.current.panTo({ lat: selectedScan.latitude, lng: selectedScan.longitude });
-      googleMapRef.current.setZoom(14);
+      leafletMapRef.current.flyTo([selectedScan.latitude, selectedScan.longitude], 14, {
+        duration: 0.8,
+      });
     }
   }, [selectedScan]);
 
   const clearMarkers = () => {
-    markersRef.current.forEach(m => m.setMap(null));
+    markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
-    if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
+    if (polylineRef.current) {
+      polylineRef.current.remove();
+      polylineRef.current = null;
+    }
   };
 
-  const addMarkers = (maps, map, locs) => {
+  const addMarkers = (map, locs) => {
     clearMarkers();
 
     const validLocs = locs.filter(l => l.latitude && l.longitude && l.latitude !== 0);
     if (validLocs.length === 0) return;
 
-    const bounds = new maps.LatLngBounds();
     const path = [];
 
     validLocs.forEach((loc, i) => {
       const isLatest = i === 0;
-      const position = { lat: loc.latitude, lng: loc.longitude };
-      bounds.extend(position);
+      const position = [loc.latitude, loc.longitude];
       path.push(position);
 
-      const marker = new maps.Marker({
-        position,
-        map,
-        icon: {
-          path: isLatest ? maps.SymbolPath.BACKWARD_CLOSED_ARROW : maps.SymbolPath.CIRCLE,
-          scale: isLatest ? 8 : 5,
-          fillColor: isLatest ? '#6366f1' : '#818cf8',
-          fillOpacity: isLatest ? 1 : 0.7,
-          strokeColor: '#ffffff',
-          strokeWeight: isLatest ? 2.5 : 1.5,
-          rotation: 0,
-        },
-        zIndex: isLatest ? 100 : 50 - i,
-        title: `${isLatest ? 'Latest Scan' : `Scan #${i + 1}`} - ${loc.address?.city || 'Unknown'}`,
+      const marker = L.marker(position, {
+        icon: isLatest ? latestIcon : normalIcon,
+        zIndexOffset: isLatest ? 1000 : 500 - i,
+      }).addTo(map);
+
+      const popupContent = `
+        <div style="font-family:'Segoe UI',sans-serif;min-width:180px;padding:4px;color:#1a1a2e">
+          <div style="font-weight:bold;font-size:13px;color:#4338ca;margin-bottom:6px">
+            ${isLatest ? '🔴 Latest Scan' : `📍 Scan #${i + 1}`}
+          </div>
+          <div style="font-size:12px;margin-bottom:3px">
+            📍 ${loc.address?.city || 'Unknown'}${loc.address?.country ? ', ' + loc.address.country : ''}
+          </div>
+          <div style="font-size:11px;color:#666;margin-bottom:3px">
+            📱 ${loc.device?.deviceType || 'Device'} | ${loc.device?.os || 'OS'}
+          </div>
+          <div style="font-size:11px;color:#666">
+            ⏰ ${new Date(loc.scannedAt).toLocaleString('en-IN')}
+          </div>
+          ${loc.isApproximate ? '<div style="font-size:11px;color:#d97706;margin-top:3px">⚠️ Approximate location</div>' : ''}
+          ${loc.accuracy ? `<div style="font-size:10px;color:#888;margin-top:2px">Accuracy: ±${Math.round(loc.accuracy)}m</div>` : ''}
+        </div>
+      `;
+
+      marker.bindPopup(popupContent, {
+        maxWidth: 250,
+        className: 'qr-map-popup',
       });
 
-      marker.addListener('click', () => {
+      marker.on('click', () => {
         if (onSelectScan) onSelectScan(loc);
-
-        const content = `
-          <div style="font-family:'Segoe UI',sans-serif;min-width:180px;padding:4px;color:#1a1a2e">
-            <div style="font-weight:bold;font-size:13px;color:#4338ca;margin-bottom:6px">
-              ${isLatest ? '🔴 Latest Scan' : `📍 Scan #${i + 1}`}
-            </div>
-            <div style="font-size:12px;margin-bottom:3px">
-              📍 ${loc.address?.city || 'Unknown'}${loc.address?.country ? ', ' + loc.address.country : ''}
-            </div>
-            <div style="font-size:11px;color:#666;margin-bottom:3px">
-              📱 ${loc.device?.deviceType || 'Device'} | ${loc.device?.os || 'OS'}
-            </div>
-            <div style="font-size:11px;color:#666">
-              ⏰ ${new Date(loc.scannedAt).toLocaleString('en-IN')}
-            </div>
-            ${loc.isApproximate ? '<div style="font-size:11px;color:#d97706;margin-top:3px">⚠️ Approximate location</div>' : ''}
-            ${loc.accuracy ? `<div style="font-size:10px;color:#888;margin-top:2px">Accuracy: ±${Math.round(loc.accuracy)}m</div>` : ''}
-          </div>
-        `;
-
-        infoWindowRef.current.setContent(content);
-        infoWindowRef.current.open(map, marker);
       });
 
       markersRef.current.push(marker);
@@ -174,55 +159,35 @@ export default function MapView({ locations = [], selectedScan, onSelectScan, qr
 
     // Draw polyline connecting all points
     if (path.length > 1) {
-      polylineRef.current = new maps.Polyline({
-        path,
-        geodesic: true,
-        strokeColor: '#6366f1',
-        strokeOpacity: 0.5,
-        strokeWeight: 2,
-        icons: [{
-          icon: { path: 'M 0,-1 0,1', strokeOpacity: 0.5, scale: 3 },
-          offset: '0',
-          repeat: '15px',
-        }],
-        map,
-      });
+      polylineRef.current = L.polyline(path, {
+        color: '#6366f1',
+        weight: 2,
+        opacity: 0.5,
+        dashArray: '8, 8',
+      }).addTo(map);
     }
 
     // Fit bounds
     if (validLocs.length === 1) {
-      map.setCenter(path[0]);
-      map.setZoom(13);
+      map.setView(path[0], 13);
     } else {
-      map.fitBounds(bounds, { top: 40, right: 40, bottom: 40, left: 40 });
+      const bounds = L.latLngBounds(path);
+      map.fitBounds(bounds, { padding: [40, 40] });
     }
   };
 
-  // Error fallback
-  if (mapError) {
-    return (
-      <div className="relative w-full h-full flex items-center justify-center bg-[#1a1a2e]">
-        <div className="text-center p-6">
-          <span className="text-4xl block mb-3">🗺️</span>
-          <p className="text-sm text-gray-400 mb-2">Google Maps API key not configured</p>
-          <p className="text-[10px] text-gray-600">Add NEXT_PUBLIC_GOOGLE_MAPS_KEY to your .env.local</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="relative w-full h-full">
-      <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+      <div ref={mapRef} style={{ width: '100%', height: '100%', background: '#1a1a2e' }} />
 
       {locations.length > 0 && (
-        <div className="absolute top-3 right-3 z-10 bg-[rgba(15,15,45,0.9)] border border-indigo-500/30 rounded-xl px-3 py-2 text-[10px] text-gray-300 font-bold shadow-xl">
+        <div className="absolute top-3 right-3 z-[1000] bg-[rgba(15,15,45,0.9)] border border-indigo-500/30 rounded-xl px-3 py-2 text-[10px] text-gray-300 font-bold shadow-xl">
           📍 {locations.filter(l => l.latitude).length} locations
         </div>
       )}
 
       {locations.filter(l => l.latitude).length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center z-[1000] pointer-events-none">
           <div className="bg-[rgba(15,15,45,0.9)] border border-indigo-500/20 rounded-2xl p-6 text-center">
             <span className="text-3xl block mb-2">🗺️</span>
             <p className="text-sm text-gray-400">No GPS locations found yet</p>

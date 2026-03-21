@@ -4,6 +4,7 @@
 
 import { useEffect } from 'react';
 import '../styles/globals.css';
+import 'leaflet/dist/leaflet.css';
 import { AuthProvider } from '../context/AuthContext';
 import { LanguageProvider } from '../context/LanguageContext';
 import { Toaster } from 'react-hot-toast';
