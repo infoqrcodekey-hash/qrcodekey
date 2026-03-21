@@ -63,13 +63,8 @@ export default function Home() {
     setSearching(false);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse-glow w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-pink-500" />
-      </div>
-    );
-  }
+  // Don't block homepage on auth loading - show visitor view while auth loads
+  const showLoggedIn = !loading && isLoggedIn;
 
   return (
     <div className="min-h-screen pb-24">
@@ -84,7 +79,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {isLoggedIn ? (
+            {showLoggedIn ? (
               <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
@@ -187,7 +182,7 @@ export default function Home() {
         </div>
 
         {/* Search Bar - QR Code Search */}
-        {isLoggedIn && (
+        {showLoggedIn && (
           <div className="card p-5 mb-6 border-indigo-500/15">
             <h3 className="font-bold text-sm text-gray-200 mb-3">🔍 Search QR Code</h3>
             <form onSubmit={handleSearch} className="space-y-3">
@@ -257,7 +252,7 @@ export default function Home() {
         )}
 
         {/* Quick Access for visitors */}
-        {!isLoggedIn && (
+        {!showLoggedIn && (
           <div className="grid grid-cols-2 gap-3 mb-6">
             <Link href="/attendance-scanner" className="card p-4 text-center hover:border-indigo-500/30 transition-all">
               <span className="text-2xl block mb-1">📷</span>
@@ -271,7 +266,7 @@ export default function Home() {
         )}
 
         {/* Register CTA for non-logged in */}
-        {!isLoggedIn && (
+        {!showLoggedIn && (
           <div className="card p-6 text-center mb-6 border-indigo-500/15">
             <h2 className="font-bold text-lg text-gray-200 mb-2">{t('getStarted')}</h2>
             <p className="text-xs text-gray-400 mb-5">{t('getStartedDesc')}</p>
@@ -283,7 +278,7 @@ export default function Home() {
         )}
 
         {/* Real-time Alerts for logged-in */}
-        {isLoggedIn && alerts.length > 0 && (
+        {showLoggedIn && alerts.length > 0 && (
           <div className="card p-4 mb-6 border-red-500/20">
             <div className="text-xs font-bold text-red-400 mb-3">🔴 {t('liveAlerts')}</div>
             {alerts.map((a, i) => (
@@ -300,7 +295,7 @@ export default function Home() {
         )}
 
         {/* How it Works - for visitors */}
-        {!isLoggedIn && (
+        {!showLoggedIn && (
           <div className="space-y-3 mb-6">
             <h3 className="font-bold text-sm text-gray-300 text-center">{t('howItWorks')}</h3>
             <div className="card p-4 border-indigo-500/20">
@@ -372,7 +367,7 @@ export default function Home() {
       </main>
 
       {/* Bottom Nav - Only for logged in */}
-      {isLoggedIn && (
+      {showLoggedIn && (
         <nav className="fixed bottom-0 inset-x-0 z-50 bg-[rgba(10,10,30,0.92)] backdrop-blur-xl border-t border-[rgba(99,102,241,0.12)] py-2 px-4">
           <div className="max-w-lg mx-auto flex justify-around">
             {[
