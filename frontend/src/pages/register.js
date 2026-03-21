@@ -12,10 +12,10 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import PasswordInput from '../components/PasswordInput';
 
 export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', phone: '' });
   const [loading, setLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const { register } = useAuth();
+  const { register, logout } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
 
@@ -40,6 +40,10 @@ export default function Register() {
       toast.error('Password must have 12+ characters, 1 uppercase, and 1 lowercase letter');
       return;
     }
+    if (form.password !== form.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
     if (!agreedToTerms) {
       toast.error('You must agree to Terms of Service and Privacy Policy');
       return;
@@ -48,8 +52,10 @@ export default function Register() {
     setLoading(true);
     try {
       await register(form);
-      toast.success(t('accountCreated'));
-      router.push('/');
+      // Logout so user must explicitly login after registration
+      logout();
+      toast.success(t('accountCreated') + ' Please login to continue.');
+      router.push('/login');
     } catch (err) {
       toast.error(err.response?.data?.message || t('registrationFailed'));
     } finally {
@@ -84,9 +90,9 @@ export default function Register() {
               value={form.email} onChange={(e) => update('email', e.target.value)} />
           </div>
           <div>
-            <label className="label">{t('phone')} ({t('optional')})</label>
+            <label className="label">{t('phone')} *</label>
             <input type="tel" className="input-field" placeholder={t('phonePlaceholder')}
-              value={form.phone} onChange={(e) => update('phone', e.target.value)} />
+              value={form.phone} onChange={(e) => update('phone', e.target.value)} required />
           </div>
           <PasswordInput
             label={t('password')}
@@ -97,6 +103,23 @@ export default function Register() {
             showStrength={true}
             showRequirements={true}
           />
+          <div>
+            <label className="label">{t('confirmPassword')} *</label>
+            <input
+              type="password"
+              className="input-field"
+              placeholder="Re-enter your password"
+              value={form.confirmPassword}
+              onChange={(e) => update('confirmPassword', e.target.value)}
+              required
+            />
+            {form.confirmPassword && form.password !== form.confirmPassword && (
+              <p className="text-[10px] text-red-400 mt-1">Passwords do not match</p>
+            )}
+            {form.confirmPassword && form.password === form.confirmPassword && form.confirmPassword.length > 0 && (
+              <p className="text-[10px] text-green-400 mt-1">✅ Passwords match</p>
+            )}
+          </div>
 
           {/* Terms Agreement */}
           <div className="flex items-start gap-3 p-3 rounded-lg bg-indigo-500/5 border border-indigo-500/20">

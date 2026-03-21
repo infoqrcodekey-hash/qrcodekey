@@ -1,6 +1,8 @@
 // ============================================
-// pages/index.js - Home Page (Redesigned)
+// pages/index.js - Home Page (QR-Centric Design)
 // ============================================
+// Visitor: LOGIN button + Big QR Code (links to register) + Download/Scan
+// Logged In: Full dashboard with all features
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
@@ -20,7 +22,47 @@ export default function Home() {
   const [searchPassword, setSearchPassword] = useState('');
   const [searchResult, setSearchResult] = useState(null);
   const [searching, setSearching] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState('');
   const menuRef = useRef(null);
+
+  // The URL encoded in the QR code — points to register page
+  const REGISTER_URL = typeof window !== 'undefined'
+    ? `${window.location.origin}/register`
+    : 'https://qrcodekey.com/register';
+
+  // Generate QR code on mount
+  useEffect(() => {
+    generateQRCode();
+  }, []);
+
+  const generateQRCode = async () => {
+    try {
+      const QRCode = (await import('qrcode')).default;
+      const dataUrl = await QRCode.toDataURL(REGISTER_URL, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: '#1a1a2e',
+          light: '#ffffff',
+        },
+        errorCorrectionLevel: 'H',
+      });
+      setQrDataUrl(dataUrl);
+    } catch (err) {
+      console.error('QR generation error:', err);
+      // Fallback: use external API
+      setQrDataUrl(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(REGISTER_URL)}`);
+    }
+  };
+
+  // Download QR code as PNG
+  const handleDownloadQR = () => {
+    if (!qrDataUrl) return;
+    const link = document.createElement('a');
+    link.download = 'QRCodeKey-Register.png';
+    link.href = qrDataUrl;
+    link.click();
+  };
 
   // Real-time scan alerts
   useEffect(() => {
@@ -63,9 +105,157 @@ export default function Home() {
     setSearching(false);
   };
 
-  // Don't block homepage on auth loading - show visitor view while auth loads
   const showLoggedIn = !loading && isLoggedIn;
 
+  // ════════════════════════════════════════════
+  // VISITOR VIEW (Not Logged In)
+  // ════════════════════════════════════════════
+  if (!showLoggedIn) {
+    return (
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Background effects */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-600/5 blur-[120px]" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-pink-600/5 blur-[120px]" />
+          <div className="absolute top-[30%] right-[20%] w-[30%] h-[30%] rounded-full bg-purple-600/5 blur-[100px]" />
+        </div>
+
+        {/* Header */}
+        <header className="relative z-50 flex items-center justify-between px-5 py-4 max-w-5xl mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-lg shadow-lg shadow-indigo-500/30">
+              📍
+            </div>
+            <div>
+              <div className="font-extrabold text-lg gradient-text">QRCodeKey</div>
+              <div className="text-[10px] text-gray-500 -mt-0.5">{t('realtimeTracking')}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <Link
+              href="/login"
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 hover:scale-105"
+            >
+              {t('login')} →
+            </Link>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="relative flex flex-col items-center justify-center px-5 py-8 max-w-5xl mx-auto">
+
+          {/* Hero Text */}
+          <div className="text-center mb-8 animate-fadeIn">
+            <h1 className="text-4xl md:text-5xl font-black gradient-text mb-3 leading-tight">
+              QR Code Tracking System
+            </h1>
+            <p className="text-base md:text-lg text-gray-400 max-w-md mx-auto leading-relaxed">
+              {t('heroDesc')}
+            </p>
+          </div>
+
+          {/* QR Code Card */}
+          <div className="glass-card rounded-3xl p-8 md:p-10 text-center border border-white/5 mb-8 max-w-sm w-full animate-fadeInUp shadow-2xl shadow-indigo-500/5">
+            {/* QR Code Image */}
+            <div className="relative inline-block mb-6">
+              <div className="absolute -inset-3 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-lg" />
+              <div className="relative bg-white p-4 rounded-2xl shadow-xl">
+                {qrDataUrl ? (
+                  <img
+                    src={qrDataUrl}
+                    alt="Scan to Register on QRCodeKey"
+                    className="w-56 h-56 md:w-64 md:h-64 mx-auto"
+                  />
+                ) : (
+                  <div className="w-56 h-56 md:w-64 md:h-64 flex items-center justify-center">
+                    <div className="w-10 h-10 border-3 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Label */}
+            <div className="mb-6">
+              <p className="text-sm font-bold text-gray-300 mb-1">Scan to Register</p>
+              <p className="text-[11px] text-gray-500">Scan this QR code with your phone camera to open the registration form</p>
+            </div>
+
+            {/* Download & Scan Buttons */}
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={handleDownloadQR}
+                className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300
+                  bg-gradient-to-r from-indigo-500 to-purple-500
+                  hover:from-indigo-400 hover:to-purple-400
+                  hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-[1.02]
+                  active:scale-[0.98]"
+              >
+                <span>⬇️</span> Download QR
+              </button>
+              <Link
+                href="/scanner"
+                className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300
+                  bg-gradient-to-r from-pink-500 to-rose-500
+                  hover:from-pink-400 hover:to-rose-400
+                  hover:shadow-lg hover:shadow-pink-500/25 hover:scale-[1.02]
+                  active:scale-[0.98]"
+              >
+                <span>📷</span> Scan QR
+              </Link>
+            </div>
+          </div>
+
+          {/* Register CTA */}
+          <div className="glass-card rounded-2xl p-6 text-center border border-white/5 max-w-sm w-full mb-8">
+            <h2 className="font-bold text-lg text-gray-200 mb-2">{t('getStarted')}</h2>
+            <p className="text-xs text-gray-400 mb-5">{t('getStartedDesc')}</p>
+            <div className="flex gap-3">
+              <Link href="/register" className="btn-primary flex-1 text-center block py-3 rounded-xl font-bold text-sm">{t('register')}</Link>
+              <Link href="/login" className="btn-secondary flex-1 text-center block py-3 rounded-xl font-bold text-sm">{t('login')}</Link>
+            </div>
+          </div>
+
+          {/* How it Works */}
+          <div className="w-full max-w-lg space-y-3 mb-8">
+            <h3 className="font-bold text-sm text-gray-300 text-center mb-4">{t('howItWorks')}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="glass-card rounded-2xl p-5 text-center border border-indigo-500/10">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-indigo-500/15 flex items-center justify-center text-2xl">📱</div>
+                <div className="font-bold text-xs text-indigo-400 mb-1">1. Scan QR</div>
+                <p className="text-[10px] text-gray-500 leading-relaxed">Scan the QR code above to register your account</p>
+              </div>
+              <div className="glass-card rounded-2xl p-5 text-center border border-purple-500/10">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-purple-500/15 flex items-center justify-center text-2xl">🔐</div>
+                <div className="font-bold text-xs text-purple-400 mb-1">2. Register & Login</div>
+                <p className="text-[10px] text-gray-500 leading-relaxed">Create your account and log in to access all features</p>
+              </div>
+              <div className="glass-card rounded-2xl p-5 text-center border border-pink-500/10">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-pink-500/15 flex items-center justify-center text-2xl">📍</div>
+                <div className="font-bold text-xs text-pink-400 mb-1">3. Track Items</div>
+                <p className="text-[10px] text-gray-500 leading-relaxed">Generate QR codes and track your items in real-time</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Copyright Footer */}
+          <div className="text-center py-4">
+            <div className="text-[10px] text-gray-600">&copy; 2026 QRCodeKey by Ashvinkumar Chaudhari. All rights reserved.</div>
+            <div className="text-[9px] text-gray-600 mt-0.5">647 Rose Ln, Bartlett, IL 60103, USA</div>
+            <div className="flex justify-center gap-3 mt-2">
+              <Link href="/terms" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('termsOfService')}</Link>
+              <Link href="/privacy-policy" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('privacyPolicy')}</Link>
+              <Link href="/refund-policy" className="text-[10px] text-gray-500 hover:text-indigo-400">Refund Policy</Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // ════════════════════════════════════════════
+  // LOGGED IN VIEW (Full Dashboard)
+  // ════════════════════════════════════════════
   return (
     <div className="min-h-screen pb-24">
       {/* Header */}
@@ -79,91 +269,72 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {showLoggedIn ? (
-              <div className="relative" ref={menuRef}>
-                <button
-                  onClick={() => setMenuOpen(!menuOpen)}
-                  className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform"
-                >
-                  ☰
-                </button>
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform"
+              >
+                ☰
+              </button>
 
-                {/* Dropdown Menu */}
-                {menuOpen && (
-                  <div className="absolute right-0 top-12 w-64 bg-[rgba(15,12,40,0.98)] backdrop-blur-xl rounded-2xl border border-[rgba(99,102,241,0.25)] shadow-2xl shadow-black/50 overflow-hidden z-50 animate-slideUp">
-                    {/* User info */}
-                    <div className="p-4 border-b border-white/5">
-                      <div className="text-sm font-bold text-gray-200">👤 {user?.name}</div>
-                      <div className="text-[10px] text-gray-500 mt-0.5">{user?.email}</div>
-                    </div>
-
-                    {/* Menu items */}
-                    <div className="p-2 max-h-[60vh] overflow-y-auto">
-                      {[
-                        { label: t('generateQR'), icon: '➕', href: '/generate', color: 'indigo' },
-                        { label: t('trackQR'), icon: '📍', href: '/scanner', color: 'pink' },
-                        { label: 'Attendance Scan', icon: '📷', href: '/attendance-scanner', color: 'cyan' },
-                        { label: t('dashboard'), icon: '📋', href: '/attendance-dashboard', color: 'purple' },
-                        { label: 'Organizations', icon: '🏢', href: '/organizations', color: 'blue' },
-                        { label: 'Leave Management', icon: '📋', href: '/leave-management', color: 'green' },
-                        { label: 'Holiday Calendar', icon: '🎉', href: '/holiday-calendar', color: 'yellow' },
-                        { label: 'Visitor Management', icon: '👤', href: '/visitor-management', color: 'orange' },
-                        { label: 'Shift Management', icon: '🕐', href: '/shift-management', color: 'indigo' },
-                        { label: 'Reports', icon: '📊', href: '/reports', color: 'teal' },
-                        { label: 'Audit Log', icon: '📜', href: '/audit-log', color: 'gray' },
-                        { label: 'Notifications', icon: '🔔', href: '/notifications', color: 'red' },
-                        { label: 'Emergency Broadcast', icon: '🚨', href: '/emergency-broadcast', color: 'red' },
-                        { label: 'Face Verification', icon: '🤳', href: '/face-verification', color: 'cyan' },
-                        { label: t('profile'), icon: '⚙️', href: '/profile', color: 'green' },
-                      ].map((item, i) => (
-                        <Link
-                          key={i}
-                          href={item.href}
-                          onClick={() => setMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all"
-                        >
-                          <span className="text-lg">{item.icon}</span>
-                          <span className="text-sm text-gray-300 font-medium">{item.label}</span>
-                        </Link>
-                      ))}
-                    </div>
-
-                    {/* Logout */}
-                    <div className="p-2 border-t border-white/5">
-                      <button
-                        onClick={() => { logout(); setMenuOpen(false); }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 transition-all text-red-400"
-                      >
-                        <span className="text-lg">🚪</span>
-                        <span className="text-sm font-medium">{t('logout')}</span>
-                      </button>
-                    </div>
+              {/* Dropdown Menu */}
+              {menuOpen && (
+                <div className="absolute right-0 top-12 w-64 bg-[rgba(15,12,40,0.98)] backdrop-blur-xl rounded-2xl border border-[rgba(99,102,241,0.25)] shadow-2xl shadow-black/50 overflow-hidden z-50 animate-slideUp">
+                  <div className="p-4 border-b border-white/5">
+                    <div className="text-sm font-bold text-gray-200">👤 {user?.name}</div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">{user?.email}</div>
                   </div>
-                )}
-              </div>
-            ) : (
-              <Link href="/login" className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 text-white text-xs font-bold hover:opacity-90 transition-all shadow-lg shadow-indigo-500/20">
-                {t('login')} →
-              </Link>
-            )}
+                  <div className="p-2 max-h-[60vh] overflow-y-auto">
+                    {[
+                      { label: t('generateQR'), icon: '➕', href: '/generate' },
+                      { label: t('trackQR'), icon: '📍', href: '/scanner' },
+                      { label: 'Attendance Scan', icon: '📷', href: '/attendance-scanner' },
+                      { label: t('dashboard'), icon: '📋', href: '/attendance-dashboard' },
+                      { label: 'Organizations', icon: '🏢', href: '/organizations' },
+                      { label: 'Leave Management', icon: '📋', href: '/leave-management' },
+                      { label: 'Holiday Calendar', icon: '🎉', href: '/holiday-calendar' },
+                      { label: 'Visitor Management', icon: '👤', href: '/visitor-management' },
+                      { label: 'Shift Management', icon: '🕐', href: '/shift-management' },
+                      { label: 'Reports', icon: '📊', href: '/reports' },
+                      { label: 'Audit Log', icon: '📜', href: '/audit-log' },
+                      { label: 'Notifications', icon: '🔔', href: '/notifications' },
+                      { label: 'Emergency Broadcast', icon: '🚨', href: '/emergency-broadcast' },
+                      { label: 'Face Verification', icon: '🤳', href: '/face-verification' },
+                      { label: t('profile'), icon: '⚙️', href: '/profile' },
+                    ].map((item, i) => (
+                      <Link key={i} href={item.href} onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all">
+                        <span className="text-lg">{item.icon}</span>
+                        <span className="text-sm text-gray-300 font-medium">{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="p-2 border-t border-white/5">
+                    <button onClick={() => { logout(); setMenuOpen(false); }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 transition-all text-red-400">
+                      <span className="text-lg">🚪</span>
+                      <span className="text-sm font-medium">{t('logout')}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             <LanguageSwitcher />
           </div>
         </div>
       </header>
 
       <main className="max-w-lg mx-auto px-5 pt-8">
-        {/* Hero - Clean QR Focus */}
-        <div className="text-center mb-8">
-          <div className="w-24 h-24 mx-auto mb-5 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-2xl shadow-indigo-500/40 animate-float">
-            <span className="text-5xl">📍</span>
+        {/* Welcome */}
+        <div className="text-center mb-6">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-2xl shadow-indigo-500/40 animate-float">
+            <span className="text-4xl">📍</span>
           </div>
-          <h1 className="text-3xl font-black gradient-text mb-2">{t('heroTitle')}</h1>
-          <p className="text-sm text-gray-400 max-w-xs mx-auto leading-relaxed">
-            {t('heroDesc')}
-          </p>
+          <h1 className="text-2xl font-black gradient-text mb-1">Welcome, {user?.name?.split(' ')[0]}!</h1>
+          <p className="text-xs text-gray-500">{t('heroDesc')}</p>
         </div>
 
-        {/* Main Actions - Scan & Download */}
+        {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <Link href="/scanner" className="card p-5 text-center hover:border-indigo-500/30 transition-all group border-indigo-500/15">
             <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-indigo-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -174,97 +345,70 @@ export default function Home() {
           </Link>
           <Link href="/generate" className="card p-5 text-center hover:border-pink-500/30 transition-all group border-pink-500/15">
             <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-pink-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <span className="text-3xl">⬇️</span>
+              <span className="text-3xl">➕</span>
             </div>
             <div className="font-bold text-sm text-gray-200">{t('generateQR')}</div>
-            <div className="text-[10px] text-gray-500 mt-1">Download QR code</div>
+            <div className="text-[10px] text-gray-500 mt-1">Create new QR code</div>
+          </Link>
+          <Link href="/attendance-scanner" className="card p-5 text-center hover:border-cyan-500/30 transition-all group border-cyan-500/15">
+            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-cyan-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span className="text-3xl">📋</span>
+            </div>
+            <div className="font-bold text-sm text-gray-200">Attendance</div>
+            <div className="text-[10px] text-gray-500 mt-1">Scan & record</div>
+          </Link>
+          <Link href="/attendance-dashboard" className="card p-5 text-center hover:border-purple-500/30 transition-all group border-purple-500/15">
+            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-purple-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span className="text-3xl">📊</span>
+            </div>
+            <div className="font-bold text-sm text-gray-200">{t('dashboard')}</div>
+            <div className="text-[10px] text-gray-500 mt-1">View reports</div>
           </Link>
         </div>
 
-        {/* Search Bar - QR Code Search */}
-        {showLoggedIn && (
-          <div className="card p-5 mb-6 border-indigo-500/15">
-            <h3 className="font-bold text-sm text-gray-200 mb-3">🔍 Search QR Code</h3>
-            <form onSubmit={handleSearch} className="space-y-3">
-              <input
-                type="text"
-                className="input-field"
-                placeholder="Enter QR Code ID..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <input
-                type="password"
-                className="input-field"
-                placeholder="Password (if protected)"
-                value={searchPassword}
-                onChange={(e) => setSearchPassword(e.target.value)}
-              />
-              <button
-                type="submit"
-                disabled={searching || !searchQuery.trim()}
-                className="btn-primary w-full text-sm"
-              >
-                {searching ? '🔄 Searching...' : '🔍 Search & Track on Map'}
-              </button>
-            </form>
-
-            {/* Search Result */}
-            {searchResult && (
-              <div className="mt-4">
-                {searchResult.error ? (
-                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400">
-                    ❌ {searchResult.error}
+        {/* Search Bar */}
+        <div className="card p-5 mb-6 border-indigo-500/15">
+          <h3 className="font-bold text-sm text-gray-200 mb-3">🔍 Search QR Code</h3>
+          <form onSubmit={handleSearch} className="space-y-3">
+            <input type="text" className="input-field" placeholder="Enter QR Code ID..."
+              value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            <input type="password" className="input-field" placeholder="Password (if protected)"
+              value={searchPassword} onChange={(e) => setSearchPassword(e.target.value)} />
+            <button type="submit" disabled={searching || !searchQuery.trim()} className="btn-primary w-full text-sm">
+              {searching ? '🔄 Searching...' : '🔍 Search & Track on Map'}
+            </button>
+          </form>
+          {searchResult && (
+            <div className="mt-4">
+              {searchResult.error ? (
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400">❌ {searchResult.error}</div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
+                    <div className="text-sm font-bold text-green-400">✅ QR Code Found!</div>
+                    <div className="text-xs text-gray-400 mt-1">{searchResult.category && <span>Category: {searchResult.category}</span>}</div>
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
-                      <div className="text-sm font-bold text-green-400">✅ QR Code Found!</div>
-                      <div className="text-xs text-gray-400 mt-1">
-                        {searchResult.category && <span>Category: {searchResult.category}</span>}
-                      </div>
+                  {searchResult.locations?.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="text-xs font-bold text-gray-300">📍 Scan Locations:</div>
+                      {searchResult.locations.map((loc, i) => (
+                        <a key={i} href={`https://www.google.com/maps?q=${loc.lat},${loc.lng}`} target="_blank" rel="noopener noreferrer"
+                          className="block p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all">
+                          <div className="text-xs text-indigo-400">🗺️ Location {i + 1}</div>
+                          <div className="text-[10px] text-gray-500">{loc.address || `${loc.lat}, ${loc.lng}`}</div>
+                        </a>
+                      ))}
                     </div>
-                    {searchResult.locations && searchResult.locations.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="text-xs font-bold text-gray-300">📍 Scan Locations:</div>
-                        {searchResult.locations.map((loc, i) => (
-                          <a
-                            key={i}
-                            href={`https://www.google.com/maps?q=${loc.lat},${loc.lng}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all"
-                          >
-                            <div className="text-xs text-indigo-400">🗺️ Location {i + 1}</div>
-                            <div className="text-[10px] text-gray-500">{loc.address || `${loc.lat}, ${loc.lng}`}</div>
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                    <Link href={`/map/${searchResult.qrId || searchQuery}`} className="btn-primary w-full text-center block text-sm">
-                      🗺️ View on Full Map
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Register CTA for non-logged in */}
-        {!showLoggedIn && (
-          <div className="card p-6 text-center mb-6 border-indigo-500/15">
-            <h2 className="font-bold text-lg text-gray-200 mb-2">{t('getStarted')}</h2>
-            <p className="text-xs text-gray-400 mb-5">{t('getStartedDesc')}</p>
-            <div className="flex gap-3">
-              <Link href="/register" className="btn-primary flex-1 text-center block">{t('register')}</Link>
-              <Link href="/login" className="btn-secondary flex-1 text-center block">{t('login')}</Link>
+                  )}
+                  <Link href={`/map/${searchResult.qrId || searchQuery}`} className="btn-primary w-full text-center block text-sm">🗺️ View on Full Map</Link>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Real-time Alerts for logged-in */}
-        {showLoggedIn && alerts.length > 0 && (
+        {/* Real-time Alerts */}
+        {alerts.length > 0 && (
           <div className="card p-4 mb-6 border-red-500/20">
             <div className="text-xs font-bold text-red-400 mb-3">🔴 {t('liveAlerts')}</div>
             {alerts.map((a, i) => (
@@ -280,35 +424,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* How it Works - for visitors */}
-        {!showLoggedIn && (
-          <div className="space-y-3 mb-6">
-            <h3 className="font-bold text-sm text-gray-300 text-center">{t('howItWorks')}</h3>
-            <div className="card p-4 border-indigo-500/20">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">📱</span>
-                <div>
-                  <div className="font-bold text-sm text-indigo-400">{t('mode1Title')}</div>
-                  <div className="text-[10px] text-gray-500">{t('mode1Tag')}</div>
-                </div>
-              </div>
-              <p className="text-xs text-gray-400 leading-relaxed">{t('mode1Note')}</p>
-            </div>
-            <div className="card p-4 border-pink-500/20">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">🏢</span>
-                <div>
-                  <div className="font-bold text-sm text-pink-400">{t('mode2Title')}</div>
-                  <div className="text-[10px] text-gray-500">{t('mode2Tag')}</div>
-                </div>
-              </div>
-              <p className="text-xs text-gray-400 leading-relaxed">{t('mode2Note')}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Pricing - Notification Subscriptions (only for logged-in users) */}
-        {showLoggedIn && <div className="card p-5 mb-6">
+        {/* Pricing */}
+        <div className="card p-5 mb-6">
           <h3 className="font-bold text-sm text-indigo-400 mb-1">🔔 Notification Plans</h3>
           <p className="text-[10px] text-gray-500 mb-4">QR generation free — pay only for instant scan alerts</p>
           <div className="grid grid-cols-2 gap-2">
@@ -331,30 +448,28 @@ export default function Home() {
           <Link href="/pricing" className="block text-center mt-3 text-[10px] text-indigo-400 hover:text-indigo-300 font-semibold">
             View all plans & yearly discounts →
           </Link>
-        </div>}
+        </div>
 
-        {/* Footer Links - Full menu for logged in, minimal for visitors */}
-        {showLoggedIn && (
-          <div className="card p-5 mb-6">
-            <div className="grid grid-cols-4 gap-2 text-center">
-              {[
-                { icon: '📖', label: t('aboutUs'), href: '/about' },
-                { icon: '✉️', label: t('contactUs'), href: '/contact' },
-                { icon: '❓', label: t('helpCenter'), href: '/help' },
-                { icon: '🤖', label: t('chatWithBot'), href: '/chatbot' },
-              ].map((item, i) => (
-                <Link key={i} href={item.href} className="p-3 rounded-xl hover:bg-white/5 transition-all group">
-                  <span className="text-xl block mb-1 group-hover:scale-110 transition-transform">{item.icon}</span>
-                  <div className="text-[10px] text-gray-400 font-semibold">{item.label}</div>
-                </Link>
-              ))}
-            </div>
+        {/* Footer Links */}
+        <div className="card p-5 mb-6">
+          <div className="grid grid-cols-4 gap-2 text-center">
+            {[
+              { icon: '📖', label: t('aboutUs'), href: '/about' },
+              { icon: '✉️', label: t('contactUs'), href: '/contact' },
+              { icon: '❓', label: t('helpCenter'), href: '/help' },
+              { icon: '🤖', label: t('chatWithBot'), href: '/chatbot' },
+            ].map((item, i) => (
+              <Link key={i} href={item.href} className="p-3 rounded-xl hover:bg-white/5 transition-all group">
+                <span className="text-xl block mb-1 group-hover:scale-110 transition-transform">{item.icon}</span>
+                <div className="text-[10px] text-gray-400 font-semibold">{item.label}</div>
+              </Link>
+            ))}
           </div>
-        )}
+        </div>
 
-        {/* Copyright Footer - Always visible */}
+        {/* Copyright */}
         <div className="text-center py-4">
-          <div className="text-[10px] text-gray-600">© 2026 QRCodeKey by Ashvinkumar Chaudhari. All rights reserved.</div>
+          <div className="text-[10px] text-gray-600">&copy; 2026 QRCodeKey by Ashvinkumar Chaudhari. All rights reserved.</div>
           <div className="text-[9px] text-gray-600 mt-0.5">647 Rose Ln, Bartlett, IL 60103, USA</div>
           <div className="flex justify-center gap-3 mt-2">
             <Link href="/terms" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('termsOfService')}</Link>
@@ -364,25 +479,23 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Bottom Nav - Only for logged in */}
-      {showLoggedIn && (
-        <nav className="fixed bottom-0 inset-x-0 z-50 bg-[rgba(10,10,30,0.92)] backdrop-blur-xl border-t border-[rgba(99,102,241,0.12)] py-2 px-4">
-          <div className="max-w-lg mx-auto flex justify-around">
-            {[
-              { icon: '🏠', label: t('home'), href: '/' },
-              { icon: '📷', label: 'Scan', href: '/attendance-scanner' },
-              { icon: '📋', label: 'Dashboard', href: '/attendance-dashboard' },
-              { icon: '🏢', label: 'Orgs', href: '/organizations' },
-              { icon: '👁', label: 'Viewer', href: '/viewer-login' },
-            ].map((item, i) => (
-              <Link key={i} href={item.href} className={`nav-item ${router.pathname === item.href ? 'text-indigo-400 bg-indigo-500/10' : 'text-gray-500'}`}>
-                <span className="text-lg">{item.icon}</span>
-                <span className="text-[10px] font-semibold">{item.label}</span>
-              </Link>
-            ))}
-          </div>
-        </nav>
-      )}
+      {/* Bottom Nav */}
+      <nav className="fixed bottom-0 inset-x-0 z-50 bg-[rgba(10,10,30,0.92)] backdrop-blur-xl border-t border-[rgba(99,102,241,0.12)] py-2 px-4">
+        <div className="max-w-lg mx-auto flex justify-around">
+          {[
+            { icon: '🏠', label: t('home'), href: '/' },
+            { icon: '📷', label: 'Scan', href: '/attendance-scanner' },
+            { icon: '📋', label: 'Dashboard', href: '/attendance-dashboard' },
+            { icon: '🏢', label: 'Orgs', href: '/organizations' },
+            { icon: '👁', label: 'Viewer', href: '/viewer-login' },
+          ].map((item, i) => (
+            <Link key={i} href={item.href} className={`nav-item ${router.pathname === item.href ? 'text-indigo-400 bg-indigo-500/10' : 'text-gray-500'}`}>
+              <span className="text-lg">{item.icon}</span>
+              <span className="text-[10px] font-semibold">{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }
