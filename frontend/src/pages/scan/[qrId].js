@@ -107,37 +107,11 @@ export default function ScanPage() {
 
     setLocationStatus('gps-capturing');
 
-    // Try 1: Fast low-accuracy location first (5 sec timeout)
+    // Single quick GPS try — 8 seconds max, then show IP success
     navigator.geolocation.getCurrentPosition(
       (pos) => sendGPSToServer(pos),
-      () => {
-        // Try 2: High accuracy with longer timeout (20 sec)
-        setLocationStatus('gps-capturing');
-        navigator.geolocation.getCurrentPosition(
-          (pos) => sendGPSToServer(pos),
-          () => {
-            // Try 3: Watch position as last resort (30 sec)
-            setLocationStatus('gps-capturing');
-            const watchId = navigator.geolocation.watchPosition(
-              (pos) => {
-                navigator.geolocation.clearWatch(watchId);
-                sendGPSToServer(pos);
-              },
-              () => {
-                setLocationStatus('gps-denied');
-              },
-              { timeout: 30000, enableHighAccuracy: false, maximumAge: 60000 }
-            );
-            // Auto-clear watch after 30 seconds
-            setTimeout(() => {
-              navigator.geolocation.clearWatch(watchId);
-              setLocationStatus(prev => prev === 'gps-capturing' ? 'gps-denied' : prev);
-            }, 30000);
-          },
-          { timeout: 20000, enableHighAccuracy: true, maximumAge: 30000 }
-        );
-      },
-      { timeout: 5000, enableHighAccuracy: false, maximumAge: 60000 }
+      () => setLocationStatus('gps-denied'),
+      { timeout: 8000, enableHighAccuracy: false, maximumAge: 120000 }
     );
   };
 
