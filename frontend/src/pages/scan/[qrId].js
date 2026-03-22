@@ -76,10 +76,13 @@ export default function ScanPage() {
       if (data.success) {
         setQrInfo(prev => ({ ...prev, ...data.data }));
         // Set phase from scan response — don't wait for fetchQRInfo
-        if (data.data?.isActive === true) {
-          setPhase('active');
-        } else if (data.data?.isActive === false) {
+        // Backend returns isActive:false + needsActivation:true for inactive QRs
+        // For active QRs, backend doesn't send isActive but sends scanCount, category etc.
+        if (data.data?.needsActivation || data.data?.isActive === false) {
           setPhase('inactive');
+        } else {
+          // Scan was successful = QR is active
+          setPhase('active');
         }
         tryGPSUpdate();
       }
