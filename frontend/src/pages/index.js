@@ -23,6 +23,7 @@ export default function Home() {
   const [searchResult, setSearchResult] = useState(null);
   const [searching, setSearching] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState('');
+  const [activeTab, setActiveTab] = useState('personal');
   const menuRef = useRef(null);
 
   // The URL encoded in the QR code — points to register page
@@ -178,16 +179,27 @@ export default function Home() {
             <span>⬇️</span> Download QR
           </button>
         </main>
+
+        {/* Bottom Nav - Login only (not logged in) */}
+        <nav className="fixed bottom-0 inset-x-0 z-50 bg-[rgba(10,10,30,0.92)] backdrop-blur-xl border-t border-[rgba(99,102,241,0.12)] py-2 px-4">
+          <div className="max-w-lg mx-auto flex justify-center">
+            <Link href="/login"
+              className="nav-item flex flex-col items-center gap-0.5 px-6 py-1.5 rounded-xl transition-all text-green-400 bg-green-500/10 hover:bg-green-500/20">
+              <span className="text-lg">🔑</span>
+              <span className="text-[10px] font-semibold">Login</span>
+            </Link>
+          </div>
+        </nav>
       </div>
     );
   }
 
   // ════════════════════════════════════════════
-  // LOGGED IN VIEW (Full Dashboard)
+  // LOGGED IN VIEW (Tab-based Dashboard)
   // ════════════════════════════════════════════
   return (
     <div className="min-h-screen pb-24">
-      {/* Header - Clean, no hamburger menu */}
+      {/* Header */}
       <header className="sticky top-0 z-50 bg-[rgba(10,10,30,0.85)] backdrop-blur-xl border-b border-[rgba(99,102,241,0.15)] px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -199,7 +211,6 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Link href="/profile" className="w-9 h-9 rounded-xl bg-indigo-500/15 flex items-center justify-center text-sm hover:bg-indigo-500/25 transition-all">⚙️</Link>
-            <button onClick={logout} className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center text-sm hover:bg-red-500/20 transition-all">🚪</button>
             <LanguageSwitcher />
           </div>
         </div>
@@ -215,59 +226,63 @@ export default function Home() {
           <p className="text-xs text-gray-500">{t('heroDesc')}</p>
         </div>
 
-        {/* ═══ PERSONAL DASHBOARD ═══ */}
-        <div className="card p-5 mb-6 border-indigo-500/15">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-indigo-500/15 flex items-center justify-center text-lg">👤</div>
-            <h2 className="font-bold text-sm text-indigo-400">Personal Dashboard</h2>
+        {/* ═══ PERSONAL DASHBOARD (shown when activeTab === 'personal') ═══ */}
+        {activeTab === 'personal' && (
+          <div className="card p-5 mb-6 border-indigo-500/15">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/15 flex items-center justify-center text-lg">👤</div>
+              <h2 className="font-bold text-sm text-indigo-400">Personal Dashboard</h2>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: 'Create QR', icon: '➕', href: '/generate' },
+                { label: 'Scan QR', icon: '📷', href: '/scanner' },
+                { label: 'Map View', icon: '🗺️', href: '/map' },
+                { label: 'Notifications', icon: '🔔', href: '/notifications' },
+                { label: 'Face ID', icon: '🤳', href: '/face-verification' },
+                { label: 'Profile', icon: '⚙️', href: '/profile' },
+              ].map((item, i) => (
+                <Link key={i} href={item.href}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-indigo-500/30 hover:bg-white/5 transition-all group">
+                  <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
+                  <span className="text-[10px] font-bold text-gray-400 group-hover:text-gray-200">{item.label}</span>
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { label: 'Create QR', icon: '➕', href: '/generate', color: 'indigo' },
-              { label: 'Scan QR', icon: '📷', href: '/scanner', color: 'pink' },
-              { label: 'Map View', icon: '🗺️', href: '/map', color: 'green' },
-              { label: 'Notifications', icon: '🔔', href: '/notifications', color: 'red' },
-              { label: 'Face ID', icon: '🤳', href: '/face-verification', color: 'cyan' },
-              { label: 'Profile', icon: '⚙️', href: '/profile', color: 'gray' },
-            ].map((item, i) => (
-              <Link key={i} href={item.href}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-indigo-500/30 hover:bg-white/5 transition-all group">
-                <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
-                <span className="text-[10px] font-bold text-gray-400 group-hover:text-gray-200">{item.label}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
+        )}
 
-        {/* ═══ ORGANIZATION DASHBOARD ═══ */}
-        <div className="card p-5 mb-6 border-purple-500/15">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center text-lg">🏢</div>
-            <h2 className="font-bold text-sm text-purple-400">Organization Dashboard</h2>
+        {/* ═══ ORGANIZATION DASHBOARD (shown when activeTab === 'organization') ═══ */}
+        {activeTab === 'organization' && (
+          <div className="card p-5 mb-6 border-purple-500/15">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center text-lg">🏢</div>
+              <h2 className="font-bold text-sm text-purple-400">Organization Dashboard</h2>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: 'Organizations', icon: '🏢', href: '/organizations' },
+                { label: 'Attendance', icon: '📷', href: '/attendance-scanner' },
+                { label: 'Dashboard', icon: '📊', href: '/attendance-dashboard' },
+                { label: 'Leave Mgmt', icon: '📋', href: '/leave-management' },
+                { label: 'Holidays', icon: '🎉', href: '/holiday-calendar' },
+                { label: 'Visitors', icon: '👤', href: '/visitor-management' },
+                { label: 'Shifts', icon: '🕐', href: '/shift-management' },
+                { label: 'Reports', icon: '📊', href: '/reports' },
+                { label: 'Audit Log', icon: '📜', href: '/audit-log' },
+                { label: 'Broadcast', icon: '🚨', href: '/emergency-broadcast' },
+                { label: 'Viewer', icon: '👁', href: '/viewer-login' },
+                { label: 'Chatbot', icon: '🤖', href: '/chatbot' },
+              ].map((item, i) => (
+                <Link key={i} href={item.href}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-purple-500/30 hover:bg-white/5 transition-all group">
+                  <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
+                  <span className="text-[10px] font-bold text-gray-400 group-hover:text-gray-200">{item.label}</span>
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { label: 'Organizations', icon: '🏢', href: '/organizations' },
-              { label: 'Attendance', icon: '📷', href: '/attendance-scanner' },
-              { label: 'Dashboard', icon: '📊', href: '/attendance-dashboard' },
-              { label: 'Leave Mgmt', icon: '📋', href: '/leave-management' },
-              { label: 'Holidays', icon: '🎉', href: '/holiday-calendar' },
-              { label: 'Visitors', icon: '👤', href: '/visitor-management' },
-              { label: 'Shifts', icon: '🕐', href: '/shift-management' },
-              { label: 'Reports', icon: '📊', href: '/reports' },
-              { label: 'Audit Log', icon: '📜', href: '/audit-log' },
-              { label: 'Broadcast', icon: '🚨', href: '/emergency-broadcast' },
-              { label: 'Viewer', icon: '👁', href: '/viewer-login' },
-              { label: 'Chatbot', icon: '🤖', href: '/chatbot' },
-            ].map((item, i) => (
-              <Link key={i} href={item.href}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-purple-500/30 hover:bg-white/5 transition-all group">
-                <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
-                <span className="text-[10px] font-bold text-gray-400 group-hover:text-gray-200">{item.label}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
+        )}
 
         {/* Search Bar */}
         <div className="card p-5 mb-6 border-indigo-500/15">
@@ -382,21 +397,24 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Bottom Nav */}
+      {/* Bottom Nav - Personal | Organization | Login | Logout */}
       <nav className="fixed bottom-0 inset-x-0 z-50 bg-[rgba(10,10,30,0.92)] backdrop-blur-xl border-t border-[rgba(99,102,241,0.12)] py-2 px-4">
         <div className="max-w-lg mx-auto flex justify-around">
-          {[
-            { icon: '🏠', label: t('home'), href: '/' },
-            { icon: '📷', label: 'Scan', href: '/attendance-scanner' },
-            { icon: '📋', label: 'Dashboard', href: '/attendance-dashboard' },
-            { icon: '🏢', label: 'Orgs', href: '/organizations' },
-            { icon: '👁', label: 'Viewer', href: '/viewer-login' },
-          ].map((item, i) => (
-            <Link key={i} href={item.href} className={`nav-item ${router.pathname === item.href ? 'text-indigo-400 bg-indigo-500/10' : 'text-gray-500'}`}>
-              <span className="text-lg">{item.icon}</span>
-              <span className="text-[10px] font-semibold">{item.label}</span>
-            </Link>
-          ))}
+          <button onClick={() => setActiveTab('personal')}
+            className={`nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${activeTab === 'personal' ? 'text-indigo-400 bg-indigo-500/10' : 'text-gray-500'}`}>
+            <span className="text-lg">👤</span>
+            <span className="text-[10px] font-semibold">Personal</span>
+          </button>
+          <button onClick={() => setActiveTab('organization')}
+            className={`nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${activeTab === 'organization' ? 'text-purple-400 bg-purple-500/10' : 'text-gray-500'}`}>
+            <span className="text-lg">🏢</span>
+            <span className="text-[10px] font-semibold">Organization</span>
+          </button>
+          <button onClick={logout}
+            className="nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all text-gray-500 hover:text-red-400 hover:bg-red-500/10">
+            <span className="text-lg">🚪</span>
+            <span className="text-[10px] font-semibold">Logout</span>
+          </button>
         </div>
       </nav>
     </div>
