@@ -75,6 +75,12 @@ export default function ScanPage() {
 
       if (data.success) {
         setQrInfo(prev => ({ ...prev, ...data.data }));
+        // Set phase from scan response — don't wait for fetchQRInfo
+        if (data.data?.isActive === true) {
+          setPhase('active');
+        } else if (data.data?.isActive === false) {
+          setPhase('inactive');
+        }
         tryGPSUpdate();
       }
     } catch (err) {
