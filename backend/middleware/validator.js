@@ -106,12 +106,14 @@ exports.validateQRActivate = [
 ];
 
 // ====== Scan Location Validation ======
+// latitude/longitude are OPTIONAL — first scan is IP-based (no GPS)
+// GPS coordinates are sent later as an update
 exports.validateScanLocation = [
   body('latitude')
-    .exists().withMessage('Latitude is required')
+    .optional()
     .isFloat({ min: -90, max: 90 }).withMessage('Please enter a valid latitude (-90 to 90)'),
   body('longitude')
-    .exists().withMessage('Longitude is required')
+    .optional()
     .isFloat({ min: -180, max: 180 }).withMessage('Please enter a valid longitude (-180 to 180)'),
   body('accuracy')
     .optional()
