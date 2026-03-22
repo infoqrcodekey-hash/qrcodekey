@@ -145,16 +145,6 @@ export default function Home() {
         {/* Main Content */}
         <main className="relative flex flex-col items-center justify-center px-5 py-8 max-w-5xl mx-auto">
 
-          {/* Hero Text */}
-          <div className="text-center mb-8 animate-fadeIn">
-            <h1 className="text-4xl md:text-5xl font-black gradient-text mb-3 leading-tight">
-              QR Code Tracking System
-            </h1>
-            <p className="text-base md:text-lg text-gray-400 max-w-md mx-auto leading-relaxed">
-              {t('heroDesc')}
-            </p>
-          </div>
-
           {/* QR Code Card */}
           <div className="glass-card rounded-3xl p-8 md:p-10 text-center border border-white/5 mb-8 max-w-sm w-full animate-fadeInUp shadow-2xl shadow-indigo-500/5">
             {/* QR Code Image */}
@@ -173,12 +163,6 @@ export default function Home() {
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Label */}
-            <div className="mb-6">
-              <p className="text-sm font-bold text-gray-300 mb-1">Scan to Register</p>
-              <p className="text-[11px] text-gray-500">Scan this QR code with your phone camera to open the registration form</p>
             </div>
 
             {/* Download & Scan Buttons */}
