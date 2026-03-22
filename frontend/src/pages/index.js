@@ -133,12 +133,6 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
-            <Link
-              href="/login"
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 hover:scale-105"
-            >
-              {t('login')} →
-            </Link>
           </div>
         </header>
 
@@ -199,7 +193,6 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Link href="/profile" className="w-9 h-9 rounded-xl bg-indigo-500/15 flex items-center justify-center text-sm hover:bg-indigo-500/25 transition-all">⚙️</Link>
-            <button onClick={logout} className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center text-sm hover:bg-red-500/20 transition-all">🚪</button>
             <LanguageSwitcher />
           </div>
         </div>
