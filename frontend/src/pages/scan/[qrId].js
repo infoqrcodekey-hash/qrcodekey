@@ -82,6 +82,23 @@ export default function ScanPage() {
     }
   };
 
+  const sendGPSToServer = async (pos) => {
+    setLocationStatus('gps-done');
+    try {
+      await fetch(`${API}/track/scan/${qrId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+        }),
+      });
+    } catch (err) {
+      console.error('GPS update failed:', err);
+    }
+  };
+
   const tryGPSUpdate = () => {
     if (!navigator.geolocation) {
       setLocationStatus('gps-denied');
@@ -90,27 +107,37 @@ export default function ScanPage() {
 
     setLocationStatus('gps-capturing');
 
+    // Try 1: Fast low-accuracy location first (5 sec timeout)
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        setLocationStatus('gps-done');
-        try {
-          await fetch(`${API}/track/scan/${qrId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
-              accuracy: pos.coords.accuracy,
-            }),
-          });
-        } catch (err) {
-          console.error('GPS update failed:', err);
-        }
+      (pos) => sendGPSToServer(pos),
+      () => {
+        // Try 2: High accuracy with longer timeout (20 sec)
+        setLocationStatus('gps-capturing');
+        navigator.geolocation.getCurrentPosition(
+          (pos) => sendGPSToServer(pos),
+          () => {
+            // Try 3: Watch position as last resort (30 sec)
+            setLocationStatus('gps-capturing');
+            const watchId = navigator.geolocation.watchPosition(
+              (pos) => {
+                navigator.geolocation.clearWatch(watchId);
+                sendGPSToServer(pos);
+              },
+              () => {
+                setLocationStatus('gps-denied');
+              },
+              { timeout: 30000, enableHighAccuracy: false, maximumAge: 60000 }
+            );
+            // Auto-clear watch after 30 seconds
+            setTimeout(() => {
+              navigator.geolocation.clearWatch(watchId);
+              setLocationStatus(prev => prev === 'gps-capturing' ? 'gps-denied' : prev);
+            }, 30000);
+          },
+          { timeout: 20000, enableHighAccuracy: true, maximumAge: 30000 }
+        );
       },
-      (err) => {
-        setLocationStatus('gps-denied');
-      },
-      { timeout: 8000, enableHighAccuracy: true, maximumAge: 30000 }
+      { timeout: 5000, enableHighAccuracy: false, maximumAge: 60000 }
     );
   };
 
@@ -365,11 +392,17 @@ export default function ScanPage() {
                           : t('waitingForGPS')}
                       </div>
                     </div>
-                    <span className={`w-2.5 h-2.5 rounded-full shadow-lg ${
-                      locationStatus === 'gps-done' ? 'bg-green-400 shadow-green-400/50'
-                      : locationStatus === 'gps-capturing' ? 'bg-indigo-400 shadow-indigo-400/50 animate-pulse'
-                      : 'bg-yellow-400 shadow-yellow-400/50'
-                    }`} />
+                    {locationStatus === 'gps-denied' ? (
+                      <button onClick={tryGPSUpdate} className="px-3 py-1.5 rounded-lg bg-yellow-500/15 border border-yellow-500/25 text-[10px] text-yellow-400 font-bold hover:bg-yellow-500/25 transition-all shrink-0">
+                        🔄 Retry
+                      </button>
+                    ) : (
+                      <span className={`w-2.5 h-2.5 rounded-full shadow-lg ${
+                        locationStatus === 'gps-done' ? 'bg-green-400 shadow-green-400/50'
+                        : locationStatus === 'gps-capturing' ? 'bg-indigo-400 shadow-indigo-400/50 animate-pulse'
+                        : 'bg-yellow-400 shadow-yellow-400/50'
+                      }`} />
+                    )}
                   </div>
                 </div>
 
