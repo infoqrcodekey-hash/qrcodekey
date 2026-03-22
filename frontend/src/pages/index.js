@@ -143,95 +143,40 @@ export default function Home() {
         </header>
 
         {/* Main Content */}
-        <main className="relative flex flex-col items-center justify-center px-5 py-8 max-w-5xl mx-auto">
+        <main className="relative flex flex-col items-center justify-center px-5 py-8 max-w-5xl mx-auto" style={{ minHeight: 'calc(100vh - 72px)' }}>
 
-          {/* QR Code Card */}
-          <div className="glass-card rounded-3xl p-8 md:p-10 text-center border border-white/5 mb-8 max-w-sm w-full animate-fadeInUp shadow-2xl shadow-indigo-500/5">
-            {/* QR Code Image */}
-            <div className="relative inline-block mb-6">
-              <div className="absolute -inset-3 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-lg" />
-              <div className="relative bg-white p-4 rounded-2xl shadow-xl">
-                {qrDataUrl ? (
-                  <img
-                    src={qrDataUrl}
-                    alt="Scan to Register on QRCodeKey"
-                    className="w-56 h-56 md:w-64 md:h-64 mx-auto"
-                  />
-                ) : (
-                  <div className="w-56 h-56 md:w-64 md:h-64 flex items-center justify-center">
-                    <div className="w-10 h-10 border-3 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-                  </div>
-                )}
-              </div>
-            </div>
+          {/* Scan to Register Label */}
+          <p className="text-sm font-bold text-gray-300 mb-6">Scan to Register</p>
 
-            {/* Download & Scan Buttons */}
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={handleDownloadQR}
-                className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300
-                  bg-gradient-to-r from-indigo-500 to-purple-500
-                  hover:from-indigo-400 hover:to-purple-400
-                  hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-[1.02]
-                  active:scale-[0.98]"
-              >
-                <span>⬇️</span> Download QR
-              </button>
-              <Link
-                href="/scanner"
-                className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300
-                  bg-gradient-to-r from-pink-500 to-rose-500
-                  hover:from-pink-400 hover:to-rose-400
-                  hover:shadow-lg hover:shadow-pink-500/25 hover:scale-[1.02]
-                  active:scale-[0.98]"
-              >
-                <span>📷</span> Scan QR
-              </Link>
+          {/* QR Code */}
+          <div className="relative inline-block mb-8">
+            <div className="absolute -inset-3 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-lg" />
+            <div className="relative bg-white p-4 rounded-2xl shadow-xl">
+              {qrDataUrl ? (
+                <img
+                  src={qrDataUrl}
+                  alt="Scan to Register on QRCodeKey"
+                  className="w-56 h-56 md:w-64 md:h-64 mx-auto"
+                />
+              ) : (
+                <div className="w-56 h-56 md:w-64 md:h-64 flex items-center justify-center">
+                  <div className="w-10 h-10 border-3 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Register CTA */}
-          <div className="glass-card rounded-2xl p-6 text-center border border-white/5 max-w-sm w-full mb-8">
-            <h2 className="font-bold text-lg text-gray-200 mb-2">{t('getStarted')}</h2>
-            <p className="text-xs text-gray-400 mb-5">{t('getStartedDesc')}</p>
-            <div className="flex gap-3">
-              <Link href="/register" className="btn-primary flex-1 text-center block py-3 rounded-xl font-bold text-sm">{t('register')}</Link>
-              <Link href="/login" className="btn-secondary flex-1 text-center block py-3 rounded-xl font-bold text-sm">{t('login')}</Link>
-            </div>
-          </div>
-
-          {/* How it Works */}
-          <div className="w-full max-w-lg space-y-3 mb-8">
-            <h3 className="font-bold text-sm text-gray-300 text-center mb-4">{t('howItWorks')}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="glass-card rounded-2xl p-5 text-center border border-indigo-500/10">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-indigo-500/15 flex items-center justify-center text-2xl">📱</div>
-                <div className="font-bold text-xs text-indigo-400 mb-1">1. Scan QR</div>
-                <p className="text-[10px] text-gray-500 leading-relaxed">Scan the QR code above to register your account</p>
-              </div>
-              <div className="glass-card rounded-2xl p-5 text-center border border-purple-500/10">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-purple-500/15 flex items-center justify-center text-2xl">🔐</div>
-                <div className="font-bold text-xs text-purple-400 mb-1">2. Register & Login</div>
-                <p className="text-[10px] text-gray-500 leading-relaxed">Create your account and log in to access all features</p>
-              </div>
-              <div className="glass-card rounded-2xl p-5 text-center border border-pink-500/10">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-pink-500/15 flex items-center justify-center text-2xl">📍</div>
-                <div className="font-bold text-xs text-pink-400 mb-1">3. Track Items</div>
-                <p className="text-[10px] text-gray-500 leading-relaxed">Generate QR codes and track your items in real-time</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Copyright Footer */}
-          <div className="text-center py-4">
-            <div className="text-[10px] text-gray-600">&copy; 2026 QRCodeKey by Ashvinkumar Chaudhari. All rights reserved.</div>
-            <div className="text-[9px] text-gray-600 mt-0.5">647 Rose Ln, Bartlett, IL 60103, USA</div>
-            <div className="flex justify-center gap-3 mt-2">
-              <Link href="/terms" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('termsOfService')}</Link>
-              <Link href="/privacy-policy" className="text-[10px] text-gray-500 hover:text-indigo-400">{t('privacyPolicy')}</Link>
-              <Link href="/refund-policy" className="text-[10px] text-gray-500 hover:text-indigo-400">Refund Policy</Link>
-            </div>
-          </div>
+          {/* Download QR Button */}
+          <button
+            onClick={handleDownloadQR}
+            className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300
+              bg-gradient-to-r from-indigo-500 to-purple-500
+              hover:from-indigo-400 hover:to-purple-400
+              hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-[1.02]
+              active:scale-[0.98]"
+          >
+            <span>⬇️</span> Download QR
+          </button>
         </main>
       </div>
     );
