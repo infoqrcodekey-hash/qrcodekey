@@ -38,14 +38,16 @@ exports.generateQR = async (req, res) => {
     const scanUrl = `${process.env.FRONTEND_URL}/scan/${qrId}`;
 
     // Generate QR Code image (Base64)
+    // High error correction (H) = 30% recovery — works even with logo overlay
+    // Maximum scanner compatibility: all phone cameras, Google Lens, QR apps, smart POS
     const qrImageBase64 = await qrcode.toDataURL(scanUrl, {
-      width: 400,
-      margin: 2,
+      width: 512,
+      margin: 3,
       color: {
-        dark: '#1a1a2e',
+        dark: '#000000',
         light: '#ffffff'
       },
-      errorCorrectionLevel: 'H'  // High error correction
+      errorCorrectionLevel: 'H'
     });
 
     // Save to database
@@ -247,12 +249,12 @@ exports.downloadQR = async (req, res) => {
       });
     }
 
-    // Generate high quality PNG
+    // Generate high quality PNG — black on white for maximum scanner compatibility
     const scanUrl = `${process.env.FRONTEND_URL}/scan/${qr.qrId}`;
     const pngBuffer = await qrcode.toBuffer(scanUrl, {
       width: 1024,
-      margin: 3,
-      color: { dark: '#1a1a2e', light: '#ffffff' },
+      margin: 4,
+      color: { dark: '#000000', light: '#ffffff' },
       errorCorrectionLevel: 'H'
     });
 

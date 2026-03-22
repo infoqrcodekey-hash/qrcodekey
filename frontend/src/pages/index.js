@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { onScanAlert } from '../lib/socket';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { qrAPI } from '../lib/api';
+import { useBrandedQR } from '../components/BrandedQR';
 
 export default function Home() {
   const { user, isLoggedIn, loading, logout } = useAuth();
@@ -23,7 +24,6 @@ export default function Home() {
   const [searchPassword, setSearchPassword] = useState('');
   const [searchResult, setSearchResult] = useState(null);
   const [searching, setSearching] = useState(false);
-  const [qrDataUrl, setQrDataUrl] = useState('');
   const [activeTab, setActiveTab] = useState(null);
   const [myQRCodes, setMyQRCodes] = useState([]);
   const [loadingQR, setLoadingQR] = useState(false);
@@ -34,39 +34,8 @@ export default function Home() {
     ? `${window.location.origin}/register`
     : 'https://qrcodekey.com/register';
 
-  // Generate QR code on mount
-  useEffect(() => {
-    generateQRCode();
-  }, []);
-
-  const generateQRCode = async () => {
-    try {
-      const QRCode = (await import('qrcode')).default;
-      const dataUrl = await QRCode.toDataURL(REGISTER_URL, {
-        width: 300,
-        margin: 2,
-        color: {
-          dark: '#1a1a2e',
-          light: '#ffffff',
-        },
-        errorCorrectionLevel: 'H',
-      });
-      setQrDataUrl(dataUrl);
-    } catch (err) {
-      console.error('QR generation error:', err);
-      // Fallback: use external API
-      setQrDataUrl(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(REGISTER_URL)}`);
-    }
-  };
-
-  // Download QR code as PNG
-  const handleDownloadQR = () => {
-    if (!qrDataUrl) return;
-    const link = document.createElement('a');
-    link.download = 'QRCodeKey-Register.png';
-    link.href = qrDataUrl;
-    link.click();
-  };
+  // Branded QR code
+  const { dataUrl: qrDataUrl, ready: qrReady, download: handleDownloadQR } = useBrandedQR(REGISTER_URL, 300);
 
   // Fetch user's QR codes when logged in
   useEffect(() => {
