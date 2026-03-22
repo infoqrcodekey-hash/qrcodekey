@@ -369,38 +369,38 @@ export default function ScanPage() {
                   <div className={`glass-card rounded-2xl p-4 border flex items-center gap-3 ${
                     locationStatus === 'gps-done' ? 'border-green-500/10'
                     : locationStatus === 'gps-capturing' ? 'border-indigo-500/10'
-                    : 'border-yellow-500/10'
+                    : 'border-green-500/10'
                   }`}>
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                      locationStatus === 'gps-done' ? 'bg-green-500/10' : locationStatus === 'gps-capturing' ? 'bg-indigo-500/10' : 'bg-yellow-500/10'
+                      locationStatus === 'gps-done' ? 'bg-green-500/10' : locationStatus === 'gps-capturing' ? 'bg-indigo-500/10' : 'bg-green-500/10'
                     }`}>
                       <span className="text-lg">
-                        {locationStatus === 'gps-done' ? '📡' : locationStatus === 'gps-capturing' ? '⏳' : '⚠️'}
+                        {locationStatus === 'gps-done' ? '📡' : locationStatus === 'gps-capturing' ? '⏳' : '📡'}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className={`text-xs font-bold ${
-                        locationStatus === 'gps-done' ? 'text-green-400' : locationStatus === 'gps-capturing' ? 'text-indigo-400' : 'text-yellow-400'
+                        locationStatus === 'gps-done' ? 'text-green-400' : locationStatus === 'gps-capturing' ? 'text-indigo-400' : 'text-green-400'
                       }`}>
                         {locationStatus === 'gps-done' ? `${t('gpsCaptured')} ✅`
                           : locationStatus === 'gps-capturing' ? `${t('gpsAttempting')}...`
-                          : t('gpsNotAvailable')}
+                          : 'Location captured via IP ✅'}
                       </div>
                       <div className="text-[10px] text-gray-500">
                         {locationStatus === 'gps-done' ? t('exactLocation')
-                          : locationStatus === 'gps-denied' ? t('ipLocationUsed')
+                          : locationStatus === 'gps-denied' ? 'Approximate location saved successfully'
                           : t('waitingForGPS')}
                       </div>
                     </div>
                     {locationStatus === 'gps-denied' ? (
-                      <button onClick={tryGPSUpdate} className="px-3 py-1.5 rounded-lg bg-yellow-500/15 border border-yellow-500/25 text-[10px] text-yellow-400 font-bold hover:bg-yellow-500/25 transition-all shrink-0">
-                        🔄 Retry
+                      <button onClick={tryGPSUpdate} className="px-3 py-1.5 rounded-lg bg-indigo-500/15 border border-indigo-500/25 text-[10px] text-indigo-400 font-bold hover:bg-indigo-500/25 transition-all shrink-0">
+                        📡 GPS
                       </button>
                     ) : (
                       <span className={`w-2.5 h-2.5 rounded-full shadow-lg ${
                         locationStatus === 'gps-done' ? 'bg-green-400 shadow-green-400/50'
                         : locationStatus === 'gps-capturing' ? 'bg-indigo-400 shadow-indigo-400/50 animate-pulse'
-                        : 'bg-yellow-400 shadow-yellow-400/50'
+                        : 'bg-green-400 shadow-green-400/50'
                       }`} />
                     )}
                   </div>
