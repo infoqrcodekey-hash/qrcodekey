@@ -38,6 +38,15 @@ export default function Track() {
     };
   }, [result?.qrInfo?.qrId, t]);
 
+  // Auto-refresh every 10 seconds when result is showing
+  useEffect(() => {
+    if (!result) return;
+    const interval = setInterval(() => {
+      handleTrack(true);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [result?.qrInfo?.qrId, qrId, password]);
+
   const handleTrack = async (silent = false) => {
     if (!qrId.trim()) { setError(t('enterQRId')); return; }
     if (!password.trim()) { setError(t('enterPassword')); return; }
@@ -260,9 +269,14 @@ export default function Track() {
           ) : (
             /* ─── RESULTS ─── */
             <div className="space-y-4 animate-fadeIn">
-              <button onClick={goBack} className="text-xs text-gray-500 hover:text-gray-300 flex items-center gap-1">
-                ← {t('back')}
-              </button>
+              <div className="flex items-center justify-between">
+                <button onClick={goBack} className="text-xs text-gray-500 hover:text-gray-300 flex items-center gap-1">
+                  ← {t('back')}
+                </button>
+                <button onClick={() => handleTrack(false)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-500/15 border border-indigo-500/25 text-xs text-indigo-400 font-bold hover:bg-indigo-500/25 transition-all">
+                  🔄 Refresh
+                </button>
+              </div>
 
               {/* ══ LAST SEEN LOCATION ══ BIG PROMINENT CARD */}
               {result.qrInfo.lastKnownLocation?.latitude ? (
