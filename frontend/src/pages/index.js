@@ -11,6 +11,7 @@ import { useLanguage } from '../context/LanguageContext';
 import Link from 'next/link';
 import { onScanAlert } from '../lib/socket';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import { qrAPI } from '../lib/api';
 
 export default function Home() {
   const { user, isLoggedIn, loading, logout } = useAuth();
@@ -23,7 +24,9 @@ export default function Home() {
   const [searchResult, setSearchResult] = useState(null);
   const [searching, setSearching] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState('');
-  const [activeTab, setActiveTab] = useState('personal');
+  const [activeTab, setActiveTab] = useState(null);
+  const [myQRCodes, setMyQRCodes] = useState([]);
+  const [loadingQR, setLoadingQR] = useState(false);
   const menuRef = useRef(null);
 
   // The URL encoded in the QR code — points to register page
@@ -64,6 +67,22 @@ export default function Home() {
     link.href = qrDataUrl;
     link.click();
   };
+
+  // Fetch user's QR codes when logged in
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const fetchMyQRCodes = async () => {
+      setLoadingQR(true);
+      try {
+        const res = await qrAPI.getMyQRCodes();
+        setMyQRCodes(res.data?.data || []);
+      } catch (err) {
+        console.error('Failed to fetch QR codes:', err);
+      }
+      setLoadingQR(false);
+    };
+    fetchMyQRCodes();
+  }, [isLoggedIn]);
 
   // Real-time scan alerts
   useEffect(() => {
@@ -228,28 +247,87 @@ export default function Home() {
 
         {/* ═══ PERSONAL DASHBOARD (shown when activeTab === 'personal') ═══ */}
         {activeTab === 'personal' && (
-          <div className="card p-5 mb-6 border-indigo-500/15">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-indigo-500/15 flex items-center justify-center text-lg">👤</div>
-              <h2 className="font-bold text-sm text-indigo-400">Personal Dashboard</h2>
+          <>
+            {/* Quick Actions */}
+            <div className="card p-5 mb-4 border-indigo-500/15">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/15 flex items-center justify-center text-lg">👤</div>
+                <h2 className="font-bold text-sm text-indigo-400">Personal Dashboard</h2>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: 'Create QR', icon: '➕', href: '/generate' },
+                  { label: 'Scan QR', icon: '📷', href: '/scanner' },
+                  { label: 'Map View', icon: '🗺️', href: '/map' },
+                  { label: 'Notifications', icon: '🔔', href: '/notifications' },
+                  { label: 'Face ID', icon: '🤳', href: '/face-verification' },
+                  { label: 'Profile', icon: '⚙️', href: '/profile' },
+                ].map((item, i) => (
+                  <Link key={i} href={item.href}
+                    className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-indigo-500/30 hover:bg-white/5 transition-all group">
+                    <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
+                    <span className="text-[10px] font-bold text-gray-400 group-hover:text-gray-200">{item.label}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { label: 'Create QR', icon: '➕', href: '/generate' },
-                { label: 'Scan QR', icon: '📷', href: '/scanner' },
-                { label: 'Map View', icon: '🗺️', href: '/map' },
-                { label: 'Notifications', icon: '🔔', href: '/notifications' },
-                { label: 'Face ID', icon: '🤳', href: '/face-verification' },
-                { label: 'Profile', icon: '⚙️', href: '/profile' },
-              ].map((item, i) => (
-                <Link key={i} href={item.href}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-indigo-500/30 hover:bg-white/5 transition-all group">
-                  <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
-                  <span className="text-[10px] font-bold text-gray-400 group-hover:text-gray-200">{item.label}</span>
-                </Link>
-              ))}
+
+            {/* My QR Codes List */}
+            <div className="card p-5 mb-6 border-indigo-500/15">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-green-500/15 flex items-center justify-center text-lg">📱</div>
+                  <h2 className="font-bold text-sm text-green-400">My QR Codes</h2>
+                </div>
+                <Link href="/generate" className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold">+ Create New</Link>
+              </div>
+
+              {loadingQR ? (
+                <div className="flex justify-center py-8">
+                  <div className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+                </div>
+              ) : myQRCodes.length === 0 ? (
+                <div className="text-center py-8">
+                  <span className="text-4xl block mb-3">📭</span>
+                  <p className="text-sm text-gray-400 mb-1">No QR Codes yet</p>
+                  <p className="text-[10px] text-gray-600 mb-4">Create your first QR code to start tracking</p>
+                  <Link href="/generate" className="inline-block px-6 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold hover:opacity-90 transition-all">
+                    ➕ Create QR Code
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {myQRCodes.map((qr, i) => (
+                    <Link key={qr._id || i} href={`/qr/${qr.qrId}`}
+                      className="flex items-center gap-3 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-indigo-500/30 hover:bg-white/5 transition-all group">
+                      {/* QR Thumbnail */}
+                      <div className="w-12 h-12 rounded-lg bg-white p-1 shrink-0 overflow-hidden">
+                        {qr.qrImageUrl ? (
+                          <img src={qr.qrImageUrl} alt={qr.qrId} className="w-full h-full object-contain" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-lg">📱</div>
+                        )}
+                      </div>
+                      {/* QR Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-bold text-gray-200 truncate">{qr.registeredName || qr.qrId}</div>
+                        <div className="text-[10px] text-gray-500 truncate">{qr.category || 'General'} • {qr.totalScans || 0} scans</div>
+                        <div className="text-[9px] text-gray-600">{qr.createdAt ? new Date(qr.createdAt).toLocaleDateString() : ''}</div>
+                      </div>
+                      {/* Status Badge */}
+                      <div className={`px-2 py-0.5 rounded-full text-[9px] font-bold shrink-0 ${qr.isActive ? 'bg-green-500/15 text-green-400' : 'bg-gray-500/15 text-gray-500'}`}>
+                        {qr.isActive ? 'Active' : 'Inactive'}
+                      </div>
+                    </Link>
+                  ))}
+                  {/* View All link */}
+                  <Link href="/dashboard" className="block text-center pt-2 text-[10px] text-indigo-400 hover:text-indigo-300 font-semibold">
+                    View all QR codes →
+                  </Link>
+                </div>
+              )}
             </div>
-          </div>
+          </>
         )}
 
         {/* ═══ ORGANIZATION DASHBOARD (shown when activeTab === 'organization') ═══ */}
@@ -400,12 +478,12 @@ export default function Home() {
       {/* Bottom Nav - Personal | Organization | Login | Logout */}
       <nav className="fixed bottom-0 inset-x-0 z-50 bg-[rgba(10,10,30,0.92)] backdrop-blur-xl border-t border-[rgba(99,102,241,0.12)] py-2 px-4">
         <div className="max-w-lg mx-auto flex justify-around">
-          <button onClick={() => setActiveTab('personal')}
+          <button onClick={() => setActiveTab(activeTab === 'personal' ? null : 'personal')}
             className={`nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${activeTab === 'personal' ? 'text-indigo-400 bg-indigo-500/10' : 'text-gray-500'}`}>
             <span className="text-lg">👤</span>
             <span className="text-[10px] font-semibold">Personal</span>
           </button>
-          <button onClick={() => setActiveTab('organization')}
+          <button onClick={() => setActiveTab(activeTab === 'organization' ? null : 'organization')}
             className={`nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${activeTab === 'organization' ? 'text-purple-400 bg-purple-500/10' : 'text-gray-500'}`}>
             <span className="text-lg">🏢</span>
             <span className="text-[10px] font-semibold">Organization</span>
