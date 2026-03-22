@@ -187,7 +187,7 @@ export default function Home() {
   // ════════════════════════════════════════════
   return (
     <div className="min-h-screen pb-24">
-      {/* Header */}
+      {/* Header - Clean, no hamburger menu */}
       <header className="sticky top-0 z-50 bg-[rgba(10,10,30,0.85)] backdrop-blur-xl border-b border-[rgba(99,102,241,0.15)] px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -198,56 +198,8 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform"
-              >
-                ☰
-              </button>
-
-              {/* Dropdown Menu */}
-              {menuOpen && (
-                <div className="absolute right-0 top-12 w-64 bg-[rgba(15,12,40,0.98)] backdrop-blur-xl rounded-2xl border border-[rgba(99,102,241,0.25)] shadow-2xl shadow-black/50 overflow-hidden z-50 animate-slideUp">
-                  <div className="p-4 border-b border-white/5">
-                    <div className="text-sm font-bold text-gray-200">👤 {user?.name}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">{user?.email}</div>
-                  </div>
-                  <div className="p-2 max-h-[60vh] overflow-y-auto">
-                    {[
-                      { label: t('generateQR'), icon: '➕', href: '/generate' },
-                      { label: t('trackQR'), icon: '📍', href: '/scanner' },
-                      { label: 'Attendance Scan', icon: '📷', href: '/attendance-scanner' },
-                      { label: t('dashboard'), icon: '📋', href: '/attendance-dashboard' },
-                      { label: 'Organizations', icon: '🏢', href: '/organizations' },
-                      { label: 'Leave Management', icon: '📋', href: '/leave-management' },
-                      { label: 'Holiday Calendar', icon: '🎉', href: '/holiday-calendar' },
-                      { label: 'Visitor Management', icon: '👤', href: '/visitor-management' },
-                      { label: 'Shift Management', icon: '🕐', href: '/shift-management' },
-                      { label: 'Reports', icon: '📊', href: '/reports' },
-                      { label: 'Audit Log', icon: '📜', href: '/audit-log' },
-                      { label: 'Notifications', icon: '🔔', href: '/notifications' },
-                      { label: 'Emergency Broadcast', icon: '🚨', href: '/emergency-broadcast' },
-                      { label: 'Face Verification', icon: '🤳', href: '/face-verification' },
-                      { label: t('profile'), icon: '⚙️', href: '/profile' },
-                    ].map((item, i) => (
-                      <Link key={i} href={item.href} onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all">
-                        <span className="text-lg">{item.icon}</span>
-                        <span className="text-sm text-gray-300 font-medium">{item.label}</span>
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="p-2 border-t border-white/5">
-                    <button onClick={() => { logout(); setMenuOpen(false); }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 transition-all text-red-400">
-                      <span className="text-lg">🚪</span>
-                      <span className="text-sm font-medium">{t('logout')}</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <Link href="/profile" className="w-9 h-9 rounded-xl bg-indigo-500/15 flex items-center justify-center text-sm hover:bg-indigo-500/25 transition-all">⚙️</Link>
+            <button onClick={logout} className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center text-sm hover:bg-red-500/20 transition-all">🚪</button>
             <LanguageSwitcher />
           </div>
         </div>
@@ -263,36 +215,58 @@ export default function Home() {
           <p className="text-xs text-gray-500">{t('heroDesc')}</p>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <Link href="/scanner" className="card p-5 text-center hover:border-indigo-500/30 transition-all group border-indigo-500/15">
-            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-indigo-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <span className="text-3xl">📷</span>
-            </div>
-            <div className="font-bold text-sm text-gray-200">{t('trackQR')}</div>
-            <div className="text-[10px] text-gray-500 mt-1">Scan any QR code</div>
-          </Link>
-          <Link href="/generate" className="card p-5 text-center hover:border-pink-500/30 transition-all group border-pink-500/15">
-            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-pink-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <span className="text-3xl">➕</span>
-            </div>
-            <div className="font-bold text-sm text-gray-200">{t('generateQR')}</div>
-            <div className="text-[10px] text-gray-500 mt-1">Create new QR code</div>
-          </Link>
-          <Link href="/attendance-scanner" className="card p-5 text-center hover:border-cyan-500/30 transition-all group border-cyan-500/15">
-            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-cyan-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <span className="text-3xl">📋</span>
-            </div>
-            <div className="font-bold text-sm text-gray-200">Attendance</div>
-            <div className="text-[10px] text-gray-500 mt-1">Scan & record</div>
-          </Link>
-          <Link href="/attendance-dashboard" className="card p-5 text-center hover:border-purple-500/30 transition-all group border-purple-500/15">
-            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-purple-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <span className="text-3xl">📊</span>
-            </div>
-            <div className="font-bold text-sm text-gray-200">{t('dashboard')}</div>
-            <div className="text-[10px] text-gray-500 mt-1">View reports</div>
-          </Link>
+        {/* ═══ PERSONAL DASHBOARD ═══ */}
+        <div className="card p-5 mb-6 border-indigo-500/15">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/15 flex items-center justify-center text-lg">👤</div>
+            <h2 className="font-bold text-sm text-indigo-400">Personal Dashboard</h2>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: 'Create QR', icon: '➕', href: '/generate', color: 'indigo' },
+              { label: 'Scan QR', icon: '📷', href: '/scanner', color: 'pink' },
+              { label: 'Map View', icon: '🗺️', href: '/map', color: 'green' },
+              { label: 'Notifications', icon: '🔔', href: '/notifications', color: 'red' },
+              { label: 'Face ID', icon: '🤳', href: '/face-verification', color: 'cyan' },
+              { label: 'Profile', icon: '⚙️', href: '/profile', color: 'gray' },
+            ].map((item, i) => (
+              <Link key={i} href={item.href}
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-indigo-500/30 hover:bg-white/5 transition-all group">
+                <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
+                <span className="text-[10px] font-bold text-gray-400 group-hover:text-gray-200">{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* ═══ ORGANIZATION DASHBOARD ═══ */}
+        <div className="card p-5 mb-6 border-purple-500/15">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center text-lg">🏢</div>
+            <h2 className="font-bold text-sm text-purple-400">Organization Dashboard</h2>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: 'Organizations', icon: '🏢', href: '/organizations' },
+              { label: 'Attendance', icon: '📷', href: '/attendance-scanner' },
+              { label: 'Dashboard', icon: '📊', href: '/attendance-dashboard' },
+              { label: 'Leave Mgmt', icon: '📋', href: '/leave-management' },
+              { label: 'Holidays', icon: '🎉', href: '/holiday-calendar' },
+              { label: 'Visitors', icon: '👤', href: '/visitor-management' },
+              { label: 'Shifts', icon: '🕐', href: '/shift-management' },
+              { label: 'Reports', icon: '📊', href: '/reports' },
+              { label: 'Audit Log', icon: '📜', href: '/audit-log' },
+              { label: 'Broadcast', icon: '🚨', href: '/emergency-broadcast' },
+              { label: 'Viewer', icon: '👁', href: '/viewer-login' },
+              { label: 'Chatbot', icon: '🤖', href: '/chatbot' },
+            ].map((item, i) => (
+              <Link key={i} href={item.href}
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-purple-500/30 hover:bg-white/5 transition-all group">
+                <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
+                <span className="text-[10px] font-bold text-gray-400 group-hover:text-gray-200">{item.label}</span>
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Search Bar */}
