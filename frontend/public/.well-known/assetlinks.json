@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.qrcodekey.app",
+        "sha256_cert_fingerprints": ["08:9C:97:6C:32:11:75:C1:EE:09:19:B5:88:FE:25:F4:4F:78:56:2C:57:28:DA:1C:D7:3B:DB:7F:09:03:84:BF"]
+      }
+    }]
