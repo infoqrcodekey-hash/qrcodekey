@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { onScanAlert } from '../lib/socket';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { qrAPI } from '../lib/api';
-import { useBrandedQR } from '../components/BrandedQR';
+import { useBrandedQR, BrandedQRDisplay } from '../components/BrandedQR';
 
 export default function Home() {
   const { user, isLoggedIn, loading, logout } = useAuth();
@@ -137,22 +137,9 @@ export default function Home() {
           {/* Scan to Register Label */}
           <p className="text-sm font-bold text-gray-300 mb-6">Scan to Register</p>
 
-          {/* QR Code */}
-          <div className="relative inline-block mb-8">
-            <div className="absolute -inset-3 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-lg" />
-            <div className="relative bg-white p-4 rounded-2xl shadow-xl">
-              {qrDataUrl ? (
-                <img
-                  src={qrDataUrl}
-                  alt="Scan to Register on QRCodeKey"
-                  className="w-56 h-56 md:w-64 md:h-64 mx-auto"
-                />
-              ) : (
-                <div className="w-56 h-56 md:w-64 md:h-64 flex items-center justify-center">
-                  <div className="w-10 h-10 border-3 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-                </div>
-              )}
-            </div>
+          {/* Branded QR Code */}
+          <div className="mb-8">
+            <BrandedQRDisplay dataUrl={qrDataUrl} size={240} />
           </div>
 
           {/* Download QR Button */}
