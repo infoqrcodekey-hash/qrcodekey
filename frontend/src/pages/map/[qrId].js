@@ -22,6 +22,12 @@ export default function LastLocationPage() {
   const [password, setPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
 
+  // Address update state
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [addressInput, setAddressInput] = useState('');
+  const [addressSaving, setAddressSaving] = useState(false);
+  const [addressMsg, setAddressMsg] = useState('');
+
   const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   const handleAuth = async (e) => {
@@ -55,6 +61,31 @@ export default function LastLocationPage() {
 
   const openInGoogleMaps = (lat, lng) => {
     window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+  };
+
+  const handleAddressSave = async () => {
+    if (!addressInput.trim()) return;
+    setAddressSaving(true);
+    setAddressMsg('');
+    try {
+      const res = await fetch(`${API}/track/update-address`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qrId, password, registeredAddress: addressInput.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setQrInfo(prev => ({ ...prev, registeredAddress: addressInput.trim() }));
+        setAddressMsg('Address saved! ✅');
+        setShowAddressForm(false);
+      } else {
+        setAddressMsg(data.message || 'Failed to save');
+      }
+    } catch (err) {
+      setAddressMsg('Connection error');
+    } finally {
+      setAddressSaving(false);
+    }
   };
 
   const openDirections = (lat, lng) => {
@@ -135,13 +166,50 @@ export default function LastLocationPage() {
                 <div className="text-[10px] text-gray-500">{qrInfo?.category || 'General'} • {qrInfo?.totalScans || locations.length} scans</div>
               </div>
             </div>
-            {qrInfo?.registeredAddress && (
+            {/* Address Section */}
+            {qrInfo?.registeredAddress ? (
               <div className="flex items-start gap-3 p-3 rounded-xl bg-white/3 border border-white/5 mt-3">
                 <span className="text-lg mt-0.5">🏠</span>
-                <div>
+                <div className="flex-1">
                   <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">Owner's Address</div>
                   <div className="text-sm text-gray-300">{qrInfo.registeredAddress}</div>
                 </div>
+                <button onClick={() => { setShowAddressForm(true); setAddressInput(qrInfo.registeredAddress); }}
+                  className="px-2 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-[9px] text-indigo-400 font-bold shrink-0">
+                  ✏️ Edit
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => { setShowAddressForm(true); setAddressInput(''); }}
+                className="w-full mt-3 py-3 rounded-xl bg-white/3 border border-dashed border-white/10 text-xs text-gray-400 hover:bg-white/5 hover:border-indigo-500/30 transition-all flex items-center justify-center gap-2">
+                🏠 Add Your Address (for directions)
+              </button>
+            )}
+
+            {/* Address Edit Form */}
+            {showAddressForm && (
+              <div className="mt-3 p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/15 space-y-3">
+                <label className="block text-xs font-bold text-gray-400">Your Address</label>
+                <textarea
+                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-200 text-sm focus:border-indigo-500/50 focus:outline-none resize-none"
+                  rows={2}
+                  placeholder="Enter your home/office address..."
+                  value={addressInput}
+                  onChange={e => setAddressInput(e.target.value)}
+                  maxLength={500}
+                />
+                <p className="text-[10px] text-gray-500">📍 Google Maps will show directions from this address to scan location</p>
+                <div className="flex gap-2">
+                  <button onClick={handleAddressSave} disabled={addressSaving}
+                    className="flex-1 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold disabled:opacity-50">
+                    {addressSaving ? 'Saving...' : '💾 Save Address'}
+                  </button>
+                  <button onClick={() => { setShowAddressForm(false); setAddressMsg(''); }}
+                    className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-400">
+                    Cancel
+                  </button>
+                </div>
+                {addressMsg && <div className="text-xs text-center text-indigo-400">{addressMsg}</div>}
               </div>
             )}
           </div>

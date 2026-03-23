@@ -4,7 +4,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { handleScan, viewLocations, getScanInfo, activatePublic, submitFinderInfo } = require('../controllers/trackController');
+const { handleScan, viewLocations, getScanInfo, activatePublic, submitFinderInfo, updateAddress } = require('../controllers/trackController');
 const { scanLimiter, trackLimiter } = require('../middleware/rateLimiter');
 const { validateScanLocation, validateTrackRequest } = require('../middleware/validator');
 const { optionalAuth } = require('../middleware/auth');
@@ -17,5 +17,8 @@ router.post('/finder-info/:qrId', scanLimiter, submitFinderInfo);
 
 // Location view (Password required, login optional)
 router.post('/view', trackLimiter, optionalAuth, validateTrackRequest, viewLocations);
+
+// Update address (Password required)
+router.post('/update-address', trackLimiter, updateAddress);
 
 module.exports = router;

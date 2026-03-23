@@ -515,5 +515,43 @@ exports.submitFinderInfo = async (req, res) => {
   }
 };
 
+// ====== UPDATE QR ADDRESS (Password Protected) ======
+// POST /api/track/update-address
+exports.updateAddress = async (req, res) => {
+  try {
+    const { qrId, password, registeredAddress } = req.body;
+
+    if (!qrId || !password) {
+      return res.status(400).json({ success: false, message: 'QR ID and password are required' });
+    }
+
+    const qr = await QRCode.findOne({ qrId }).select('+qrPassword');
+    if (!qr) {
+      return res.status(404).json({ success: false, message: 'QR Code not found' });
+    }
+
+    if (!qr.isActive) {
+      return res.status(400).json({ success: false, message: 'QR Code is not active' });
+    }
+
+    const isMatch = await qr.matchQRPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Incorrect password' });
+    }
+
+    qr.registeredAddress = registeredAddress || '';
+    await qr.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      message: 'Address updated successfully! ✅',
+      data: { qrId: qr.qrId, registeredAddress: qr.registeredAddress }
+    });
+  } catch (error) {
+    console.error('Update Address Error:', error);
+    res.status(500).json({ success: false, message: 'Error updating address' });
+  }
+};
+
 // ====== LIVE LOCATION STREAM (WebSocket Based) ======
 // This is handled by Socket.io - setup in server.js
