@@ -12,8 +12,6 @@ import Link from 'next/link';
 import { onScanAlert } from '../lib/socket';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { qrAPI } from '../lib/api';
-import { useBrandedQR, BrandedQRDisplay } from '../components/BrandedQR';
-
 export default function Home() {
   const { user, isLoggedIn, loading, logout } = useAuth();
   const { t } = useLanguage();
@@ -24,6 +22,7 @@ export default function Home() {
   const [searchPassword, setSearchPassword] = useState('');
   const [searchResult, setSearchResult] = useState(null);
   const [searching, setSearching] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState('');
   const [activeTab, setActiveTab] = useState(null);
   const [myQRCodes, setMyQRCodes] = useState([]);
   const [loadingQR, setLoadingQR] = useState(false);
@@ -34,8 +33,35 @@ export default function Home() {
     ? `${window.location.origin}/register`
     : 'https://qrcodekey.com/register';
 
-  // Branded QR code
-  const { dataUrl: qrDataUrl, ready: qrReady, download: handleDownloadQR } = useBrandedQR(REGISTER_URL, 300);
+  // Generate QR code on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const genQR = async () => {
+      try {
+        const QRCode = (await import('qrcode')).default;
+        const dataUrl = await QRCode.toDataURL(REGISTER_URL, {
+          width: 300,
+          margin: 2,
+          color: { dark: '#1e1b4b', light: '#ffffff' },
+          errorCorrectionLevel: 'H',
+        });
+        setQrDataUrl(dataUrl);
+      } catch (err) {
+        console.error('QR generation error:', err);
+        setQrDataUrl(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(REGISTER_URL)}&ecc=H`);
+      }
+    };
+    genQR();
+  }, []);
+
+  // Download QR code
+  const handleDownloadQR = () => {
+    if (!qrDataUrl) return;
+    const link = document.createElement('a');
+    link.download = 'QRCodeKey-Register.png';
+    link.href = qrDataUrl;
+    link.click();
+  };
 
   // Fetch user's QR codes when logged in
   useEffect(() => {
@@ -137,9 +163,41 @@ export default function Home() {
           {/* Scan to Register Label */}
           <p className="text-sm font-bold text-gray-300 mb-6">Scan to Register</p>
 
-          {/* Branded QR Code */}
-          <div className="mb-8">
-            <BrandedQRDisplay dataUrl={qrDataUrl} size={240} />
+          {/* Branded QR Code with Logo */}
+          <div className="relative inline-block mb-8">
+            {/* Gradient glow */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/20 via-purple-500/25 to-pink-500/20 rounded-3xl blur-xl" />
+            {/* Gradient border */}
+            <div className="relative p-[3px] rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
+              <div className="bg-white rounded-[13px] p-4 relative">
+                {qrDataUrl ? (
+                  <img src={qrDataUrl} alt="Scan to Register on QRCodeKey" className="w-56 h-56 md:w-64 md:h-64 mx-auto block" />
+                ) : (
+                  <div className="w-56 h-56 md:w-64 md:h-64 flex items-center justify-center">
+                    <div className="w-10 h-10 border-[3px] border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+                  </div>
+                )}
+                {/* Center logo overlay */}
+                <div className="absolute" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                  <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center" style={{ boxShadow: '0 0 0 3px white, 0 0 0 5px rgba(99,102,241,0.4)' }}>
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
+                      <span className="text-xl">📍</span>
+                    </div>
+                  </div>
+                </div>
+                {/* Brand name */}
+                <div className="text-center mt-2">
+                  <span className="text-[9px] font-black tracking-[0.2em] bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    QRCODEKEY
+                  </span>
+                </div>
+              </div>
+            </div>
+            {/* Corner decorations */}
+            <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-indigo-400 rounded-tl-lg" />
+            <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-purple-400 rounded-tr-lg" />
+            <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-purple-400 rounded-bl-lg" />
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-pink-400 rounded-br-lg" />
           </div>
 
           {/* Download QR Button */}
