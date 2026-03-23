@@ -47,6 +47,11 @@ const QRCodeSchema = new mongoose.Schema({
     type: String,
     maxlength: 500
   },
+  registeredAddress: {
+    type: String,
+    trim: true,
+    maxlength: 500
+  },
 
   // ---------- QR Password (to view location) ----------
   qrPassword: {

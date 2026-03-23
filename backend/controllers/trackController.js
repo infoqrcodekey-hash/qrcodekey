@@ -313,6 +313,7 @@ exports.viewLocations = async (req, res) => {
           qrId: qr.qrId,
           category: qr.category,
           registeredName: qr.registeredName,
+          registeredAddress: qr.registeredAddress || '',
           totalScans: qr.totalScans,
           isActive: qr.isActive,
           activatedAt: qr.activatedAt,
@@ -384,7 +385,7 @@ exports.getScanInfo = async (req, res) => {
 exports.activatePublic = async (req, res) => {
   try {
     const { qrId } = req.params;
-    const { registeredName, registeredPhone, category, message, qrPassword } = req.body;
+    const { registeredName, registeredPhone, category, message, qrPassword, registeredAddress } = req.body;
 
     if (!registeredName || !registeredPhone || !qrPassword) {
       return res.status(400).json({ success: false, message: 'Naam, phone aur password zaroori hain' });
@@ -401,6 +402,7 @@ exports.activatePublic = async (req, res) => {
     qr.registeredPhone = registeredPhone;
     qr.category = category || 'other';
     qr.message = message || '';
+    qr.registeredAddress = registeredAddress || '';
     qr.qrPassword = qrPassword;
     qr.isActive = true;
     qr.activatedAt = new Date();

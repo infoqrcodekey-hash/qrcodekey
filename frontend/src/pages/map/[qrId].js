@@ -57,6 +57,12 @@ export default function LastLocationPage() {
     window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
   };
 
+  const openDirections = (lat, lng) => {
+    const origin = encodeURIComponent(qrInfo?.registeredAddress || '');
+    const destination = `${lat},${lng}`;
+    window.open(`https://www.google.com/maps/dir/${origin}/${destination}`, '_blank');
+  };
+
   // Password form
   if (!authenticated) {
     return (
@@ -129,6 +135,15 @@ export default function LastLocationPage() {
                 <div className="text-[10px] text-gray-500">{qrInfo?.category || 'General'} • {qrInfo?.totalScans || locations.length} scans</div>
               </div>
             </div>
+            {qrInfo?.registeredAddress && (
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-white/3 border border-white/5 mt-3">
+                <span className="text-lg mt-0.5">🏠</span>
+                <div>
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">Owner's Address</div>
+                  <div className="text-sm text-gray-300">{qrInfo.registeredAddress}</div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Last Scan Location */}
@@ -197,6 +212,16 @@ export default function LastLocationPage() {
                 >
                   🗺️ Open in Google Maps
                 </button>
+
+                {/* Get Directions button (only if owner address exists) */}
+                {qrInfo?.registeredAddress && (
+                  <button
+                    onClick={() => openDirections(lastScan.latitude, lastScan.longitude)}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-bold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-green-500/25 transition-all"
+                  >
+                    🧭 Get Directions (Address → Scan Location)
+                  </button>
+                )}
               </div>
             </div>
           ) : (

@@ -28,6 +28,7 @@ export default function ScanPage() {
   const [form, setForm] = useState({
     registeredName: '',
     registeredPhone: '',
+    registeredAddress: '',
     category: 'other',
     message: '',
     qrPassword: '',
@@ -175,6 +176,7 @@ export default function ScanPage() {
         body: JSON.stringify({
           registeredName: form.registeredName,
           registeredPhone: form.registeredPhone,
+          registeredAddress: form.registeredAddress,
           category: form.category,
           message: form.message,
           qrPassword: form.qrPassword,
@@ -591,6 +593,21 @@ export default function ScanPage() {
                         <input type="tel" className="input-field pl-10" placeholder="+91 98765 43210"
                           value={form.registeredPhone} onChange={e => setForm(p => ({ ...p, registeredPhone: e.target.value }))} required />
                       </div>
+                    </div>
+
+                    {/* Address */}
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-400 mb-2">
+                        Address <span className="text-gray-600 font-normal">(optional)</span>
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-3 text-gray-500 text-sm">🏠</span>
+                        <textarea className="input-field pl-10 resize-none" rows={2} placeholder="Enter your home/office address (for directions on map)"
+                          value={form.registeredAddress} onChange={e => setForm(p => ({ ...p, registeredAddress: e.target.value }))} maxLength={500} />
+                      </div>
+                      <p className="text-[10px] text-gray-600 mt-1 flex items-center gap-1">
+                        <span>📍</span> Used to show directions from your address to scan location
+                      </p>
                     </div>
 
                     {/* Category */}
