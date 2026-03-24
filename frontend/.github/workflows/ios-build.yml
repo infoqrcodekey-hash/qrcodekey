@@ -1,0 +1,161 @@
+name: iOS Build & Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      submit_to_appstore:
+        description: 'Submit to App Store Connect'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  SCHEME: "App"
+  BUNDLE_ID: "com.qrcodekey.app"
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci || npm install
+
+      - name: Add Capacitor iOS platform
+        working-directory: frontend
+        run: |
+          npx cap add ios || true
+          npx cap sync ios
+
+      - name: Update iOS project settings
+        working-directory: frontend/ios/App
+        run: |
+          # Update bundle identifier
+          sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = com.qrcodekey.app;/g" App.xcodeproj/project.pbxproj
+
+          # Update display name
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName QRCodeKey" App/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleName QRCodeKey" App/Info.plist
+
+          # Set version
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0.0" App/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion 1" App/Info.plist
+
+          # Add camera permission for QR scanning
+          /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'QRCodeKey needs camera access to scan QR codes for attendance tracking'" App/Info.plist || \
+          /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'QRCodeKey needs camera access to scan QR codes for attendance tracking'" App/Info.plist
+
+          # Add location permission
+          /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string 'QRCodeKey uses your location to verify attendance at the correct location'" App/Info.plist || \
+          /usr/libexec/PlistBuddy -c "Set :NSLocationWhenInUseUsageDescription 'QRCodeKey uses your location to verify attendance at the correct location'" App/Info.plist
+
+      - name: Install Apple certificate and provisioning profile
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # Create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # Decode from base64
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+
+          # Create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # Apply provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+      - name: Build iOS app
+        working-directory: frontend/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace \
+            -scheme App \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath $RUNNER_TEMP/QRCodeKey.xcarchive \
+            archive \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            -allowProvisioningUpdates
+
+      - name: Export IPA
+        run: |
+          cat > $RUNNER_TEMP/ExportOptions.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>com.qrcodekey.app</key>
+              <string>QRCodeKey Distribution</string>
+            </dict>
+          </dict>
+          </plist>
+          EOF
+
+          xcodebuild -exportArchive \
+            -archivePath $RUNNER_TEMP/QRCodeKey.xcarchive \
+            -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
+            -exportPath $RUNNER_TEMP/export
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QRCodeKey-iOS
+          path: ${{ runner.temp }}/export/*.ipa
+
+      - name: Upload to App Store Connect
+        if: ${{ github.event.inputs.submit_to_appstore == 'true' }}
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+        run: |
+          # Decode API key
+          API_KEY_PATH=$RUNNER_TEMP/AuthKey.p8
+          echo -n "$APP_STORE_CONNECT_API_KEY_BASE64" | base64 --decode -o $API_KEY_PATH
+
+          # Upload using xcrun
+          xcrun altool --upload-app \
+            -f $RUNNER_TEMP/export/*.ipa \
+            -t ios \
+            --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
+            --apiKeyPath "$API_KEY_PATH"
+
+      - name: Clean up keychain
+        if: ${{ always() }}
+        run: |
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
