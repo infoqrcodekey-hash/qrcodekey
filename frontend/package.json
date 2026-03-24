@@ -7,9 +7,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cap:add:ios": "npx cap add ios",
+    "cap:sync": "npx cap sync ios",
+    "cap:open:ios": "npx cap open ios"
   },
   "dependencies": {
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/ios": "^6.0.0",
+    "@capacitor/splash-screen": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0",
     "autoprefixer": "^10.4.16",
     "axios": "^1.13.6",
     "html5-qrcode": "^2.3.8",
@@ -22,5 +29,8 @@
     "react-hot-toast": "^2.6.0",
     "socket.io-client": "^4.8.3",
     "tailwindcss": "^3.3.6"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
   }
 }
