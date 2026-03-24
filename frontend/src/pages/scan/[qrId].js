@@ -2,9 +2,9 @@
 // pages/scan/[qrId].js - QR Code Scan Page
 // ============================================
 // IMPORTANT: "TURANT SCAN" approach
-// Page load â IMMEDIATELY send scan to backend (IP capture)
-// GPS ka wait NAHI karte â pehle IP se log hota hai
-// GPS milti hai â UPDATE bhejte hain better location ke saath
+// Page load → IMMEDIATELY send scan to backend (IP capture)
+// GPS ka wait NAHI karte — pehle IP se log hota hai
+// GPS milti hai → UPDATE bhejte hain better location ke saath
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
@@ -76,7 +76,7 @@ export default function ScanPage() {
 
       if (data.success) {
         setQrInfo(prev => ({ ...prev, ...data.data }));
-        // Set phase from scan response â don't wait for fetchQRInfo
+        // Set phase from scan response — don't wait for fetchQRInfo
         // Backend returns isActive:false + needsActivation:true for inactive QRs
         // For active QRs, backend doesn't send isActive but sends scanCount, category etc.
         if (data.data?.needsActivation || data.data?.isActive === false) {
@@ -148,15 +148,25 @@ export default function ScanPage() {
     }
   };
 
-  const tryGPSUpdate = () => {
+  const tryGPSUpdate = async () => {
     if (!navigator.geolocation) {
       setLocationStatus('gps-denied');
       return;
     }
+    // Check if location permission is blocked
+    try {
+      if (navigator.permissions) {
+        const perm = await navigator.permissions.query({ name: 'geolocation' });
+        if (perm.state === 'denied') {
+          setLocationStatus('gps-blocked');
+          return;
+        }
+      }
+    } catch (e) { /* not supported */ }
 
     setLocationStatus('gps-capturing');
 
-    // Single quick GPS try â 8 seconds max, then show IP success
+    // Single quick GPS try — 8 seconds max, then show IP success
     navigator.geolocation.getCurrentPosition(
       (pos) => sendGPSToServer(pos),
       () => setLocationStatus('gps-denied'),
@@ -270,13 +280,13 @@ export default function ScanPage() {
   };
 
   const categoryOptions = [
-    { value: 'child', emoji: 'ð¶', label: t('category_child') },
-    { value: 'car', emoji: 'ð', label: t('category_vehicle') },
-    { value: 'bag', emoji: 'ð', label: t('category_luggage') },
-    { value: 'pet', emoji: 'ð', label: t('category_pet') },
-    { value: 'key', emoji: 'ð', label: t('category_key') },
-    { value: 'luggage', emoji: 'ð§³', label: t('category_luggage') },
-    { value: 'other', emoji: 'ð¦', label: t('category_other') },
+    { value: 'child', emoji: '👶', label: t('category_child') },
+    { value: 'car', emoji: '🚗', label: t('category_vehicle') },
+    { value: 'bag', emoji: '👜', label: t('category_luggage') },
+    { value: 'pet', emoji: '🐕', label: t('category_pet') },
+    { value: 'key', emoji: '🔑', label: t('category_key') },
+    { value: 'luggage', emoji: '🧳', label: t('category_luggage') },
+    { value: 'other', emoji: '📦', label: t('category_other') },
   ];
 
   return (
@@ -304,7 +314,7 @@ export default function ScanPage() {
             {/* Logo + Brand */}
             <div className="text-center mb-8">
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-2xl shadow-indigo-500/30 transform hover:scale-105 transition-transform">
-                <span className="text-3xl">ð</span>
+                <span className="text-3xl">📍</span>
               </div>
               {qrId && (
                 <div className="font-mono text-xs text-indigo-300/80 bg-indigo-500/8 border border-indigo-500/15 rounded-xl px-4 py-2 inline-flex items-center gap-2 mb-2 backdrop-blur-sm">
@@ -318,7 +328,7 @@ export default function ScanPage() {
               <p className="text-[10px] text-gray-500 mt-1">{t('realtimeTracking')}</p>
             </div>
 
-            {/* âââ LOADING âââ */}
+            {/* ─── LOADING ─── */}
             {phase === 'loading' && (
               <div className="glass-card rounded-3xl p-10 text-center border border-white/5">
                 <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-indigo-500/10 flex items-center justify-center">
@@ -335,43 +345,43 @@ export default function ScanPage() {
               </div>
             )}
 
-            {/* âââ ERROR âââ */}
+            {/* ─── ERROR ─── */}
             {phase === 'error' && (
               <div className="glass-card rounded-3xl p-10 text-center border border-red-500/10">
                 <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-red-500/10 flex items-center justify-center">
-                  <span className="text-3xl">â</span>
+                  <span className="text-3xl">❌</span>
                 </div>
                 <h2 className="font-bold text-lg text-gray-200 mb-2">{t('scanError')}</h2>
                 <p className="text-sm text-gray-400">{error}</p>
                 {scanSent && (
                   <div className="mt-5 p-4 rounded-2xl bg-green-500/5 border border-green-500/15">
-                    <p className="text-xs text-green-400 font-semibold">â {t('ipCaptured')}</p>
+                    <p className="text-xs text-green-400 font-semibold">✅ {t('ipCaptured')}</p>
                     <p className="text-[10px] text-gray-500 mt-1">{t('locationSavedAnyway')}</p>
                   </div>
                 )}
               </div>
             )}
 
-            {/* âââ ACTIVE QR (Scan Successful) âââ */}
+            {/* ─── ACTIVE QR (Scan Successful) ─── */}
             {phase === 'active' && (
               <div className="space-y-4">
                 <div className="glass-card rounded-3xl p-8 text-center border border-green-500/10">
                   <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/10 flex items-center justify-center shadow-lg shadow-green-500/10">
-                    <span className="text-4xl">â</span>
+                    <span className="text-4xl">✅</span>
                   </div>
                   <h2 className="font-black text-xl text-green-400 mb-1">{t('locationCaptured')}</h2>
                   <p className="text-xs text-gray-500">{t('ownerNotified')}</p>
 
                   {qrInfo?.registeredName && (
                     <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/8 border border-indigo-500/15">
-                      <span className="text-sm">ð¤</span>
+                      <span className="text-sm">👤</span>
                       <span className="text-sm font-bold text-indigo-300">{qrInfo.registeredName}</span>
                     </div>
                   )}
 
                   {qrInfo?.message && (
                     <div className="mt-5 p-4 rounded-2xl bg-white/3 border border-white/5 text-left">
-                      <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">ð {t('message')}</p>
+                      <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">📝 {t('message')}</p>
                       <p className="text-sm text-gray-200 leading-relaxed">"{qrInfo.message}"</p>
                     </div>
                   )}
@@ -381,10 +391,10 @@ export default function ScanPage() {
                 <div className="space-y-2">
                   <div className="glass-card rounded-2xl p-4 border border-green-500/10 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
-                      <span className="text-lg">ð</span>
+                      <span className="text-lg">🌐</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs text-green-400 font-bold">{t('ipCaptured')} â</div>
+                      <div className="text-xs text-green-400 font-bold">{t('ipCaptured')} ✅</div>
                       <div className="text-[10px] text-gray-500">{t('approximateLocation')}</div>
                     </div>
                     <span className="w-2.5 h-2.5 rounded-full bg-green-400 shadow-lg shadow-green-400/50" />
@@ -393,32 +403,34 @@ export default function ScanPage() {
                   <div className={`glass-card rounded-2xl p-4 border flex items-center gap-3 ${
                     locationStatus === 'gps-done' ? 'border-green-500/10'
                     : locationStatus === 'gps-capturing' ? 'border-indigo-500/10'
+                    : locationStatus === 'gps-blocked' ? 'border-orange-500/20'
                     : 'border-green-500/10'
                   }`}>
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                       locationStatus === 'gps-done' ? 'bg-green-500/10' : locationStatus === 'gps-capturing' ? 'bg-indigo-500/10' : 'bg-green-500/10'
                     }`}>
                       <span className="text-lg">
-                        {locationStatus === 'gps-done' ? 'ð¡' : locationStatus === 'gps-capturing' ? 'â³' : 'ð¡'}
+                        {locationStatus === 'gps-done' ? '📡' : locationStatus === 'gps-capturing' ? '⏳' : '📡'}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className={`text-xs font-bold ${
                         locationStatus === 'gps-done' ? 'text-green-400' : locationStatus === 'gps-capturing' ? 'text-indigo-400' : 'text-green-400'
                       }`}>
-                        {locationStatus === 'gps-done' ? `${t('gpsCaptured')} â`
+                        {locationStatus === 'gps-done' ? `${t('gpsCaptured')} ✅`
                           : locationStatus === 'gps-capturing' ? `${t('gpsAttempting')}...`
-                          : 'Location captured via IP â'}
+                          : 'Location captured via IP ✅'}
                       </div>
                       <div className="text-[10px] text-gray-500">
                         {locationStatus === 'gps-done' ? t('exactLocation')
-                          : locationStatus === 'gps-denied' ? 'Approximate location saved successfully'
+                          : locationStatus === 'gps-blocked' ? 'Location blocked! Tap lock icon → Location → Allow'
+                          : locationStatus === 'gps-denied' ? 'Approximate location saved'
                           : t('waitingForGPS')}
                       </div>
                     </div>
-                    {locationStatus === 'gps-denied' ? (
+                    {(locationStatus === 'gps-denied' || locationStatus === 'gps-blocked') ? (
                       <button onClick={tryGPSUpdate} className="px-3 py-1.5 rounded-lg bg-indigo-500/15 border border-indigo-500/25 text-[10px] text-indigo-400 font-bold hover:bg-indigo-500/25 transition-all shrink-0">
-                        ð¡ GPS
+                        📡 GPS
                       </button>
                     ) : (
                       <span className={`w-2.5 h-2.5 rounded-full shadow-lg ${
@@ -436,7 +448,7 @@ export default function ScanPage() {
                   </span>
                 </div>
 
-                {/* âââ FINDER REGISTRATION FORM âââ */}
+                {/* ─── FINDER REGISTRATION FORM ─── */}
                 {!finderSubmitted ? (
                   <div className="mt-6">
                     <div className="text-center mb-4">
@@ -452,7 +464,7 @@ export default function ScanPage() {
                     <form onSubmit={handleFinderSubmit} className="glass-card rounded-3xl border border-white/5 overflow-hidden">
                       <div className="px-6 py-4 bg-gradient-to-r from-emerald-500/8 to-green-500/8 border-b border-white/5">
                         <h3 className="font-bold text-sm text-gray-200 flex items-center gap-2">
-                          <span className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center text-xs">ð</span>
+                          <span className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center text-xs">📋</span>
                           Registration Form
                         </h3>
                       </div>
@@ -464,7 +476,7 @@ export default function ScanPage() {
                             Your Name <span className="text-pink-400">*</span>
                           </label>
                           <div className="relative">
-                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">ð¤</span>
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">👤</span>
                             <input type="text" className="input-field pl-10" placeholder="Enter your full name"
                               value={finderForm.finderName} onChange={e => setFinderForm(p => ({ ...p, finderName: e.target.value }))} required />
                           </div>
@@ -476,7 +488,7 @@ export default function ScanPage() {
                             Your Phone <span className="text-pink-400">*</span>
                           </label>
                           <div className="relative">
-                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">ð±</span>
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">📱</span>
                             <input type="tel" className="input-field pl-10" placeholder="+91 98765 43210"
                               value={finderForm.finderPhone} onChange={e => setFinderForm(p => ({ ...p, finderPhone: e.target.value }))} required />
                           </div>
@@ -488,7 +500,7 @@ export default function ScanPage() {
                             Your Email <span className="text-gray-600 font-normal">(optional)</span>
                           </label>
                           <div className="relative">
-                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">ð§</span>
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">📧</span>
                             <input type="email" className="input-field pl-10" placeholder="your@email.com"
                               value={finderForm.finderEmail} onChange={e => setFinderForm(p => ({ ...p, finderEmail: e.target.value }))} />
                           </div>
@@ -500,7 +512,7 @@ export default function ScanPage() {
                             Message <span className="text-gray-600 font-normal">(optional)</span>
                           </label>
                           <div className="relative">
-                            <span className="absolute left-3.5 top-3 text-gray-500 text-sm">ð¬</span>
+                            <span className="absolute left-3.5 top-3 text-gray-500 text-sm">💬</span>
                             <textarea className="input-field pl-10 resize-none" rows={2} placeholder="Where did you find this? Any message for the owner..."
                               value={finderForm.finderMessage} onChange={e => setFinderForm(p => ({ ...p, finderMessage: e.target.value }))} maxLength={500} />
                           </div>
@@ -510,7 +522,7 @@ export default function ScanPage() {
                         {/* Error */}
                         {finderError && (
                           <div className="p-4 rounded-2xl bg-red-500/8 border border-red-500/15 flex items-center gap-3">
-                            <span className="text-lg shrink-0">â</span>
+                            <span className="text-lg shrink-0">❌</span>
                             <p className="text-xs text-red-400 font-medium">{finderError}</p>
                           </div>
                         )}
@@ -530,21 +542,21 @@ export default function ScanPage() {
                               Sending...
                             </>
                           ) : (
-                            <>ð¤ Send My Details to Owner</>
+                            <>📤 Send My Details to Owner</>
                           )}
                         </button>
                       </div>
                     </form>
 
                     <p className="text-center text-[10px] text-gray-600 mt-4 max-w-xs mx-auto leading-relaxed">
-                      ð Your information will only be shared with the item owner
+                      🔒 Your information will only be shared with the item owner
                     </p>
                   </div>
                 ) : (
                   /* Finder Submitted Success */
                   <div className="mt-6 glass-card rounded-3xl p-8 text-center border border-emerald-500/10">
                     <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/10 flex items-center justify-center shadow-lg shadow-emerald-500/10">
-                      <span className="text-4xl">ð</span>
+                      <span className="text-4xl">🎉</span>
                     </div>
                     <h3 className="font-black text-lg text-emerald-400 mb-2">Thank You!</h3>
                     <p className="text-sm text-gray-400 mb-4">{finderSuccess}</p>
@@ -557,11 +569,11 @@ export default function ScanPage() {
               </div>
             )}
 
-            {/* âââ SUCCESS (After Activation) âââ */}
+            {/* ─── SUCCESS (After Activation) ─── */}
             {phase === 'success' && (
               <div className="glass-card rounded-3xl p-10 text-center border border-green-500/10">
                 <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-green-500/20 via-emerald-500/10 to-indigo-500/10 flex items-center justify-center shadow-xl shadow-green-500/10">
-                  <span className="text-5xl">ð</span>
+                  <span className="text-5xl">🎉</span>
                 </div>
                 <h2 className="text-2xl font-black bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent mb-2">
                   {t('scanSuccess')}
@@ -570,22 +582,22 @@ export default function ScanPage() {
 
                 <div className="space-y-3 text-left p-5 rounded-2xl bg-white/3 border border-white/5">
                   <div className="flex items-center gap-3 text-xs text-gray-300">
-                    <span className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">â</span>
+                    <span className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">✅</span>
                     <span>{t('qrActivated')}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-300">
-                    <span className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">ð</span>
+                    <span className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">🔐</span>
                     <span>{t('passwordSet')}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-300">
-                    <span className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">ð±</span>
+                    <span className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">📱</span>
                     <span>{t('trackingActive')}</span>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* âââ INACTIVE QR â PREMIUM ACTIVATION FORM âââ */}
+            {/* ─── INACTIVE QR → PREMIUM ACTIVATION FORM ─── */}
             {phase === 'inactive' && (
               <div>
                 {/* Status badge */}
@@ -604,7 +616,7 @@ export default function ScanPage() {
                   {/* Form Header */}
                   <div className="px-6 py-4 bg-gradient-to-r from-indigo-500/8 to-purple-500/8 border-b border-white/5">
                     <h3 className="font-bold text-sm text-gray-200 flex items-center gap-2">
-                      <span className="w-7 h-7 rounded-lg bg-indigo-500/15 flex items-center justify-center text-xs">ð</span>
+                      <span className="w-7 h-7 rounded-lg bg-indigo-500/15 flex items-center justify-center text-xs">📝</span>
                       {t('activationForm')}
                     </h3>
                   </div>
@@ -616,7 +628,7 @@ export default function ScanPage() {
                         {t('fullName')} <span className="text-pink-400">*</span>
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">ð¤</span>
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">👤</span>
                         <input type="text" className="input-field pl-10" placeholder={t('enterFullName')}
                           value={form.registeredName} onChange={e => setForm(p => ({ ...p, registeredName: e.target.value }))} required />
                       </div>
@@ -628,7 +640,7 @@ export default function ScanPage() {
                         {t('phone')} <span className="text-pink-400">*</span>
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">ð±</span>
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">📱</span>
                         <input type="tel" className="input-field pl-10" placeholder="+91 98765 43210"
                           value={form.registeredPhone} onChange={e => setForm(p => ({ ...p, registeredPhone: e.target.value }))} required />
                       </div>
@@ -640,12 +652,12 @@ export default function ScanPage() {
                         Address <span className="text-gray-600 font-normal">(optional)</span>
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3.5 top-3 text-gray-500 text-sm">ð </span>
+                        <span className="absolute left-3.5 top-3 text-gray-500 text-sm">🏠</span>
                         <textarea className="input-field pl-10 resize-none" rows={2} placeholder="Enter your home/office address (for directions on map)"
                           value={form.registeredAddress} onChange={e => setForm(p => ({ ...p, registeredAddress: e.target.value }))} maxLength={500} />
                       </div>
                       <p className="text-[10px] text-gray-600 mt-1 flex items-center gap-1">
-                        <span>ð</span> Used to show directions from your address to scan location
+                        <span>📍</span> Used to show directions from your address to scan location
                       </p>
                     </div>
 
@@ -674,7 +686,7 @@ export default function ScanPage() {
                         {t('message')} <span className="text-gray-600 font-normal">({t('optional')})</span>
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3.5 top-3 text-gray-500 text-sm">ð¬</span>
+                        <span className="absolute left-3.5 top-3 text-gray-500 text-sm">💬</span>
                         <textarea className="input-field pl-10 resize-none" rows={2} placeholder={t('messageForFinder')}
                           value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} maxLength={200} />
                       </div>
@@ -684,7 +696,7 @@ export default function ScanPage() {
                     {/* Divider */}
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                      <span className="text-[10px] text-gray-600 font-semibold">ð {t('security')}</span>
+                      <span className="text-[10px] text-gray-600 font-semibold">🔐 {t('security')}</span>
                       <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                     </div>
 
@@ -694,7 +706,7 @@ export default function ScanPage() {
                         {t('password')} <span className="text-pink-400">*</span>
                       </label>
                       <div className="relative">
-                        <div className="absolute left-3.5 top-3 text-gray-500 text-sm pointer-events-none">ð</div>
+                        <div className="absolute left-3.5 top-3 text-gray-500 text-sm pointer-events-none">🔒</div>
                         <div className="pl-10">
                           <PasswordInput
                             value={form.qrPassword}
@@ -706,7 +718,7 @@ export default function ScanPage() {
                         </div>
                       </div>
                       <p className="text-[10px] text-gray-600 mt-1.5 flex items-center gap-1">
-                        <span>ð¡</span> {t('passwordReminder')}
+                        <span>💡</span> {t('passwordReminder')}
                       </p>
                     </div>
 
@@ -716,7 +728,7 @@ export default function ScanPage() {
                         {t('confirmPassword')} <span className="text-pink-400">*</span>
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">ð</span>
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">🔒</span>
                         <input type="password" className="input-field pl-10" placeholder={t('reenterPassword')}
                           value={form.confirmPassword} onChange={e => setForm(p => ({ ...p, confirmPassword: e.target.value }))} required />
                       </div>
@@ -725,7 +737,7 @@ export default function ScanPage() {
                     {/* Error */}
                     {error && (
                       <div className="p-4 rounded-2xl bg-red-500/8 border border-red-500/15 flex items-center gap-3">
-                        <span className="text-lg shrink-0">â</span>
+                        <span className="text-lg shrink-0">❌</span>
                         <p className="text-xs text-red-400 font-medium">{error}</p>
                       </div>
                     )}
@@ -745,7 +757,7 @@ export default function ScanPage() {
                           {t('activating')}...
                         </>
                       ) : (
-                        <>ð {t('activateBtn')}</>
+                        <>🚀 {t('activateBtn')}</>
                       )}
                     </button>
                   </div>
@@ -753,7 +765,7 @@ export default function ScanPage() {
 
                 {/* Footer note */}
                 <p className="text-center text-[10px] text-gray-600 mt-5 max-w-xs mx-auto leading-relaxed">
-                  ð {t('dataSecure')}
+                  🔒 {t('dataSecure')}
                 </p>
               </div>
             )}
