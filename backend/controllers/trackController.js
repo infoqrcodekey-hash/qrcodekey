@@ -18,7 +18,7 @@ const locationService = require('../services/locationService');
 exports.handleScan = async (req, res) => {
   try {
     const { qrId } = req.params;
-    const { latitude, longitude, accuracy, altitude } = req.body;
+    const { latitude, longitude, accuracy, altitude, locationSource: clientLocationSource, street, area, city, state, country, countryCode, postalCode, fullAddress } = req.body;
 
     // ----- Step 1: Find QR Code -----
     const qr = await QRCode.findOne({ qrId });
@@ -93,17 +93,54 @@ exports.handleScan = async (req, res) => {
     // ----- Step 5: IP Location (additional info) -----
     const ipLocationData = locationService.getLocationFromIP(ipAddress);
 
-    // ----- Step 6: Reverse Geocode (find address) -----
-    let address = {
-      full: 'Location captured',
-      city: ipLocationData?.city || 'Unknown',
-      state: ipLocationData?.region || 'Unknown',
-      country: ipLocationData?.country || 'Unknown',
-      pincode: null
-    };
+    // ----- Step 6: Build address (GPS reverse geocode or IP fallback) -----
+    let address;
+    if (fullAddress && locationSource === 'gps') {
+      // Frontend sent GPS reverse-geocoded address — use it!
+      address = {
+        full: fullAddress || 'GPS Location',
+        street: street || '',
+        area: area || '',
+        city: city || ipLocationData?.city || 'Unknown',
+        state: state || ipLocationData?.region || 'Unknown',
+        country: country || ipLocationData?.country || 'Unknown',
+        countryCode: countryCode || '',
+        pincode: postalCode || null
+      };
+    } else {
+      // IP-based or no address data
+      address = {
+        full: 'Location captured',
+        city: ipLocationData?.city || 'Unknown',
+        state: ipLocationData?.region || 'Unknown',
+        country: ipLocationData?.country || 'Unknown',
+        pincode: null
+      };
+    }
 
-    // ----- Step 7: Save Scan Log -----
-    const scanLog = await ScanLog.create({
+    // ----- Step 7: Save or Update Scan Log -----
+    // If this is a GPS update (has coordinates), update the most recent scan instead of creating duplicate
+    let scanLog;
+    if (locationSource === 'gps' && latitude && longitude) {
+      // Find the most recent scan for this QR (created within last 2 minutes)
+      const twoMinAgo = new Date(Date.now() - 2 * 60 * 1000);
+      scanLog = await ScanLog.findOneAndUpdate(
+        { qrCode: qr._id, createdAt: { $gte: twoMinAgo } },
+        {
+          location: { type: 'Point', coordinates: [finalLng, finalLat] },
+          latitude: finalLat,
+          longitude: finalLng,
+          accuracy: accuracy || null,
+          address,
+          locationSource: 'gps',
+          isApproximate: false
+        },
+        { new: true, sort: { createdAt: -1 } }
+      );
+    }
+    // If no recent scan found (or this is the first IP scan), create new
+    if (!scanLog) {
+      scanLog = await ScanLog.create({
       qrCode: qr._id,
       qrId: qr.qrId,
       location: {
@@ -127,6 +164,7 @@ exports.handleScan = async (req, res) => {
       } : null,
       referrer: req.headers.referer || null
     });
+    }
 
     // ----- Step 8: Update QR Code -----
     qr.totalScans += 1;
@@ -140,8 +178,13 @@ exports.handleScan = async (req, res) => {
         latitude: finalLat,
         longitude: finalLng,
         address: address.full,
+        street: address.street || '',
+        area: address.area || '',
         city: address.city,
+        state: address.state || '',
         country: address.country,
+        countryCode: address.countryCode || '',
+        pincode: address.pincode || '',
         accuracy: accuracy || null,
         capturedAt: new Date(),
         source: 'gps'
