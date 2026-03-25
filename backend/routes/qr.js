@@ -7,7 +7,7 @@ const router = express.Router();
 const {
   generateQR, activateQR, getMyQRCodes, getQRCode,
   downloadQR, deleteQR, deactivateQR,
-  bulkGenerateQR, generateCustomQR
+  bulkGenerateQR, generateCustomQR, searchQR
 } = require('../controllers/qrController');
 const { protect } = require('../middleware/auth');
 const { generateLimiter } = require('../middleware/rateLimiter');
