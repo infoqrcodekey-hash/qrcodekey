@@ -427,3 +427,80 @@ exports.deactivateQR = async (req, res) => {
     res.status(500).json({ success: false, message: 'An error occurred' });
   }
 };
+
+
+// ====== SEARCH QR CODE (Public - with password) ======
+// GET /api/qr/search?qrId=XXX&password=YYY
+exports.searchQR = async (req, res) => {
+  try {
+    const { qrId, password } = req.query;
+
+    if (!qrId || !qrId.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please enter a QR Code ID'
+      });
+    }
+
+    // Find QR code (include password for verification)
+    const qr = await QRCode.findOne({ qrId: qrId.trim().toUpperCase() }).select('+qrPassword');
+
+    if (!qr) {
+      return res.status(404).json({
+        success: false,
+        error: 'QR Code not found'
+      });
+    }
+
+    // Check password if QR has one
+    if (qr.qrPassword) {
+      if (!password) {
+        return res.status(401).json({
+          success: false,
+          error: 'This QR Code is password protected. Please enter the password.'
+        });
+      }
+
+      const isMatch = await qr.matchQRPassword(password);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          error: 'Wrong password'
+        });
+      }
+    }
+
+    // Get recent scan locations
+    const recentScans = await ScanLog.find({ qrCode: qr._id })
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .lean();
+
+    const locations = recentScans
+      .filter(s => s.latitude && s.longitude)
+      .map(s => ({
+        lat: s.latitude,
+        lng: s.longitude,
+        address: s.address?.full || s.address?.city || 'Unknown',
+        time: s.createdAt
+      }));
+
+    res.status(200).json({
+      success: true,
+      qrId: qr.qrId,
+      category: qr.category,
+      registeredName: qr.registeredName,
+      isActive: qr.isActive,
+      totalScans: qr.totalScans,
+      lastLocation: qr.lastKnownLocation || null,
+      locations
+    });
+
+  } catch (error) {
+    console.error('Search QR Error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Search failed. Try again.'
+    });
+  }
+};
