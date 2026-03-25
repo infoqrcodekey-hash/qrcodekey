@@ -198,3 +198,98 @@ exports.getAllQRCodes = async (req, res) => {
     res.status(500).json({ success: false, message: 'An error occurred' });
   }
 };
+
+// ====== SUBSCRIPTION ANALYTICS (Admin) ======
+// GET /api/admin/subscription-stats
+exports.getSubscriptionStats = async (req, res) => {
+  try {
+    const Subscription = require('../models/Subscription');
+    
+    const [activeCount, totalRevenue, planBreakdown] = await Promise.all([
+      Subscription.countDocuments({ status: 'active' }),
+      Subscription.aggregate([
+        { $match: { status: 'active' } },
+        { $group: { _id: null, total: { $sum: '$lastPaymentAmount' } } }
+      ]),
+      Subscription.aggregate([
+        { $match: { status: 'active' } },
+        { $group: { _id: '$plan', count: { $sum: 1 } } }
+      ])
+    ]);
+
+    const plans = {};
+    planBreakdown.forEach(p => { plans[p._id] = p.count; });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        activeSubscriptions: activeCount,
+        monthlyRevenue: totalRevenue[0]?.total || 0,
+        planBreakdown: plans,
+        starter: plans.starter || 0,
+        pro: plans.pro || 0,
+        unlimited: plans.unlimited || 0
+      }
+    });
+  } catch (error) {
+    console.error('Admin subscription stats error:', error);
+    res.status(500).json({ success: false, message: 'Failed to get subscription stats' });
+  }
+};
+
+// ====== BLOCK/UNBLOCK USER (Admin) ======
+// PUT /api/admin/users/:id/block
+exports.toggleBlockUser = async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    
+    user.isBlocked = !user.isBlocked;
+    await user.save();
+    
+    res.status(200).json({
+      success: true,
+      message: user.isBlocked ? 'User blocked' : 'User unblocked',
+      isBlocked: user.isBlocked
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to update user' });
+  }
+};
+
+// ====== NOTIFICATION ANALYTICS (Admin) ======
+// GET /api/admin/notification-stats
+exports.getNotificationStats = async (req, res) => {
+  try {
+    const Notification = require('../models/Notification');
+    const Subscription = require('../models/Subscription');
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    const [totalNotifications, todayCount, monthCount, totalUsage] = await Promise.all([
+      Notification.countDocuments(),
+      Notification.countDocuments({ createdAt: { $gte: today } }),
+      Notification.countDocuments({ createdAt: { $gte: thisMonth } }),
+      Subscription.aggregate([
+        { $match: { status: 'active' } },
+        { $group: { _id: null, totalUsed: { $sum: '$notificationsUsed' }, totalLimit: { $sum: '$notificationLimit' } } }
+      ])
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalNotifications,
+        todayCount,
+        monthCount,
+        totalUsed: totalUsage[0]?.totalUsed || 0,
+        totalLimit: totalUsage[0]?.totalLimit || 0
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to get notification stats' });
+  }
+};
