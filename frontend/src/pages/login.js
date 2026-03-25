@@ -27,15 +27,34 @@ export default function Login() {
     }
 
     setLoading(true);
-    try {
-      await login({ email, password });
-      toast.success(t('loginSuccess'));
-      router.push('/');
-    } catch (err) {
-      toast.error(err.response?.data?.message || t('loginFailed'));
-    } finally {
-      setLoading(false);
+    const maxRetries = 3;
+    let attempt = 0;
+    let toastId = null;
+
+    while (attempt < maxRetries) {
+      try {
+        attempt++;
+        if (attempt > 1) {
+          toastId = toast.loading('Server waking up... Retry ' + attempt + '/' + maxRetries);
+        }
+        await login({ email, password });
+        if (toastId) toast.dismiss(toastId);
+        toast.success(t('loginSuccess'));
+        router.push('/');
+        setLoading(false);
+        return;
+      } catch (err) {
+        if (toastId) toast.dismiss(toastId);
+        const isNetworkErr = !err.response || err.code === 'ECONNABORTED';
+        if (isNetworkErr && attempt < maxRetries) {
+          await new Promise(r => setTimeout(r, 2000));
+          continue;
+        }
+        toast.error(err.response?.data?.message || t('loginFailed'));
+        break;
+      }
     }
+    setLoading(false);
   };
 
   return (
@@ -47,7 +66,7 @@ export default function Login() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-            <span className="text-3xl">📍</span>
+            <span className="text-3xl">ð</span>
           </div>
           <h1 className="text-2xl font-black gradient-text">{t('loginTitle')}</h1>
           <p className="text-xs text-gray-500 mt-1">{t('loginSubtitle')}</p>
@@ -70,7 +89,7 @@ export default function Login() {
             label={t('password')}
             value={password}
             onChange={setPassword}
-            placeholder="••••••••"
+            placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"
             showStrength={false}
             showRequirements={false}
           />
@@ -81,9 +100,9 @@ export default function Login() {
             className="btn-primary w-full flex items-center justify-center gap-2"
           >
             {loading ? (
-              <span className="animate-spin">⏳</span>
+              <span className="animate-spin">â³</span>
             ) : (
-              <>🔓 {t('loginBtn')}</>
+              <>ð {t('loginBtn')}</>
             )}
           </button>
         </form>
@@ -93,14 +112,14 @@ export default function Login() {
           <p className="text-sm text-gray-500">
             {t('noAccount')}{' '}
             <Link href="/register" className="text-indigo-400 font-bold hover:text-indigo-300">
-              {t('registerHere')} →
+              {t('registerHere')} â
             </Link>
           </p>
           <Link href="/" className="text-xs text-gray-600 mt-3 block hover:text-gray-400">
-            ← {t('backToHome')}
+            â {t('backToHome')}
           </Link>
           <Link href="/forgot-password" className="text-xs text-pink-400 mt-2 block hover:text-pink-300 font-semibold">
-            🔐 {t('forgotPassword')}
+            ð {t('forgotPassword')}
           </Link>
         </div>
 
@@ -109,11 +128,11 @@ export default function Login() {
           <Link href="/privacy-policy" className="text-gray-500 hover:text-indigo-400 transition">
             Privacy Policy
           </Link>
-          <span className="text-gray-700">•</span>
+          <span className="text-gray-700">â¢</span>
           <Link href="/terms" className="text-gray-500 hover:text-indigo-400 transition">
             Terms of Service
           </Link>
-          <span className="text-gray-700">•</span>
+          <span className="text-gray-700">â¢</span>
           <Link href="/refund-policy" className="text-gray-500 hover:text-indigo-400 transition">
             Refund Policy
           </Link>
@@ -122,7 +141,7 @@ export default function Login() {
         {/* Test Credentials - Only show in development */}
         {process.env.NODE_ENV === 'development' && (
           <div className="mt-6 p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/10 text-center">
-            <div className="text-[10px] text-gray-500 mb-1">🧪 {t('testCredentials')}</div>
+            <div className="text-[10px] text-gray-500 mb-1">ð§ª {t('testCredentials')}</div>
             <div className="text-[11px] text-gray-400 font-mono">
               Dev mode only
             </div>
