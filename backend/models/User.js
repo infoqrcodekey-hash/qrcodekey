@@ -25,6 +25,39 @@ const UserSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
+  // ====== Verification Fields ======
+  phoneVerified: {
+    type: Boolean,
+    default: false,
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  phoneOTP: {
+    type: String,
+    select: false,
+  },
+  emailOTP: {
+    type: String,
+    select: false,
+  },
+  otpExpiry: {
+    type: Date,
+  },
+  otpAttempts: {
+    type: Number,
+    default: 0,
+  },
+  // ====== Notification Preferences ======
+  notificationPreference: {
+    type: String,
+    enum: ['email', 'sms', 'both', 'none'],
+    default: 'email',
+  },
+  stripeCustomerId: {
+    type: String,
+  },
     match: [/^[+]?[\d\s-]{10,15}$/, 'Please enter a valid phone number']
   },
   password: {
@@ -121,7 +154,7 @@ UserSchema.methods.isPremium = function() {
 
 // ====== QR Limit (generation - all plans unlimited) ======
 UserSchema.methods.getQRLimit = function() {
-  return 999999; // All plans get unlimited QR generation
+  return 999999; // All plansh get unlimited QR generation
 };
 
 // ====== Notification QR Limit (how many QR codes get notifications) ======
@@ -131,3 +164,4 @@ UserSchema.methods.getNotificationQRLimit = function() {
 };
 
 module.exports = mongoose.model('User', UserSchema);
+h
