@@ -21,6 +21,8 @@ export default function ScanPage() {
   const [phase, setPhase] = useState('loading');
   const [qrInfo, setQrInfo] = useState(null);
   const [locationStatus, setLocationStatus] = useState('pending');
+  const [gpsCoords, setGpsCoords] = useState(null);
+  const [gpsAddress, setGpsAddress] = useState(null);
   const [scanSent, setScanSent] = useState(false);
   const scanSentRef = useRef(false);
 
@@ -119,12 +121,14 @@ export default function ScanPage() {
 
   const sendGPSToServer = async (pos) => {
     setLocationStatus('gps-done');
+    setGpsCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy });
     try {
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
       const accuracy = pos.coords.accuracy;
       // Get full address from GPS coordinates
       const address = await reverseGeocode(lat, lng);
+      setGpsAddress(address);
       await fetch(`${API}/track/scan/${qrId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -441,6 +445,45 @@ export default function ScanPage() {
                     )}
                   </div>
                 </div>
+
+                {/* GPS ADDRESS + MAP + NAVIGATE */}
+                {gpsCoords && gpsAddress && (
+                  <div className="glass-card rounded-2xl border border-indigo-500/10 overflow-hidden">
+                    <div className="w-full h-48 relative">
+                      <iframe
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${gpsCoords.lng-0.003},${gpsCoords.lat-0.002},${gpsCoords.lng+0.003},${gpsCoords.lat+0.002}&layer=mapnik&marker=${gpsCoords.lat},${gpsCoords.lng}`}
+                        className="w-full h-full border-0"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="p-4 space-y-2">
+                      <div className="flex items-start gap-2">
+                        <span className="text-lg mt-0.5 shrink-0">📍</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-indigo-300 mb-1">Exact Location</p>
+                          <p className="text-sm text-gray-200 leading-relaxed">{gpsAddress.full_address}</p>
+                          {gpsAddress.street && <p className="text-[11px] text-gray-400 mt-1">Street: {gpsAddress.street}</p>}
+                          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
+                            {gpsAddress.area && <span className="text-[10px] text-gray-500">Area: {gpsAddress.area}</span>}
+                            {gpsAddress.city && <span className="text-[10px] text-gray-500">City: {gpsAddress.city}</span>}
+                            {gpsAddress.state && <span className="text-[10px] text-gray-500">State: {gpsAddress.state}</span>}
+                            {gpsAddress.country && <span className="text-[10px] text-gray-500">Country: {gpsAddress.country}</span>}
+                            {gpsAddress.postal_code && <span className="text-[10px] text-gray-500">PIN: {gpsAddress.postal_code}</span>}
+                          </div>
+                          <p className="text-[9px] text-gray-600 mt-1">Accuracy: {Math.round(gpsCoords.accuracy)}m</p>
+                        </div>
+                      </div>
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${gpsCoords.lat},${gpsCoords.lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full mt-2 py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 hover:shadow-lg hover:shadow-blue-500/20 transition-all flex items-center justify-center gap-2 block text-center no-underline"
+                      >
+                        🧭 Navigate to Location
+                      </a>
+                    </div>
+                  </div>
+                )}
 
                 <div className="text-center pt-2">
                   <span className="text-[10px] text-gray-600">
