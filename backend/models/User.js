@@ -58,6 +58,10 @@ const UserSchema = new mongoose.Schema({
   stripeCustomerId: {
     type: String,
   },
+  isBlocked: {
+    type: Boolean,
+    default: false,
+  },
     match: [/^[+]?[\d\s-]{10,15}$/, 'Please enter a valid phone number']
   },
   password: {
