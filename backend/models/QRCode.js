@@ -69,6 +69,11 @@ const QRCodeSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  // ---------- Notification Settings ----------
+  notificationsEnabled: {
+    type: Boolean,
+    default: false
+  },
 
   // ---------- QR Image ----------
   qrImageUrl: {
