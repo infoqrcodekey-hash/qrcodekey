@@ -13,6 +13,9 @@ const { protect } = require('../middleware/auth');
 const { generateLimiter } = require('../middleware/rateLimiter');
 const { validateQRCreate, validateQRActivate } = require('../middleware/validator');
 
+// ====== Public route (no login required) ======
+router.get('/search', searchQR);
+
 // All routes are protected (Login required)
 router.use(protect);
 
