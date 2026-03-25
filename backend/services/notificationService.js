@@ -31,7 +31,9 @@ exports.sendScanNotification = async (qrCode, scanLog) => {
     if (!owner) return;
 
     // Free users don't get notifications (can only view in app)
-    if (!owner.isPremium()) {
+    // Check subscription-based notification limit
+    const subscription = await Subscription.findOne({ user: owner._id, status: 'active' });
+    if (!owner.isPremium() && !subscription) {
       console.log(`ℹ️ Skipping notification for free user: ${owner.email}`);
       return;
     }
@@ -42,6 +44,7 @@ exports.sendScanNotification = async (qrCode, scanLog) => {
     if (notifyLimit > 0 && notifyLimit < 999999) {
       // Count how many QR codes this user has with notifications enabled
       const QRCode = require('../models/QRCode');
+const Subscription = require('../models/Subscription');
       const notifyEnabledCount = await QRCode.countDocuments({
         owner: owner._id,
         notifyOnScan: true,
