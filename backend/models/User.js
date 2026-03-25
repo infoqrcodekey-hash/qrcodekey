@@ -154,7 +154,7 @@ UserSchema.methods.isPremium = function() {
 
 // ====== QR Limit (generation - all plans unlimited) ======
 UserSchema.methods.getQRLimit = function() {
-  return 999999; // All plansh get unlimited QR generation
+  const limits = { free: 5, starter: 50, pro: 200, unlimited: 999999, business: 999999 }; return limits[this.plan] || 5; // All plansh get unlimited QR generation
 };
 
 // ====== Notification QR Limit (how many QR codes get notifications) ======
