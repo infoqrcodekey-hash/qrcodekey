@@ -396,7 +396,7 @@ exports.sendEmailOTP = async (req, res) => {
     if (!email) {
       return res.status(400).json({ success: false, message: 'Email is required' });
     }
-    const user = await User.findOne({ email }).select('+emailOTP');
+    const user = await User.findOne({ email }).select('+emailOTP +otpExpiry');
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -441,7 +441,7 @@ exports.verifyEmailOTP = async (req, res) => {
     if (!email || !otp) {
       return res.status(400).json({ success: false, message: 'Email and OTP are required' });
     }
-    const user = await User.findOne({ email }).select('+emailOTP');
+    const user = await User.findOne({ email }).select('+emailOTP +otpExpiry');
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
