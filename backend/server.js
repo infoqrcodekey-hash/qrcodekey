@@ -156,7 +156,7 @@ app.use('/api/visitors', require('./routes/visitors'));
 app.use('/api/shifts', require('./routes/shifts'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/face-verification', require('./routes/faceVerification'));
-  app.use('/api/subscription', require('./routes/subscription'));
+  // Stripe removed - using Razorpay via /api/payment
 
 // ====== Migration: Fix QR codes with localhost URLs ======
 app.get('/api/migrate-qr-urls', async (req, res) => {
