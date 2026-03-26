@@ -7,29 +7,29 @@ const crypto = require('crypto');
 const User = require('../models/User');
 
 // Plan configuration - Notification Subscription Plans
-// USD pricing: Starter $0.99, Pro $4.99, Unlimited $14.99
+// USD pricing: Starter $1.99, Pro $4.99, Unlimited $9.99
 // Razorpay uses INR (paise) — converted at approx ₹83/USD
 const PLANS = {
   starter: {
     name: 'Starter Plan',
-    monthly: { price: 8200, duration: 30 },    // ~$0.99 = ₹82
-    yearly: { price: 78800, duration: 365 },    // ~$9.50 = ₹788 (20% off)
-    notifyQRLimit: 1,
-    features: ['1 QR with Notifications', 'Email + Push Alerts', 'GPS Location in Alert']
+    monthly: { price: 16500, duration: 30 },    // ~$1.99 = ₹82
+    yearly: { price: 158500, duration: 365 },    // ~$19.10 = ₹788 (20% off)
+    notifyQRLimit: 175,
+    features: ['175 Notification Credits', 'Email + Push Alerts', 'GPS Location in Alert']
   },
   pro: {
     name: 'Pro Plan',
     monthly: { price: 41400, duration: 30 },    // ~$4.99 = ₹414
     yearly: { price: 347700, duration: 365 },   // ~$41.90 = ₹3477 (30% off)
-    notifyQRLimit: 5,
-    features: ['5 QR with Notifications', 'Email + SMS + Push Alerts', 'Priority Support']
+    notifyQRLimit: 500,
+    features: ['500 Notification Credits', 'Email + SMS + Push Alerts', 'Priority Support']
   },
   unlimited: {
     name: 'Unlimited Plan',
-    monthly: { price: 124400, duration: 30 },   // ~$14.99 = ₹1244
-    yearly: { price: 746900, duration: 365 },   // ~$89.99 = ₹7469 (50% off)
+    monthly: { price: 82900, duration: 30 },   // ~$14.99 = ₹1244
+    yearly: { price: 497900, duration: 365 },   // ~$89.99 = ₹7469 (50% off)
     notifyQRLimit: 999999,
-    features: ['Unlimited QR Notifications', 'Email + SMS + Push', 'API Access', 'Dedicated Support']
+    features: ['Unlimited Notification Credits', 'Email + SMS + Push', 'API Access', 'Dedicated Support']
   }
 };
 
