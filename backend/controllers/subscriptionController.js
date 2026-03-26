@@ -51,8 +51,8 @@ exports.createCheckout = async (req, res) => {
         quantity: 1
       }],
       metadata: { userId: req.user._id.toString(), plan: plan },
-      success_url: process.env.FRONTEND_URL + '/subscription/success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: process.env.FRONTEND_URL + '/subscription/cancel'
+            success_url: process.env.FRONTEND_URL + '/subscription?success=true&session_id={CHECKOUT_SESSION_ID}',
+            cancel_url: process.env.FRONTEND_URL + '/subscription?canceled=true'
     });
 
     res.json({ success: true, url: session.url, sessionId: session.id });
