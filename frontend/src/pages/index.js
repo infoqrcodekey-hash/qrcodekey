@@ -344,16 +344,16 @@ export default function Home() {
           </>
         )}
 
-        {/* ═══ ORGANIZATION DASHBOARD (shown when activeTab === 'organization') ═══ */}
-        {activeTab === 'organization' && (
+        {/* ═══ GROUP ATTENDANCE (shown when activeTab === 'group') ═══ */}
+        {activeTab === 'group' && (
           <div className="card p-5 mb-6 border-purple-500/15">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center text-lg">🏢</div>
-              <h2 className="font-bold text-sm text-purple-400">Organization Dashboard</h2>
+              <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center text-lg">👥</div>
+              <h2 className="font-bold text-sm text-purple-400">Group Attendance</h2>
             </div>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { label: 'Organizations', icon: '🏢', href: '/organizations' },
+                { label: 'Groups', icon: '👥', href: '/group' },
                 { label: 'Attendance', icon: '📷', href: '/attendance-scanner' },
                 { label: 'Dashboard', icon: '📊', href: '/attendance-dashboard' },
                 { label: 'Leave Mgmt', icon: '📋', href: '/leave-management' },
@@ -489,7 +489,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Bottom Nav - Personal | Organization | Login | Logout */}
+      {/* Bottom Nav - Personal | Group | Login | Logout */}
       <nav className="fixed bottom-0 inset-x-0 z-50 bg-[rgba(10,10,30,0.92)] backdrop-blur-xl border-t border-[rgba(99,102,241,0.12)] py-2 px-4">
         <div className="max-w-lg mx-auto flex justify-around">
           <button onClick={() => setActiveTab(activeTab === 'personal' ? null : 'personal')}
@@ -497,10 +497,10 @@ export default function Home() {
             <span className="text-lg">👤</span>
             <span className="text-[10px] font-semibold">Personal</span>
           </button>
-          <button onClick={() => setActiveTab(activeTab === 'organization' ? null : 'organization')}
-            className={`nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${activeTab === 'organization' ? 'text-purple-400 bg-purple-500/10' : 'text-gray-500'}`}>
-            <span className="text-lg">🏢</span>
-            <span className="text-[10px] font-semibold">Organization</span>
+          <button onClick={() => setActiveTab(activeTab === 'group' ? null : 'group')}
+            className={`nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${activeTab === 'group' ? 'text-purple-400 bg-purple-500/10' : 'text-gray-500'}`}>
+            <span className="text-lg">👥</span>
+            <span className="text-[10px] font-semibold">Group</span>
           </button>
           <button onClick={logout}
             className="nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all text-gray-500 hover:text-red-400 hover:bg-red-500/10">
