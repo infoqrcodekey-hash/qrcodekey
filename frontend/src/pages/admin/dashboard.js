@@ -48,7 +48,7 @@ export default function AdminDashboard() {
 
   const handleBlockUser = async (userId, isBlocked) => {
     try {
-      await api.put(\`/admin/users/\${userId}/block\`);
+            await api.put(`/admin/users/${userId}/block`);
       toast.success(isBlocked ? 'User unblocked' : 'User blocked');
       fetchAllData();
     } catch (err) {
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
               <StatCard title="Total Users" value={stats?.totalUsers || 0} color="#4F46E5" />
               <StatCard title="Total QR Codes" value={stats?.totalQRCodes || 0} color="#059669" />
               <StatCard title="Active Subscriptions" value={subStats?.activeSubscriptions || 0} color="#D97706" />
-              <StatCard title="Monthly Revenue" value={\`$\${(subStats?.monthlyRevenue || 0).toFixed(2)}\`} color="#DC2626" />
+              <StatCard title="Monthly Revenue" value={`$${(subStats?.monthlyRevenue || 0).toFixed(2)}`} color="#DC2626" />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
               <div style={{ background: '#fff', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
         {activeTab === 'subscriptions' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
             <StatCard title="Active Subscriptions" value={subStats?.activeSubscriptions || 0} color="#4F46E5" />
-            <StatCard title="Monthly Revenue" value={\`$\${(subStats?.monthlyRevenue || 0).toFixed(2)}\`} color="#059669" />
+            <StatCard title="Monthly Revenue" value={`$${(subStats?.monthlyRevenue || 0).toFixed(2)}`} color="#059669" />
             <StatCard title="Starter Plans" value={subStats?.planBreakdown?.starter || 0} color="#60A5FA" />
             <StatCard title="Pro Plans" value={subStats?.planBreakdown?.pro || 0} color="#F59E0B" />
             <StatCard title="Unlimited Plans" value={subStats?.planBreakdown?.unlimited || 0} color="#10B981" />
@@ -193,7 +193,7 @@ export default function AdminDashboard() {
             <StatCard title="Total Notifications" value={notifStats?.totalNotifications || 0} color="#4F46E5" />
             <StatCard title="Sent Today" value={notifStats?.todayCount || 0} color="#059669" />
             <StatCard title="This Month" value={notifStats?.monthCount || 0} color="#D97706" />
-            <StatCard title="Total Usage" value={\`\${notifStats?.totalUsed || 0}/\${notifStats?.totalLimit || 0}\`} color="#DC2626" />
+            <StatCard title="Total Usage" value={`${notifStats?.totalUsed || 0}/${notifStats?.totalLimit || 0}`} color="#DC2626" />
           </div>
         )}
       </div>
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
 
 function StatCard({ title, value, color }) {
   return (
-    <div style={{ background: '#fff', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderLeft: \`4px solid \${color}\` }}>
+    <div style={{ background: '#fff', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderLeft: `4px solid ${color}` }}>
       <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '5px' }}>{title}</p>
       <p style={{ fontSize: '28px', fontWeight: 'bold', color }}>{value}</p>
     </div>
@@ -219,7 +219,7 @@ function PlanBar({ label, count, total, color }) {
         <span style={{ fontSize: '14px', fontWeight: '600' }}>{count}</span>
       </div>
       <div style={{ background: '#e5e7eb', borderRadius: '4px', height: '8px' }}>
-        <div style={{ background: color, borderRadius: '4px', height: '8px', width: \`\${pct}%\`, transition: 'width 0.3s' }}></div>
+        <div style={{ background: color, borderRadius: '4px', height: '8px', width: `${pct}%`, transition: 'width 0.3s' }}></div>
       </div>
     </div>
   );
