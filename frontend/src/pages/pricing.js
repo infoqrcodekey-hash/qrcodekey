@@ -17,7 +17,7 @@ const plans = [
   {
     id: 'free',
     name: 'Free',
-    icon: '🆓',
+    icon: 'ð',
     color: 'gray',
     monthlyPrice: 0,
     yearlyPrice: 0,
@@ -39,15 +39,15 @@ const plans = [
   {
     id: 'starter',
     name: 'Starter',
-    icon: '🔔',
+    icon: 'ð',
     color: 'indigo',
-    monthlyPrice: 0.99,
-    yearlyPrice: 9.50,
+    monthlyPrice: 1.99,
+    yearlyPrice: 19.10,
     yearlyDiscount: 20,
-    qrCount: '1',
+    qrCount: '175',
     features: [
       'Everything in Free',
-      '1 QR Code with Notifications',
+      '175 Notification Credits/month',
       'Instant Email Alerts on Scan',
       'Push Notification on Scan',
       'GPS Location in Alert',
@@ -60,16 +60,16 @@ const plans = [
   {
     id: 'pro',
     name: 'Pro',
-    icon: '💎',
+    icon: 'ð',
     color: 'purple',
     popular: true,
     monthlyPrice: 4.99,
     yearlyPrice: 41.90,
     yearlyDiscount: 30,
-    qrCount: '5',
+    qrCount: '500',
     features: [
       'Everything in Starter',
-      '5 QR Codes with Notifications',
+      '500 Notification Credits/month',
       'Instant Email + SMS Alerts',
       'Push Notifications',
       'GPS + Map Link in Alert',
@@ -80,15 +80,15 @@ const plans = [
   {
     id: 'unlimited',
     name: 'Unlimited',
-    icon: '👑',
+    icon: 'ð',
     color: 'yellow',
-    monthlyPrice: 14.99,
-    yearlyPrice: 89.99,
+    monthlyPrice: 9.99,
+    yearlyPrice: 59.99,
     yearlyDiscount: 50,
     qrCount: 'Unlimited',
     features: [
       'Everything in Pro',
-      'Unlimited QR Codes with Notifications',
+      'Unlimited Notification Credits',
       'Instant Email + SMS + Push Alerts',
       'Real-time GPS Location in Alert',
       'Map Link in Every Notification',
@@ -116,7 +116,7 @@ export default function Pricing() {
     }
 
     if (planId === 'free') {
-      toast('This is the free plan — no payment needed!');
+      toast('This is the free plan â no payment needed!');
       return;
     }
 
@@ -202,7 +202,7 @@ export default function Pricing() {
         <header className="sticky top-0 z-50 bg-[rgba(10,10,30,0.85)] backdrop-blur-xl border-b border-[rgba(99,102,241,0.15)] px-5 py-3">
           <div className="max-w-3xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link href="/" className="text-gray-400 hover:text-white text-sm">←</Link>
+              <Link href="/" className="text-gray-400 hover:text-white text-sm">â</Link>
               <div className="font-bold text-sm text-gray-200">{t('pricing')}</div>
             </div>
             <LanguageSwitcher />
@@ -213,11 +213,11 @@ export default function Pricing() {
           {/* Hero */}
           <div className="text-center mb-6">
             <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <span className="text-3xl">🔔</span>
+              <span className="text-3xl">ð</span>
             </div>
             <h1 className="text-2xl font-black gradient-text mb-2">Notification Subscriptions</h1>
             <p className="text-xs text-gray-400 max-w-sm mx-auto">
-              Get instant Email, SMS & Push notifications when someone scans your QR code. Know exactly where your item is — in real time!
+              Get instant Email, SMS & Push notifications when someone scans your QR code. Know exactly where your item is â in real time!
             </p>
           </div>
 
@@ -225,12 +225,12 @@ export default function Pricing() {
           <div className="card p-4 mb-6 border-indigo-500/15">
             <div className="grid grid-cols-2 gap-3 text-center">
               <div className="p-3 bg-white/5 rounded-xl">
-                <div className="text-lg mb-1">🆓</div>
+                <div className="text-lg mb-1">ð</div>
                 <div className="text-xs font-bold text-gray-200">Free (Default)</div>
                 <div className="text-[10px] text-gray-500 mt-1">Generate QR + Search location manually on website</div>
               </div>
               <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
-                <div className="text-lg mb-1">🔔</div>
+                <div className="text-lg mb-1">ð</div>
                 <div className="text-xs font-bold text-indigo-400">Paid Subscription</div>
                 <div className="text-[10px] text-gray-500 mt-1">Instant SMS/Email/Push alert when QR is scanned</div>
               </div>
@@ -276,19 +276,19 @@ export default function Pricing() {
                 } ${isCurrent ? 'border-green-500/40' : ''}`}>
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-indigo-500 to-pink-500 text-white text-[10px] font-bold rounded-full shadow-lg">
-                      ⭐ MOST POPULAR
+                      â­ MOST POPULAR
                     </div>
                   )}
                   {isCurrent && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-green-500 text-white text-[10px] font-bold rounded-full">
-                      ✅ CURRENT PLAN
+                      â CURRENT PLAN
                     </div>
                   )}
 
                   <div className="text-center mb-4 pt-2">
                     <span className="text-4xl block mb-2">{plan.icon}</span>
                     <div className="font-bold text-lg text-gray-200">{plan.name}</div>
-                    <div className="text-xs text-gray-500 mb-2">{plan.qrCount} QR {plan.id === 'free' ? 'Codes' : 'Notification' + (plan.qrCount !== '1' ? 's' : '')}</div>
+                    <div className="text-xs text-gray-500 mb-2">{plan.qrCount} {plan.id === 'free' ? 'QR Codes' : 'Notifications/mo'}</div>
 
                     {plan.monthlyPrice === 0 ? (
                       <div className="text-2xl font-black gradient-text">FREE</div>
@@ -300,7 +300,7 @@ export default function Pricing() {
                         </div>
                         {billingCycle === 'yearly' && discount > 0 && (
                           <div className="text-[10px] text-green-400 font-bold mt-1">
-                            🎉 Save {discount}% — ${(plan.monthlyPrice * 12 - plan.yearlyPrice).toFixed(2)} off!
+                            ð Save {discount}% â ${(plan.monthlyPrice * 12 - plan.yearlyPrice).toFixed(2)} off!
                           </div>
                         )}
                         {billingCycle === 'monthly' && discount > 0 && (
@@ -316,13 +316,13 @@ export default function Pricing() {
                   <div className="space-y-2 mb-4">
                     {plan.features.map((f, i) => (
                       <div key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                        <span className="text-green-400 mt-0.5 shrink-0">✓</span>
+                        <span className="text-green-400 mt-0.5 shrink-0">â</span>
                         <span>{f}</span>
                       </div>
                     ))}
                     {plan.notFeatures.map((f, i) => (
                       <div key={`no-${i}`} className="flex items-start gap-2 text-xs text-gray-600">
-                        <span className="text-red-400/50 mt-0.5 shrink-0">✕</span>
+                        <span className="text-red-400/50 mt-0.5 shrink-0">â</span>
                         <span className="line-through">{f}</span>
                       </div>
                     ))}
@@ -331,7 +331,7 @@ export default function Pricing() {
                   {/* CTA */}
                   {plan.id === 'free' ? (
                     <div className="text-center text-xs text-gray-500 py-2 bg-white/3 rounded-xl">
-                      ✅ Always Free — No Card Needed
+                      â Always Free â No Card Needed
                     </div>
                   ) : (
                     <button
@@ -345,7 +345,7 @@ export default function Pricing() {
                             : 'btn-primary'
                       }`}
                     >
-                      {loading === plan.id ? '⏳ Processing...' : isCurrent ? '✅ Current Plan' : `Subscribe to ${plan.name}`}
+                      {loading === plan.id ? 'â³ Processing...' : isCurrent ? 'â Current Plan' : `Subscribe to ${plan.name}`}
                     </button>
                   )}
                 </div>
@@ -355,13 +355,13 @@ export default function Pricing() {
 
           {/* How Notifications Work */}
           <div className="card p-5 mt-6">
-            <h3 className="font-bold text-sm text-gray-200 mb-4">📱 How Notifications Work</h3>
+            <h3 className="font-bold text-sm text-gray-200 mb-4">ð± How Notifications Work</h3>
             <div className="space-y-3">
               {[
-                { step: '1', icon: '📲', text: 'Generate QR code and attach to your item (bag, keys, pet, etc.)' },
-                { step: '2', icon: '📷', text: 'Someone finds your item and scans the QR code' },
-                { step: '3', icon: '🔔', text: 'You instantly receive Email/SMS/Push notification with GPS location' },
-                { step: '4', icon: '🗺️', text: 'Click the map link in notification to see exact location' },
+                { step: '1', icon: 'ð²', text: 'Generate QR code and attach to your item (bag, keys, pet, etc.)' },
+                { step: '2', icon: 'ð·', text: 'Someone finds your item and scans the QR code' },
+                { step: '3', icon: 'ð', text: 'You instantly receive Email/SMS/Push notification with GPS location' },
+                { step: '4', icon: 'ðºï¸', text: 'Click the map link in notification to see exact location' },
               ].map((s, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0 mt-0.5">{s.step}</div>
@@ -376,7 +376,7 @@ export default function Pricing() {
 
           {/* FAQ */}
           <div className="card p-5 mt-4">
-            <h3 className="font-bold text-sm text-gray-200 mb-4">❓ Frequently Asked Questions</h3>
+            <h3 className="font-bold text-sm text-gray-200 mb-4">â Frequently Asked Questions</h3>
             <div className="space-y-4">
               {[
                 { q: 'Can I generate QR codes for free?', a: 'Yes! QR code generation and manual location search is always free. You only pay for instant notifications.' },
@@ -394,8 +394,8 @@ export default function Pricing() {
 
           {/* Payment Security */}
           <div className="card p-4 mt-4 text-center">
-            <div className="text-xs text-gray-500 mb-1">🔒 Secure Payment via Razorpay</div>
-            <div className="text-[10px] text-gray-600">UPI • Cards • Net Banking • Wallets</div>
+            <div className="text-xs text-gray-500 mb-1">ð Secure Payment via Razorpay</div>
+            <div className="text-[10px] text-gray-600">UPI â¢ Cards â¢ Net Banking â¢ Wallets</div>
           </div>
 
           {/* Contact */}
