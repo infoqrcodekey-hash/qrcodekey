@@ -405,10 +405,7 @@ exports.sendEmailOTP = async (req, res) => {
     }
     const otp = String(Math.floor(100000 + Math.random() * 900000));
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
-    user.emailOTP = otp;
-    user.otpExpiry = expiry;
-    user.otpAttempts = (user.otpAttempts || 0) + 1;
-    await user.save({ validateBeforeSave: false });
+await User.updateOne({ _id: user._id }, { $set: { emailOTP: otp, otpExpiry: expiry, otpAttempts: (user.otpAttempts || 0) + 1 } });
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -445,7 +442,6 @@ exports.verifyEmailOTP = async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
-          console.log('DEBUG verifyOTP:', { emailOTP: user.emailOTP, otpExpiry: user.otpExpiry, email: email, otp: otp });
     if (!user.emailOTP || !user.otpExpiry) {
       return res.status(400).json({ success: false, message: 'No OTP requested. Please request a new one.' });
     }
@@ -455,11 +451,7 @@ exports.verifyEmailOTP = async (req, res) => {
     if (user.emailOTP !== otp) {
       return res.status(400).json({ success: false, message: 'Invalid OTP' });
     }
-    user.emailVerified = true;
-    user.emailOTP = undefined;
-    user.otpExpiry = undefined;
-    user.otpAttempts = 0;
-    await user.save({ validateBeforeSave: false });
+await User.updateOne({ _id: user._id }, { $set: { emailVerified: true, emailOTP: undefined, otpExpiry: undefined, otpAttempts: 0 } });
     res.json({ success: true, message: 'Email verified successfully' });
   } catch (err) {
     console.error('Verify Email OTP Error:', err);
