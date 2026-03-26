@@ -1,91 +1,72 @@
 // ============================================
-// models/Group.js - Group Model
+// models/Group.js - Group Attendance Model
 // ============================================
-// Groups within organizations (classrooms, departments, wards, etc.)
-
+// Admin-controlled, location-based QR attendance groups
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 
+// Member sub-schema
+const memberSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  qrNumber: { type: String, required: true },
+  name: { type: String, required: true },
+  isPresent: { type: Boolean, default: false },
+  lastScanTime: { type: Date, default: null },
+  addedAt: { type: Date, default: Date.now }
+});
+
+// Group schema
 const groupSchema = new mongoose.Schema({
-  name: {
+  admin: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  adminQrNumber: { type: String, required: true, trim: true },
+  adminName: { type: String, required: true, trim: true },
+  name: { type: String, required: true, trim: true, maxlength: 100 },
+  category: {
     type: String,
-    required: [true, 'Group name is required'],
-    trim: true,
-    maxlength: 100
-  },
-  organization: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Organization',
-    required: true
-  },
-  type: {
-    type: String,
-    enum: ['classroom', 'department', 'ward', 'team', 'section', 'other'],
+    enum: ['school', 'college', 'office', 'factory', 'hospital', 'gym', 'coaching', 'warehouse', 'event', 'other'],
     default: 'other'
   },
-  description: {
-    type: String,
-    trim: true,
-    maxlength: 300
+  // Group fixed address - CRITICAL for attendance validation
+  fixedAddress: {
+    address: { type: String, required: true },
+    latitude: { type: Number, required: true },
+    longitude: { type: Number, required: true }
   },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  // Master password for group attendance viewing
-  masterPassword: {
-    type: String,
-    select: false
-  },
-  supervisor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    default: null
-  },
-  department: {
-    type: String,
-    trim: true,
-    default: null
-  },
-  qrCode: {
-    type: String,
-    default: null
-  },
-  qrImage: {
-    type: String,
-    default: null
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  }
-}, {
-  timestamps: true
-});
+  // Attendance master toggle (admin controlled)
+  attendanceEnabled: { type: Boolean, default: false },
+  // Group members
+  members: [memberSchema],
+  // Active status
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
 
-// Virtual: member count
-groupSchema.virtual('memberCount', {
-  ref: 'Member',
-  localField: '_id',
-  foreignField: 'group',
-  count: true
-});
-
-groupSchema.set('toJSON', { virtuals: true });
-groupSchema.set('toObject', { virtuals: true });
-
-// Hash master password before save
-groupSchema.pre('save', async function(next) {
-  if (!this.isModified('masterPassword') || !this.masterPassword) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.masterPassword = await bcrypt.hash(this.masterPassword, salt);
-  next();
-});
-
-// Match master password
-groupSchema.methods.matchMasterPassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.masterPassword);
-};
+// Index for fast lookups
+groupSchema.index({ admin: 1 });
+groupSchema.index({ 'members.user': 1 });
+groupSchema.index({ 'members.qrNumber': 1 });
 
 module.exports = mongoose.model('Group', groupSchema);
+
+// ============================================
+// GroupScanLog - Every scan record
+// ============================================
+const groupScanLogSchema = new mongoose.Schema({
+  group: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', required: true },
+  member: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  qrId: { type: String, required: true },
+  action: { type: String, enum: ['clock_in', 'clock_out'], required: true },
+  location: {
+    latitude: { type: Number, required: true },
+    longitude: { type: Number, required: true },
+    accuracy: { type: Number, required: true },
+    address: { type: String, default: '' }
+  },
+  distanceFromGroup: { type: Number, required: true },
+  isValid: { type: Boolean, default: false },
+  timestamp: { type: Date, default: Date.now }
+});
+
+groupScanLogSchema.index({ group: 1, member: 1, timestamp: -1 });
+groupScanLogSchema.index({ group: 1, timestamp: -1 });
+
+const GroupScanLog = mongoose.model('GroupScanLog', groupScanLogSchema);
+module.exports.GroupScanLog = GroupScanLog;
