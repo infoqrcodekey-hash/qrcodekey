@@ -226,6 +226,7 @@ export default function Track() {
                     value={qrId}
                     onChange={e => setQrId(e.target.value.toUpperCase())}
                     autoCapitalize="characters"
+                                        autoComplete="off"
                   />
                 </div>
                 <div>
@@ -237,6 +238,7 @@ export default function Track() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleTrack()}
+                                        autoComplete="off"
                   />
                 </div>
 

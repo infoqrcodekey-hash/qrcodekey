@@ -344,27 +344,17 @@ export default function Home() {
           </>
         )}
 
-        {/* ═══ GROUP ATTENDANCE (shown when activeTab === 'group') ═══ */}
+        {/* ═══ h (shown when activeTab === 'group') ═══ */}
         {activeTab === 'group' && (
           <div className="card p-5 mb-6 border-purple-500/15">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center text-lg">👥</div>
               <h2 className="font-bold text-sm text-purple-400">Group Attendance</h2>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {[
-                { label: 'Groups', icon: '👥', href: '/group' },
-                { label: 'Attendance', icon: '📷', href: '/attendance-scanner' },
                 { label: 'Dashboard', icon: '📊', href: '/attendance-dashboard' },
-                { label: 'Leave Mgmt', icon: '📋', href: '/leave-management' },
-                { label: 'Holidays', icon: '🎉', href: '/holiday-calendar' },
-                { label: 'Visitors', icon: '👤', href: '/visitor-management' },
-                { label: 'Shifts', icon: '🕐', href: '/shift-management' },
                 { label: 'Reports', icon: '📊', href: '/reports' },
-                { label: 'Audit Log', icon: '📜', href: '/audit-log' },
-                { label: 'Broadcast', icon: '🚨', href: '/emergency-broadcast' },
-                { label: 'Viewer', icon: '👁', href: '/viewer-login' },
-                { label: 'Chatbot', icon: '🤖', href: '/chatbot' },
               ].map((item, i) => (
                 <Link key={i} href={item.href}
                   className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-purple-500/30 hover:bg-white/5 transition-all group">
@@ -440,7 +430,6 @@ export default function Home() {
           <p className="text-[10px] text-gray-500 mb-4">QR generation free — pay only for instant scan alerts</p>
           <div className="grid grid-cols-2 gap-2">
             {[
-              { plan: 'Free', price: '$0', desc: 'Unlimited QR codes', sub: 'No notifications', icon: '🆓' },
               { plan: 'Starter', price: '$1.99/mo', desc: '175 notifications/month', sub: 'Email + Push', icon: '🔔' },
               { plan: 'Pro', price: '$4.99/mo', desc: '400 notifications/month', sub: 'Email + SMS + Push', popular: true, icon: '💎' },
               { plan: 'Unlimited', price: '$9.99/mo', desc: 'Unlimited notifications', sub: 'All notifications + API', icon: '👑' },

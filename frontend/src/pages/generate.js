@@ -136,6 +136,7 @@ export default function Generate() {
             <h2 className="text-xl font-black text-gray-200 mb-2">{t('generateTitle')}</h2>
             <p className="text-xs text-gray-400 mb-8 max-w-xs mx-auto">
               {t('generateSubtitle')}
+                              <p className="text-[10px] text-orange-500 mb-4">Maximum 5 QR codes per account</p>
             </p>
             <button onClick={handleGenerate} disabled={generating} className="btn-primary text-lg px-10">
               {generating ? `⏳ ${t('generating')}...` : `➕ ${t('generateBtn')}`}
