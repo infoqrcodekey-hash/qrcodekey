@@ -65,6 +65,7 @@ export const authAPI = {
   logout: () => api.post('/auth/logout'),
   deleteAccount: (data) => api.delete('/auth/me', { data }),
   exportMyData: () => api.get('/auth/me/export'),
+
   // OTP Verification
   sendEmailOTP: (data) => api.post('/auth/send-email-otp', data),
   verifyEmailOTP: (data) => api.post('/auth/verify-email-otp', data),
@@ -129,74 +130,27 @@ export const analyticsAPI = {
 };
 
 // ============================================
-// ORGANIZATION APIs
+// GROUP ATTENDANCE APIs (New Module)
 // ============================================
-export const orgAPI = {
-  create: (data) => api.post('/org', data),
-  getAll: () => api.get('/org'),
-  getMyOrgs: () => api.get('/org'),                                    // Alias for getAll
-  getOne: (id) => api.get(`/org/${id}`),
-  getOrg: (id) => api.get(`/org/${id}`),                               // Alias for getOne
-  update: (id, data) => api.put(`/org/${id}`, data),
-  delete: (id) => api.delete(`/org/${id}`),
-  sharedAccess: (data) => api.post('/org/shared/access', data),
-  // Groups
-  createGroup: (orgId, data) => api.post(`/org/${orgId}/groups`, data),
-  getGroups: (orgId) => api.get(`/org/${orgId}/groups`),               // Get all groups in org
-  getGroup: (groupId) => api.get(`/org/groups/${groupId}`),
-  updateGroup: (groupId, data) => api.put(`/org/groups/${groupId}`, data),
-  deleteGroup: (groupId) => api.delete(`/org/groups/${groupId}`),
-  // Members
-  getMembers: (orgId, groupId) => api.get(`/org/groups/${groupId}/members`),  // Get group members
-  addMember: (groupId, data) => api.post(`/org/groups/${groupId}/members`, data),
-  addMembers: (groupId, data) => api.post(`/org/groups/${groupId}/members/bulk`, data),
-  updateMember: (memberId, data) => api.put(`/org/members/${memberId}`, data),
-  removeMember: (memberId) => api.delete(`/org/members/${memberId}`),
-  // Attendance
-  getGroupForScan: (groupId) => api.get(`/org/attendance/scan/${groupId}`),
-  markAttendance: (groupId, data) => api.post(`/org/attendance/mark/${groupId}`, data),
-  getAttendance: (groupId, date) => api.get(`/org/attendance/${groupId}${date ? `?date=${date}` : ''}`),
-  updateAttendance: (groupId, data) => api.put(`/org/attendance/${groupId}`, data),
-  lockAttendance: (groupId, data) => api.post(`/org/attendance/${groupId}/lock`, data),
-  getReport: (groupId, startDate, endDate) => api.get(`/org/attendance/${groupId}/report?startDate=${startDate}&endDate=${endDate}`),
-};
+export const groupAttendanceAPI = {
+  // Group CRUD
+  createGroup: (data) => api.post('/group-attendance/create', data),
+  getMyGroups: () => api.get('/group-attendance/my-groups'),
+  getGroup: (id) => api.get(`/group-attendance/${id}`),
+  deleteGroup: (id) => api.delete(`/group-attendance/${id}`),
 
-// ====== Attendance Scan API (New System) ======
-export const attendanceScanAPI = {
-  // Scan QR for clock-in/out
-  scan: (data) => api.post('/attendance-scan/scan', data),
+  // Member management
+  addMember: (groupId, data) => api.post(`/group-attendance/${groupId}/add-member`, data),
+  removeMember: (groupId, memberId) => api.delete(`/group-attendance/${groupId}/remove-member/${memberId}`),
 
-  // Get attendance dashboard
-  getDashboard: (orgId) => api.get(`/attendance-scan/dashboard/${orgId}`),
+  // Attendance toggle & scan
+  toggleAttendance: (groupId) => api.put(`/group-attendance/${groupId}/toggle`),
+  processScan: (groupId, data) => api.post(`/group-attendance/${groupId}/scan`, data),
 
-  // Get member attendance history
-  getMemberHistory: (memberId, startDate, endDate) =>
-    api.get(`/attendance-scan/member/${memberId}/history?startDate=${startDate}&endDate=${endDate}`),
-
-  // Viewer access (parent/manager)
-  viewerAccess: (data) => api.post('/attendance-scan/viewer-access', data),
-
-  // Verify with QR ID + group password
-  verify: (data) => api.post('/attendance-scan/verify', data),
-
-  // Generate temp password
-  generateTempPassword: (data) => api.post('/attendance-scan/temp-password', data),
-
-  // Bulk generate QR codes
-  bulkGenerateQR: (groupId) => api.post(`/attendance-scan/bulk-qr/${groupId}`),
-
-  // Get group attendance today
-  getGroupToday: (groupId) => api.get(`/attendance-scan/group/${groupId}/today`),
-
-  // Export report
-  exportReport: (groupId, startDate, endDate) =>
-    api.get(`/attendance-scan/export/${groupId}?startDate=${startDate}&endDate=${endDate}`, { responseType: 'blob' }),
-
-  // Update org GPS location
-  updateOrgLocation: (orgId, data) => api.put(`/attendance-scan/org/${orgId}/location`, data),
-
-  // Set group master password
-  setGroupPassword: (groupId, data) => api.put(`/attendance-scan/group/${groupId}/password`, data),
+  // Reports
+  getAttendanceSummary: (groupId, month, year) => api.get(`/group-attendance/${groupId}/summary?month=${month}&year=${year}`),
+  getMonthlyReport: (groupId, month, year) => api.get(`/group-attendance/${groupId}/monthly-report?month=${month}&year=${year}`),
+  exportCSV: (groupId, month, year) => api.get(`/group-attendance/${groupId}/export-csv?month=${month}&year=${year}`, { responseType: 'blob' }),
 };
 
 // ============================================
@@ -210,85 +164,6 @@ export const notificationAPI = {
   markAllAsRead: () => api.put('/notifications/read-all'),
   sendEmergency: (data) => api.post('/notifications/emergency', data),
   delete: (id) => api.delete(`/notifications/${id}`),
-};
-
-// ============================================
-// LEAVE APIs
-// ============================================
-export const leaveAPI = {
-  apply: (data) => api.post('/leave/apply', data),
-  review: (leaveId, data) => api.put(`/leave/${leaveId}/review`, data),
-  cancel: (leaveId) => api.put(`/leave/${leaveId}/cancel`),
-  getOrgLeaves: (orgId, params = '') => api.get(`/leave/org/${orgId}${params ? '?' + params : ''}`),
-  getMemberLeaves: (memberId) => api.get(`/leave/member/${memberId}`),
-  getBalance: (memberId, year) => api.get(`/leave/balance/${memberId}?year=${year || new Date().getFullYear()}`),
-  getSummary: (orgId) => api.get(`/leave/summary/${orgId}`),
-};
-
-// ============================================
-// HOLIDAY APIs
-// ============================================
-export const holidayAPI = {
-  add: (data) => api.post('/holidays', data),
-  getAll: (orgId, year) => api.get(`/holidays/${orgId}${year ? '?year=' + year : ''}`),
-  getUpcoming: (orgId) => api.get(`/holidays/upcoming/${orgId}`),
-  isHoliday: (orgId, date) => api.get(`/holidays/check/${orgId}?date=${date}`),
-  update: (id, data) => api.put(`/holidays/${id}`, data),
-  delete: (id) => api.delete(`/holidays/${id}`),
-};
-
-// ============================================
-// AUDIT LOG APIs
-// ============================================
-export const auditAPI = {
-  getLogs: (orgId, params = '') => api.get(`/audit/${orgId}${params ? '?' + params : ''}`),
-  getSummary: (orgId, days = 30) => api.get(`/audit/${orgId}/summary?days=${days}`),
-};
-
-// ============================================
-// VISITOR APIs
-// ============================================
-export const visitorAPI = {
-  register: (data) => api.post('/visitors', data),
-  checkIn: (id, data) => api.put(`/visitors/${id}/check-in`, data),
-  checkOut: (id, data) => api.put(`/visitors/${id}/check-out`, data),
-  getToday: (orgId) => api.get(`/visitors/today/${orgId}`),
-  getHistory: (orgId, params = '') => api.get(`/visitors/history/${orgId}${params ? '?' + params : ''}`),
-  scanQR: (data) => api.post('/visitors/scan', data),
-};
-
-// ============================================
-// SHIFT APIs
-// ============================================
-export const shiftAPI = {
-  create: (data) => api.post('/shifts', data),
-  getAll: (orgId) => api.get(`/shifts/${orgId}`),
-  update: (id, data) => api.put(`/shifts/${id}`, data),
-  delete: (id) => api.delete(`/shifts/${id}`),
-  logOvertime: (data) => api.post('/shifts/overtime', data),
-  getOvertime: (orgId, params = '') => api.get(`/shifts/overtime/${orgId}${params ? '?' + params : ''}`),
-  reviewOvertime: (id, data) => api.put(`/shifts/overtime/${id}/review`, data),
-};
-
-// ============================================
-// REPORT APIs
-// ============================================
-export const reportAPI = {
-  getMonthly: (orgId, month, year, groupId) => api.get(`/reports/monthly/${orgId}?month=${month}&year=${year}${groupId ? '&groupId=' + groupId : ''}`),
-  getSummary: (orgId, startDate, endDate) => api.get(`/reports/summary/${orgId}?startDate=${startDate}&endDate=${endDate}`),
-  getMemberReport: (memberId, startDate, endDate) => api.get(`/reports/member/${memberId}?startDate=${startDate}&endDate=${endDate}`),
-};
-
-// ============================================
-// FACE VERIFICATION APIs
-// ============================================
-export const faceVerificationAPI = {
-  enroll: (data) => api.post('/face-verification/enroll', data),
-  verify: (data) => api.post('/face-verification/verify', data),
-  getPending: (orgId, page = 1) => api.get(`/face-verification/pending/${orgId}?page=${page}`),
-  review: (data) => api.put('/face-verification/review', data),
-  getStatus: (orgId) => api.get(`/face-verification/status/${orgId}`),
-  getStats: (orgId) => api.get(`/face-verification/stats/${orgId}`),
 };
 
 export default api;
