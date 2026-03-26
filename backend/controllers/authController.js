@@ -108,6 +108,8 @@ exports.getMe = async (req, res) => {
         isPremium: user.isPremium(),
         qrLimit: user.getQRLimit(),
         createdAt: user.createdAt,
+        emailVerified: user.emailVerified || false,
+        phoneVerified: user.phoneVerified || false,
         lastLogin: user.lastLogin
       }
     });
@@ -379,7 +381,9 @@ const sendTokenResponse = (user, statusCode, res, message) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        plan: user.plan
+        plan: user.plan,
+        emailVerified: user.emailVerified || false,
+        phoneVerified: user.phoneVerified || false
       }
     });
 };
