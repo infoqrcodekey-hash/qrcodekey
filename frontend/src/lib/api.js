@@ -65,6 +65,11 @@ export const authAPI = {
   logout: () => api.post('/auth/logout'),
   deleteAccount: (data) => api.delete('/auth/me', { data }),
   exportMyData: () => api.get('/auth/me/export'),
+  // OTP Verification
+  sendEmailOTP: (data) => api.post('/auth/send-email-otp', data),
+  verifyEmailOTP: (data) => api.post('/auth/verify-email-otp', data),
+  sendPhoneOTP: (data) => api.post('/auth/send-phone-otp', data),
+  verifyPhoneOTP: (data) => api.post('/auth/verify-phone-otp', data),
 };
 
 // ============================================
