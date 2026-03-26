@@ -1,299 +1,449 @@
-// ============================================
-// pages/group/[id].js - Group Detail & Member Management
-// ============================================
-
-import { useState, useEffect } from 'react';
+// -----------------------------------------------
+// pages/group/[id].js - Group Admin Dashboard
+// -----------------------------------------------
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../context/AuthContext';
-import { useLanguage } from '../../context/LanguageContext';
-import { orgAPI } from '../../lib/api';
-import Link from 'next/link';
-import LanguageSwitcher from '../../components/LanguageSwitcher';
-import toast from 'react-hot-toast';
+import { groupAttendanceAPI } from '../../lib/api';
 
-const roleLabels = {
-  student: '🎓 Student', teacher: '👨‍🏫 Teacher', staff: '👔 Staff',
-  patient: '🏥 Patient', employee: '💼 Employee', visitor: '🚶 Visitor', other: '👤 Other'
-};
-
-export default function GroupDetail() {
+export default function GroupDashboard() {
   const router = useRouter();
   const { id } = router.query;
-  const { t } = useLanguage();
-
+  const { user } = useAuth();
   const [group, setGroup] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showAddMember, setShowAddMember] = useState(false);
-  const [showBulkAdd, setShowBulkAdd] = useState(false);
-  const [adding, setAdding] = useState(false);
-  const [memberForm, setMemberForm] = useState({ name: '', rollNumber: '', email: '', phone: '', role: 'student' });
-  const [bulkText, setBulkText] = useState('');
-  const [editingMember, setEditingMember] = useState(null);
+  const [error, setError] = useState('');
+  const [qrInput, setQrInput] = useState('');
+  const [addingMember, setAddingMember] = useState(false);
+  const [tab, setTab] = useState('members'); // members | summary
+  const [summary, setSummary] = useState(null);
+  const [summaryMonth, setSummaryMonth] = useState(new Date().getMonth() + 1);
+  const [summaryYear, setSummaryYear] = useState(new Date().getFullYear());
 
-  useEffect(() => {
-    if (id) fetchGroup();
-  }, [id]);
-
-  const fetchGroup = async () => {
+  const fetchGroup = useCallback(async () => {
+    if (!id) return;
     try {
-      const { data } = await orgAPI.getGroup(id);
-      setGroup(data.data);
+      const res = await groupAttendanceAPI.getGroup(id);
+      if (res.data.success) {
+        setGroup(res.data.data);
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to load');
-      router.push('/organizations');
+      setError(err.response?.data?.message || 'Failed to load group');
     } finally {
       setLoading(false);
     }
+  }, [id]);
+
+  useEffect(() => {
+    fetchGroup();
+  }, [fetchGroup]);
+
+  const handleToggle = async () => {
+    try {
+      const res = await groupAttendanceAPI.toggleAttendance(id);
+      if (res.data.success) {
+        setGroup(res.data.data);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Toggle failed');
+    }
   };
 
-  const handleAddMember = async () => {
-    if (!memberForm.name) { toast.error(t('requiredFields')); return; }
-    setAdding(true);
+  const handleAddMember = async (e) => {
+    e.preventDefault();
+    if (!qrInput.trim()) return;
+    setAddingMember(true);
     try {
-      await orgAPI.addMember(id, memberForm);
-      toast.success(t('memberAdded'));
-      setShowAddMember(false);
-      setMemberForm({ name: '', rollNumber: '', email: '', phone: '', role: 'student' });
-      fetchGroup();
+      const res = await groupAttendanceAPI.addMember(id, { qrNumber: qrInput.trim() });
+      if (res.data.success) {
+        setGroup(res.data.data);
+        setQrInput('');
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || t('error'));
+      alert(err.response?.data?.message || 'Failed to add member');
     } finally {
-      setAdding(false);
+      setAddingMember(false);
     }
   };
 
-  const handleBulkAdd = async () => {
-    const lines = bulkText.trim().split('\n').filter(l => l.trim());
-    if (lines.length === 0) { toast.error('Enter at least one member'); return; }
-
-    const members = lines.map((line, i) => {
-      const parts = line.split(',').map(s => s.trim());
-      return {
-        name: parts[0] || `Member ${i + 1}`,
-        rollNumber: parts[1] || '',
-        email: parts[2] || '',
-        phone: parts[3] || '',
-        role: 'student'
-      };
-    });
-
-    setAdding(true);
+  const handleRemoveMember = async (memberId) => {
+    if (!confirm('Remove this member?')) return;
     try {
-      const { data } = await orgAPI.addMembers(id, { members });
-      toast.success(data.message);
-      setShowBulkAdd(false);
-      setBulkText('');
-      fetchGroup();
+      const res = await groupAttendanceAPI.removeMember(id, memberId);
+      if (res.data.success) {
+        setGroup(res.data.data);
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || t('error'));
-    } finally {
-      setAdding(false);
+      alert(err.response?.data?.message || 'Failed to remove member');
     }
   };
 
-  const handleRemoveMember = async (memberId, memberName) => {
-    if (!confirm(`Remove "${memberName}"?`)) return;
+  const fetchSummary = async () => {
     try {
-      await orgAPI.removeMember(memberId);
-      toast.success('Member removed');
-      fetchGroup();
+      const res = await groupAttendanceAPI.getAttendanceSummary(id, summaryMonth, summaryYear);
+      if (res.data.success) {
+        setSummary(res.data.data);
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || t('error'));
+      alert(err.response?.data?.message || 'Failed to load summary');
     }
   };
 
-  const handleUpdateMember = async () => {
-    if (!editingMember) return;
+  const handleExportCSV = async () => {
     try {
-      await orgAPI.updateMember(editingMember._id, editingMember);
-      toast.success('Member updated');
-      setEditingMember(null);
-      fetchGroup();
+      const res = await groupAttendanceAPI.exportCSV(id, summaryMonth, summaryYear);
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `attendance-${group?.name}-${summaryYear}-${summaryMonth}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     } catch (err) {
-      toast.error(err.response?.data?.message || t('error'));
+      alert('Export failed');
+    }
+  };
+
+  useEffect(() => {
+    if (tab === 'summary' && id) {
+      fetchSummary();
+    }
+  }, [tab, summaryMonth, summaryYear]);
+
+  const handleDeleteGroup = async () => {
+    if (!confirm('Are you sure you want to delete this group? This cannot be undone.')) return;
+    try {
+      await groupAttendanceAPI.deleteGroup(id);
+      router.push('/group');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Delete failed');
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full" />
+      <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: '#fff', fontSize: '18px' }}>Loading group...</div>
       </div>
     );
   }
 
-  if (!group) return null;
+  if (error) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+        <div style={{ color: '#ff5252', fontSize: '18px', marginBottom: '20px' }}>{error}</div>
+        <button onClick={() => router.push('/group')} style={{ color: '#667eea', background: 'none', border: 'none', cursor: 'pointer' }}>
+          Back to Groups
+        </button>
+      </div>
+    );
+  }
+
+  const presentCount = group?.members?.filter(m => m.isPresent).length || 0;
+  const totalMembers = group?.members?.length || 0;
+
+  const inputStyle = {
+    padding: '10px 14px',
+    background: '#1a1a2e',
+    border: '1px solid #2a2a4a',
+    borderRadius: '8px',
+    color: '#fff',
+    fontSize: '14px',
+    outline: 'none',
+  };
 
   return (
-    <div className="min-h-screen pb-24">
-      <header className="sticky top-0 z-50 bg-[rgba(10,10,30,0.85)] backdrop-blur-xl border-b border-[rgba(99,102,241,0.15)] px-5 py-3">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="text-gray-400 hover:text-white text-sm">←</button>
-            <div className="font-bold text-sm text-gray-200 truncate max-w-[200px]">{group.name}</div>
+    <div style={{ minHeight: '100vh', background: '#0a0a0a', color: '#fff', padding: '20px' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px' }}>
+          <div>
+            <h1 style={{ fontSize: '26px', fontWeight: 'bold', margin: '0 0 5px' }}>{group?.name}</h1>
+            <p style={{ color: '#888', margin: 0, fontSize: '14px' }}>
+              {group?.category} | {group?.fixedAddress?.address}
+            </p>
           </div>
-          <LanguageSwitcher />
-        </div>
-      </header>
-
-      <main className="max-w-lg mx-auto px-5 pt-6">
-        {/* Group Header */}
-        <div className="card p-5 mb-5">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h1 className="text-lg font-black gradient-text">{group.name}</h1>
-              <p className="text-[10px] text-gray-500">{group.organization?.name} • {group.type}</p>
-            </div>
-            <Link href={`/attendance/${group._id}`}>
-              <span className="btn-primary text-xs px-3 py-1.5 cursor-pointer">📋 {t('attendance')}</span>
-            </Link>
-          </div>
-
-          {/* QR Code for Attendance */}
-          {group.qrImage && (
-            <div className="bg-white/5 rounded-xl p-4 text-center border border-white/10">
-              <p className="text-[10px] text-gray-500 mb-2">{t('attendanceQR')}</p>
-              <img src={group.qrImage} alt="QR Code" className="w-32 h-32 mx-auto rounded-lg" />
-              <p className="text-[10px] text-gray-600 mt-2 font-mono">{group.qrCode}</p>
-              <p className="text-[10px] text-indigo-400 mt-1">{t('scanToMarkAttendance')}</p>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-2 mt-3 text-center">
-            <div className="bg-white/5 rounded-xl p-2">
-              <div className="text-xl font-black text-indigo-400">{group.members?.length || 0}</div>
-              <div className="text-[9px] text-gray-500 uppercase tracking-wider">{t('members')}</div>
-            </div>
-            <div className="bg-white/5 rounded-xl p-2">
-              <div className="text-xl font-black text-green-400">{group.members?.filter(m => m.isActive).length || 0}</div>
-              <div className="text-[9px] text-gray-500 uppercase tracking-wider">{t('active')}</div>
-            </div>
-          </div>
+          <button
+            onClick={handleToggle}
+            style={{
+              background: group?.attendanceEnabled
+                ? 'linear-gradient(135deg, #ff5252, #d32f2f)'
+                : 'linear-gradient(135deg, #00c853, #2e7d32)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '12px 24px',
+              fontSize: '15px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              minWidth: '160px',
+            }}
+          >
+            {group?.attendanceEnabled ? 'Stop Attendance' : 'Start Attendance'}
+          </button>
         </div>
 
-        {/* Member Actions */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-sm text-gray-300">👥 {t('members')}</h2>
-          <div className="flex gap-2">
-            <button onClick={() => { setShowBulkAdd(!showBulkAdd); setShowAddMember(false); }}
-              className="text-[10px] text-purple-400 font-semibold hover:text-purple-300">
-              {showBulkAdd ? '✕' : '📋'} {t('bulkAdd')}
-            </button>
-            <button onClick={() => { setShowAddMember(!showAddMember); setShowBulkAdd(false); }}
-              className="text-[10px] text-indigo-400 font-semibold hover:text-indigo-300">
-              {showAddMember ? '✕' : '➕'} {t('addMember')}
-            </button>
+        {/* Stats Bar */}
+        <div style={{ display: 'flex', gap: '15px', marginBottom: '25px' }}>
+          <div style={{ flex: 1, background: '#1a1a2e', borderRadius: '10px', padding: '18px', textAlign: 'center' }}>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#667eea' }}>{totalMembers}</div>
+            <div style={{ color: '#888', fontSize: '13px' }}>Total Members</div>
+          </div>
+          <div style={{ flex: 1, background: '#1a1a2e', borderRadius: '10px', padding: '18px', textAlign: 'center' }}>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#00c853' }}>{presentCount}</div>
+            <div style={{ color: '#888', fontSize: '13px' }}>Present Now</div>
+          </div>
+          <div style={{ flex: 1, background: '#1a1a2e', borderRadius: '10px', padding: '18px', textAlign: 'center' }}>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#ff5252' }}>{totalMembers - presentCount}</div>
+            <div style={{ color: '#888', fontSize: '13px' }}>Absent</div>
+          </div>
+          <div style={{ flex: 1, background: '#1a1a2e', borderRadius: '10px', padding: '18px', textAlign: 'center' }}>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: group?.attendanceEnabled ? '#00c853' : '#ff5252' }}>
+              {group?.attendanceEnabled ? 'ON' : 'OFF'}
+            </div>
+            <div style={{ color: '#888', fontSize: '13px' }}>Status</div>
           </div>
         </div>
 
-        {/* Add Single Member Form */}
-        {showAddMember && (
-          <div className="card p-4 mb-4 animate-fadeIn space-y-3">
-            <div>
-              <label className="label">{t('memberName')} *</label>
-              <input type="text" className="input-field" placeholder={t('memberNamePlaceholder')}
-                value={memberForm.name} onChange={e => setMemberForm({...memberForm, name: e.target.value})} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="label">{t('rollNumber')}</label>
-                <input type="text" className="input-field" placeholder="001"
-                  value={memberForm.rollNumber} onChange={e => setMemberForm({...memberForm, rollNumber: e.target.value})} />
-              </div>
-              <div>
-                <label className="label">{t('role')}</label>
-                <select className="input-field" value={memberForm.role}
-                  onChange={e => setMemberForm({...memberForm, role: e.target.value})}>
-                  {Object.entries(roleLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                </select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="label">{t('phone')}</label>
-                <input type="tel" className="input-field" placeholder="+91..."
-                  value={memberForm.phone} onChange={e => setMemberForm({...memberForm, phone: e.target.value})} />
-              </div>
-              <div>
-                <label className="label">{t('email')}</label>
-                <input type="email" className="input-field" placeholder="name@..."
-                  value={memberForm.email} onChange={e => setMemberForm({...memberForm, email: e.target.value})} />
-              </div>
-            </div>
-            <button onClick={handleAddMember} disabled={adding} className="btn-primary w-full text-sm">
-              {adding ? '⏳...' : '✅ ' + t('addMember')}
+        {/* Tabs */}
+        <div style={{ display: 'flex', gap: '0', marginBottom: '20px', borderBottom: '1px solid #2a2a4a' }}>
+          {['members', 'summary'].map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: tab === t ? '#667eea' : '#888',
+                padding: '10px 20px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                borderBottom: tab === t ? '2px solid #667eea' : '2px solid transparent',
+                textTransform: 'capitalize',
+              }}
+            >
+              {t}
             </button>
-          </div>
-        )}
+          ))}
+        </div>
 
-        {/* Bulk Add Form */}
-        {showBulkAdd && (
-          <div className="card p-4 mb-4 animate-fadeIn space-y-3">
-            <p className="text-[10px] text-gray-500">{t('bulkAddHelp')}</p>
-            <textarea className="input-field resize-none font-mono text-[11px]" rows={6}
-              placeholder={"Rahul Sharma, 001, rahul@email.com, 9876543210\nPriya Patel, 002, priya@email.com\nAmit Kumar, 003"}
-              value={bulkText} onChange={e => setBulkText(e.target.value)} />
-            <button onClick={handleBulkAdd} disabled={adding} className="btn-primary w-full text-sm">
-              {adding ? '⏳...' : '📋 ' + t('addAll')}
-            </button>
-          </div>
-        )}
+        {/* Members Tab */}
+        {tab === 'members' && (
+          <div>
+            {/* Add Member Form */}
+            <form onSubmit={handleAddMember} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+              <input
+                type="text"
+                value={qrInput}
+                onChange={e => setQrInput(e.target.value)}
+                placeholder="Enter member's QR number"
+                style={{ ...inputStyle, flex: 1 }}
+              />
+              <button
+                type="submit"
+                disabled={addingMember}
+                style={{
+                  background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 20px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: addingMember ? 'wait' : 'pointer',
+                }}
+              >
+                {addingMember ? 'Adding...' : '+ Add'}
+              </button>
+            </form>
 
-        {/* Edit Member Modal */}
-        {editingMember && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-5 bg-black/60 backdrop-blur-sm">
-            <div className="card p-5 w-full max-w-sm space-y-3 animate-fadeIn">
-              <h3 className="font-bold text-sm text-gray-300">✏️ {t('editMember')}</h3>
-              <input type="text" className="input-field" value={editingMember.name}
-                onChange={e => setEditingMember({...editingMember, name: e.target.value})} />
-              <div className="grid grid-cols-2 gap-3">
-                <input type="text" className="input-field" placeholder={t('rollNumber')} value={editingMember.rollNumber || ''}
-                  onChange={e => setEditingMember({...editingMember, rollNumber: e.target.value})} />
-                <select className="input-field" value={editingMember.role}
-                  onChange={e => setEditingMember({...editingMember, role: e.target.value})}>
-                  {Object.entries(roleLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                </select>
+            {/* Members List */}
+            {group?.members?.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>
+                No members yet. Add members by their QR number.
               </div>
-              <div className="flex gap-2">
-                <button onClick={() => setEditingMember(null)} className="flex-1 py-2 rounded-xl bg-white/5 text-gray-400 text-xs">{t('cancel')}</button>
-                <button onClick={handleUpdateMember} className="flex-1 btn-primary text-sm">✅ {t('save')}</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Members List */}
-        {(!group.members || group.members.length === 0) ? (
-          <div className="card p-8 text-center">
-            <span className="text-4xl block mb-3">👥</span>
-            <h3 className="font-bold text-gray-300 text-sm mb-1">{t('noMembers')}</h3>
-            <p className="text-[10px] text-gray-500">{t('noMembersDesc')}</p>
-          </div>
-        ) : (
-          <div className="space-y-1.5">
-            {group.members.map((member, idx) => (
-              <div key={member._id} className="card p-3 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500/30 to-purple-500/20 border border-indigo-500/20 flex items-center justify-center text-xs font-bold text-indigo-400">
-                  {member.rollNumber || (idx + 1)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-xs text-gray-200 truncate">{member.name}</div>
-                  <div className="text-[10px] text-gray-500">
-                    {roleLabels[member.role] || member.role}
-                    {member.phone && ` • ${member.phone}`}
+            ) : (
+              group?.members?.map((member, idx) => (
+                <div
+                  key={member._id || idx}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    background: '#1a1a2e',
+                    borderRadius: '8px',
+                    padding: '14px 18px',
+                    marginBottom: '8px',
+                    border: '1px solid #2a2a4a',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: '15px' }}>{member.name}</div>
+                    <div style={{ color: '#888', fontSize: '13px' }}>QR: {member.qrNumber}</div>
+                    {member.lastScanTime && (
+                      <div style={{ color: '#666', fontSize: '12px' }}>
+                        Last scan: {new Date(member.lastScanTime).toLocaleString()}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{
+                      background: member.isPresent ? '#00c85330' : '#ff525230',
+                      color: member.isPresent ? '#00c853' : '#ff5252',
+                      padding: '4px 12px',
+                      borderRadius: '15px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                    }}>
+                      {member.isPresent ? 'Present' : 'Absent'}
+                    </span>
+                    <button
+                      onClick={() => handleRemoveMember(member.user?._id || member.user)}
+                      style={{
+                        background: 'none',
+                        border: '1px solid #ff5252',
+                        color: '#ff5252',
+                        borderRadius: '6px',
+                        padding: '4px 10px',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Remove
+                    </button>
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  <button onClick={() => setEditingMember({...member})}
-                    className="p-1 rounded-lg bg-white/5 text-gray-400 text-[10px] hover:bg-white/10">✏️</button>
-                  <button onClick={() => handleRemoveMember(member._id, member.name)}
-                    className="p-1 rounded-lg bg-red-500/10 text-red-400 text-[10px] hover:bg-red-500/20">🗑</button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
-      </main>
+
+        {/* Summary Tab */}
+        {tab === 'summary' && (
+          <div>
+            {/* Month/Year Selector */}
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', alignItems: 'center' }}>
+              <select
+                value={summaryMonth}
+                onChange={e => setSummaryMonth(parseInt(e.target.value))}
+                style={{ ...inputStyle, cursor: 'pointer' }}
+              >
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {new Date(2000, i).toLocaleString('default', { month: 'long' })}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={summaryYear}
+                onChange={e => setSummaryYear(parseInt(e.target.value))}
+                style={{ ...inputStyle, cursor: 'pointer' }}
+              >
+                {[2024, 2025, 2026, 2027].map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+              <button
+                onClick={fetchSummary}
+                style={{
+                  background: '#667eea',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                }}
+              >
+                Load
+              </button>
+              <button
+                onClick={handleExportCSV}
+                style={{
+                  background: '#1a1a2e',
+                  color: '#667eea',
+                  border: '1px solid #667eea',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                }}
+              >
+                Export CSV
+              </button>
+            </div>
+
+            {/* Summary Table */}
+            {summary ? (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #2a2a4a' }}>
+                      <th style={{ textAlign: 'left', padding: '10px', color: '#888', fontSize: '13px' }}>Member</th>
+                      <th style={{ textAlign: 'center', padding: '10px', color: '#888', fontSize: '13px' }}>Present</th>
+                      <th style={{ textAlign: 'center', padding: '10px', color: '#888', fontSize: '13px' }}>Absent</th>
+                      <th style={{ textAlign: 'center', padding: '10px', color: '#888', fontSize: '13px' }}>%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {summary.members?.map((m, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid #1a1a2e' }}>
+                        <td style={{ padding: '10px' }}>
+                          <div style={{ fontWeight: '500' }}>{m.name}</div>
+                          <div style={{ color: '#666', fontSize: '12px' }}>QR: {m.qrNumber}</div>
+                        </td>
+                        <td style={{ textAlign: 'center', padding: '10px', color: '#00c853' }}>{m.presentDays}</td>
+                        <td style={{ textAlign: 'center', padding: '10px', color: '#ff5252' }}>{m.absentDays}</td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>
+                          <span style={{
+                            background: m.percentage >= 75 ? '#00c85330' : m.percentage >= 50 ? '#ffa72630' : '#ff525230',
+                            color: m.percentage >= 75 ? '#00c853' : m.percentage >= 50 ? '#ffa726' : '#ff5252',
+                            padding: '3px 10px',
+                            borderRadius: '10px',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                          }}>
+                            {m.percentage}%
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>
+                Select a month and click Load to see summary
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Footer Actions */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #2a2a4a' }}>
+          <button
+            onClick={() => router.push('/group')}
+            style={{ background: 'none', border: 'none', color: '#667eea', cursor: 'pointer', fontSize: '15px' }}
+          >
+            ← Back to Groups
+          </button>
+          <button
+            onClick={handleDeleteGroup}
+            style={{
+              background: 'none',
+              border: '1px solid #ff5252',
+              color: '#ff5252',
+              borderRadius: '8px',
+              padding: '8px 16px',
+              fontSize: '13px',
+              cursor: 'pointer',
+            }}
+          >
+            Delete Group
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
