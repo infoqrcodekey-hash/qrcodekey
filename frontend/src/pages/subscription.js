@@ -27,9 +27,9 @@ const plans = [
     name: 'Pro',
     price: '$4.99',
     period: '/month',
-    notifications: 500,
+    notifications: 400,
     features: [
-      '500 scan notifications/month',
+      '400 scan notifications/month',
       'Email + SMS notifications',
       'GPS location tracking',
       'Advanced analytics',

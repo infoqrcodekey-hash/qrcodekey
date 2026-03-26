@@ -441,9 +441,9 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-2">
             {[
               { plan: 'Free', price: '$0', desc: 'Unlimited QR codes', sub: 'No notifications', icon: '🆓' },
-              { plan: 'Starter', price: '$0.99/mo', desc: '1 QR with alerts', sub: 'Email + Push', icon: '🔔' },
-              { plan: 'Pro', price: '$4.99/mo', desc: '5 QR with alerts', sub: 'Email + SMS + Push', popular: true, icon: '💎' },
-              { plan: 'Unlimited', price: '$14.99/mo', desc: 'Unlimited QR alerts', sub: 'All notifications + API', icon: '👑' },
+              { plan: 'Starter', price: '$1.99/mo', desc: '175 notifications/month', sub: 'Email + Push', icon: '🔔' },
+              { plan: 'Pro', price: '$4.99/mo', desc: '400 notifications/month', sub: 'Email + SMS + Push', popular: true, icon: '💎' },
+              { plan: 'Unlimited', price: '$9.99/mo', desc: 'Unlimited notifications', sub: 'All notifications + API', icon: '👑' },
             ].map((p, i) => (
               <div key={i} className={`p-3 rounded-xl text-center relative ${p.popular ? 'bg-indigo-500/15 border border-indigo-500/30' : 'bg-white/3 border border-white/5'}`}>
                 {p.popular && <div className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-indigo-500 rounded-full text-[8px] text-white font-bold">POPULAR</div>}
