@@ -29,7 +29,7 @@ exports.register = async (req, res) => {
     });
 
     // Generate and send token
-    sendTokenResponse(user, 201, res, 'Account created successfully! ð');
+    sendTokenResponse(user, 201, res, 'Account created successfully! Ã°ÂÂÂ');
 
   } catch (error) {
     console.error('Register Error:', error);
@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     // Send token
-    sendTokenResponse(user, 200, res, 'Login successful! ð');
+    sendTokenResponse(user, 200, res, 'Login successful! Ã°ÂÂÂ');
 
   } catch (error) {
     console.error('Login Error:', error);
@@ -409,17 +409,23 @@ exports.sendEmailOTP = async (req, res) => {
     user.otpExpiry = expiry;
     user.otpAttempts = (user.otpAttempts || 0) + 1;
     await user.save({ validateBeforeSave: false });
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE || 'gmail',
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + process.env.RESEND_API_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: process.env.EMAIL_FROM || 'QRCodeKey <onboarding@resend.dev>',
+        to: [email],
+        subject: 'QRCodeKey - Email Verification OTP',
+        html: '<h2>Your OTP Code</h2><p>Your verification code is: <strong>' + otp + '</strong></p><p>This code expires in 10 minutes.</p>'
+      })
     });
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-      to: email,
-      subject: 'QRCodeKey - Email Verification OTP',
-      html: '<h2>Your OTP Code</h2><p>Your verification code is: <strong>' + otp + '</strong></p><p>This code expires in 10 minutes.</p>'
-    });
+    if (!emailRes.ok) {
+      const errData = await emailRes.json();
+      throw new Error(errData.message || 'Email send failed');
+    }
     res.json({ success: true, message: 'OTP sent to email' });
   } catch (err) {
     console.error('Send Email OTP Error:', err);
