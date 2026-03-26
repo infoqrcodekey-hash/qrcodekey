@@ -168,4 +168,3 @@ UserSchema.methods.getNotificationQRLimit = function() {
 };
 
 module.exports = mongoose.model('User', UserSchema);
-h
