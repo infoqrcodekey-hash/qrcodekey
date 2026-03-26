@@ -445,6 +445,7 @@ exports.verifyEmailOTP = async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
+          console.log('DEBUG verifyOTP:', { emailOTP: user.emailOTP, otpExpiry: user.otpExpiry, email: email, otp: otp });
     if (!user.emailOTP || !user.otpExpiry) {
       return res.status(400).json({ success: false, message: 'No OTP requested. Please request a new one.' });
     }
