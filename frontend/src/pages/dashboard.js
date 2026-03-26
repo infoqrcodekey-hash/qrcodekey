@@ -360,7 +360,7 @@ export default function Dashboard() {
             { icon: '🏠', labelKey: 'home', href: '/' },
             { icon: '➕', labelKey: 'generate', href: '/generate' },
             { icon: '📊', labelKey: 'analytics', href: '/analytics' },
-            { icon: '🏢', labelKey: 'organizations', href: '/organizations' },
+            { icon: '👥', labelKey: 'groups', href: '/group' },
             { icon: '📋', labelKey: 'dashboard', href: '/dashboard' },
           ].map((item, i) => (
             <Link key={i} href={item.href} className={`nav-item px-1.5 ${item.href === '/dashboard' ? 'text-indigo-400 bg-indigo-500/10' : 'text-gray-500'}`}>
