@@ -146,17 +146,18 @@ app.use('/api/otp', require('./routes/otp'));
 app.use('/api/export', require('./routes/export'));
 app.use('/api/teams', require('./routes/teams'));
 app.use('/api/analytics', require('./routes/analytics'));
-app.use('/api/org', require('./routes/organization'));
-app.use('/api/attendance-scan', require('./routes/attendanceScan'));
+// REMOVED (Org module): app.use('/api/org', require('./routes/organization'));
+// REMOVED (Org module): app.use('/api/attendance-scan', require('./routes/attendanceScan'));
 app.use('/api/notifications', require('./routes/notifications'));
-app.use('/api/leave', require('./routes/leave'));
-app.use('/api/holidays', require('./routes/holidays'));
-app.use('/api/audit', require('./routes/audit'));
-app.use('/api/visitors', require('./routes/visitors'));
-app.use('/api/shifts', require('./routes/shifts'));
-app.use('/api/reports', require('./routes/reports'));
-app.use('/api/face-verification', require('./routes/faceVerification'));
+// REMOVED (Org module): app.use('/api/leave', require('./routes/leave'));
+// REMOVED (Org module): app.use('/api/holidays', require('./routes/holidays'));
+// REMOVED (Org module): app.use('/api/audit', require('./routes/audit'));
+// REMOVED (Org module): app.use('/api/visitors', require('./routes/visitors'));
+// REMOVED (Org module): app.use('/api/shifts', require('./routes/shifts'));
+// REMOVED (Org module): app.use('/api/reports', require('./routes/reports'));
+// REMOVED (Org module): app.use('/api/face-verification', require('./routes/faceVerification'));
   // Stripe removed - using Razorpay via /api/payment
+  app.use('/api/group-attendance', require('./routes/groupAttendance'));
 
 // ====== Migration: Fix QR codes with localhost URLs ======
 app.get('/api/migrate-qr-urls', async (req, res) => {
@@ -292,16 +293,16 @@ io.on('connection', (socket) => {
   });
 
   // Join organization attendance room
-  socket.on('join_org_attendance', (orgId) => {
-    socket.join(`org_${orgId}`);
+  socket.on('join_group_attendance', (groupId) => {
+    socket.join(`group_${groupId}`);
     if (process.env.NODE_ENV === 'development') {
-      console.log(`📋 Attendance room joined: org_${orgId}`);
+      console.log(`📋 Attendance room joined: group_${groupId}`);
     }
   });
 
   // Leave organization attendance room
-  socket.on('leave_org_attendance', (orgId) => {
-    socket.leave(`org_${orgId}`);
+  socket.on('leave_group_attendance', (groupId) => {
+    socket.leave(`group_${groupId}`);
   });
 
   // Leave QR tracking room
