@@ -27,6 +27,7 @@ if (missingEnvVars.length > 0 && process.env.NODE_ENV === 'production') {
 
 // ====== App Initialize ======
 const app = express();
+app.set('trust proxy', 1); // Required for Render (behind reverse proxy)
 const server = http.createServer(app);
 
 // ====== HTTPS Redirect Middleware (Production) ======
