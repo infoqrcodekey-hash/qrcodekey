@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import Layout from '../../components/Layout';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
 import { toast } from 'react-hot-toast';
@@ -63,16 +62,16 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <Layout>
+      <>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
           <div className="spinner"></div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head><title>Admin Dashboard - QRCodeKey</title></Head>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>Admin Dashboard</h1>
@@ -197,7 +196,7 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
-    </Layout>
+    </>
   );
 }
 

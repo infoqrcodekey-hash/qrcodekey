@@ -4,7 +4,6 @@ import Head from 'next/head';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import Layout from '../components/Layout';
 
 const plans = [
   {
@@ -124,17 +123,17 @@ export default function SubscriptionPage() {
 
   if (authLoading || loading) {
     return (
-      <Layout>
+      <>
         <div style={{ textAlign: 'center', padding: '60px 20px' }}>
           <div className="spinner" />
           <p>Loading...</p>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>Subscription Plans - QRCodeKey</title>
       </Head>
@@ -300,6 +299,6 @@ export default function SubscriptionPage() {
         }
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
-    </Layout>
+    </>
   );
     }
