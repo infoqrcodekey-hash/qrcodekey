@@ -7,7 +7,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageConthext';
+import { useLanguage } from '../context/LanguageContext';
 import Link from 'next/link';
 import { onScanAlert } from '../lib/socket';
 import LanguageSwitcher from '../components/LanguageSwitcher';
