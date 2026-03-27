@@ -267,54 +267,38 @@ export default function GroupDashboard() {
               group?.members?.map((member, idx) => (
                 <div
                   key={member._id || idx}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    background: '#1a1a2e',
-                    borderRadius: '8px',
-                    padding: '14px 18px',
-                    marginBottom: '8px',
-                    border: '1px solid #2a2a4a',
-                  }}
+                  className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-3"
                 >
-                  <div>
-                    <div style={{ fontWeight: '600', fontSize: '15px' }}>{member.name}</div>
-                    <div style={{ color: '#888', fontSize: '13px' }}>QR: {member.qrNumber}</div>
-                    {member.lastScanTime && (
-                      <div style={{ color: '#666', fontSize: '12px' }}>
-                        Last scan: {new Date(member.lastScanTime).toLocaleString()}
+                  {/* Row 1: QR Name + ON/OFF Badge */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${member.isPresent ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>
+                        {member.isPresent ? '🟢' : '🔴'}
                       </div>
-                    )}
+                      <div>
+                        <p className="font-semibold text-white text-sm">{member.name || 'Member'}</p>
+                        <p className="text-xs text-gray-400 font-mono">{member.qrNumber}</p>
+                      </div>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${member.isPresent ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
+                      {member.isPresent ? '🔓 ON (Clocked In)' : '🔒 OFF (Clocked Out)'}
+                    </span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{
-                      background: member.isPresent ? '#00c85330' : '#ff525230',
-                      color: member.isPresent ? '#00c853' : '#ff5252',
-                      padding: '4px 12px',
-                      borderRadius: '15px',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                    }}>
-                      {member.isPresent ? 'Present' : 'Absent'}
+
+                  {/* Row 2: Last Scan Time */}
+                  <div className="flex items-center justify-between text-xs border-t border-white/5 pt-2">
+                    <span className="text-gray-400">
+                      ⏰ Last Scan: {member.lastScanTime ? new Date(member.lastScanTime).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true }) : 'Never'}
                     </span>
                     <button
-                      onClick={() => handleRemoveMember(member.user?._id || member.user)}
-                      style={{
-                        background: 'none',
-                        border: '1px solid #ff5252',
-                        color: '#ff5252',
-                        borderRadius: '6px',
-                        padding: '4px 10px',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                      }}
+                      onClick={() => handleRemoveMember(member._id || member.user)}
+                      className="text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded hover:bg-red-500/10"
                     >
-                      Remove
+                      ✕ Remove
                     </button>
                   </div>
                 </div>
-              ))
+              )))
             )}
           </div>
         )}
