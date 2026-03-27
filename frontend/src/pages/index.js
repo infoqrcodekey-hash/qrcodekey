@@ -7,7 +7,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/LanguageConthext';
 import Link from 'next/link';
 import { onScanAlert } from '../lib/socket';
 import LanguageSwitcher from '../components/LanguageSwitcher';
@@ -113,7 +113,7 @@ export default function Home() {
       if (res.ok && data) {
         setSearchResult(data);
       } else {
-        setSearchResult({ error: 'QR Code not found or wrong password' });
+        setSearchResult({ error: data.error || 'QR Code not found or wrong password' });
       }
     } catch (err) {
       setSearchResult({ error: 'Search failed. Try again.' });
