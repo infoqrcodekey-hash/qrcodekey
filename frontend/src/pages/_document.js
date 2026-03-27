@@ -47,6 +47,11 @@ export default function Document() {
 
         {/* Apple Splash Screens */}
         <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
+
+  {/* Emoji Font */}
+              <link rel="preconnect" href="https://fonts.googleapis.com" />
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+              <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet" />
       </Head>
       <body>
         <Main />
