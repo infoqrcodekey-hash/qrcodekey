@@ -37,9 +37,10 @@ export default function CreateGroup() {
     (async () => {
       try {
         const res = await qrAPI.getMyQRCodes();
-        setMyQRCodes(res.data || []);
-        if (res.data && res.data.length > 0) {
-          setForm(f => ({ ...f, adminQrNumber: res.data[0].qrId || res.data[0].qrNumber || '' }));
+        const qrList = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        setMyQRCodes(qrList);
+        if (qrList.length > 0) {
+          setForm(f => ({ ...f, adminQrNumber: qrList[0].qrId || qrList[0].qrNumber || '' }));
         }
       } catch {}
     })();
@@ -113,7 +114,7 @@ export default function CreateGroup() {
         adminQrNumber: form.adminQrNumber
       });
 
-      const groupId = res.data?.group?._id || res.data?._id;
+      const groupId = res.data?.data?._id || res.data?.group?._id || res.data?._id;
 
       // Add invited QR codes as members
       if (groupId && inviteQRs.length > 0) {
