@@ -396,7 +396,7 @@ exports.sendEmailOTP = async (req, res) => {
     if (!email) {
       return res.status(400).json({ success: false, message: 'Email is required' });
     }
-    const user = await User.findOne({ email }).select('+emailOTP +otpExpiry');
+    const user = await User.collection.findOne({ email: email });
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -405,8 +405,7 @@ exports.sendEmailOTP = async (req, res) => {
     }
     const otp = String(Math.floor(100000 + Math.random() * 900000));
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
-    const saveResult = await User.findOneAndUpdate({ email }, { emailOTP: otp, otpExpiry: expiry, otpAttempts: (user.otpAttempts || 0) + 1 }, { new: true });
-          console.log('OTP_SAVE_DEBUG:', JSON.stringify({ found: !!saveResult, email }));
+    await User.collection.updateOne({ email: email }, { $set: { emailOTP: otp, otpExpiry: expiry, otpAttempts: (user.otpAttempts || 0) + 1 } });
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -439,7 +438,7 @@ exports.verifyEmailOTP = async (req, res) => {
     if (!email || !otp) {
       return res.status(400).json({ success: false, message: 'Email and OTP are required' });
     }
-    const user = await User.findOne({ email }).select('+emailOTP +otpExpiry');
+    const user = await User.collection.findOne({ email: email });
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -452,7 +451,7 @@ exports.verifyEmailOTP = async (req, res) => {
     if (user.emailOTP !== otp) {
       return res.status(400).json({ success: false, message: 'Invalid OTP' });
     }
-    await User.findOneAndUpdate({ email }, { emailVerified: true, emailOTP: null, otpExpiry: null, otpAttempts: 0 });
+    await User.collection.updateOne({ email: email }, { $set: { emailVerified: true, emailOTP: null, otpExpiry: null, otpAttempts: 0 } });
     res.json({ success: true, message: 'Email verified successfully' });
   } catch (err) {
     console.error('Verify Email OTP Error:', err);
