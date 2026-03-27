@@ -107,7 +107,8 @@ export default function Home() {
     setSearchResult(null);
     try {
       const API = process.env.NEXT_PUBLIC_API_URL || '';
-      const res = await fetch(`${API}/qr/search?qrId=${encodeURIComponent(searchQuery)}&password=${encodeURIComponent(searchPassword)}`);
+      const tk = localStorage.getItem('qr_token');
+      const res = await fetch(`${API}/qr/search?qrId=${encodeURIComponent(searchQuery)}&password=${encodeURIComponent(searchPassword)}`, { headers: tk ? { 'Authorization': `Bearer ${tk}` } : {} });
       const data = await res.json();
       if (res.ok && data) {
         setSearchResult(data);
