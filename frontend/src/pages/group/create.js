@@ -1,253 +1,297 @@
 // -----------------------------------------------
-// pages/group/create.js - Create New Group
+// pages/group/create.js - Create Group
 // -----------------------------------------------
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import { groupAttendanceAPI } from '../../lib/api';
+// Admin QR > Address > Current Address Tab > QR Invite
 
-const CATEGORIES = [
-  { value: 'school', label: 'School' },
-  { value: 'college', label: 'College' },
-  { value: 'office', label: 'Office' },
-  { value: 'factory', label: 'Factory' },
-  { value: 'hospital', label: 'Hospital' },
-  { value: 'gym', label: 'Gym' },
-  { value: 'coaching', label: 'Coaching' },
-  { value: 'warehouse', label: 'Warehouse' },
-  { value: 'event', label: 'Event' },
-  { value: 'other', label: 'Other' },
-];
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { groupAttendanceAPI, qrAPI } from '../../lib/api';
+import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
+
+const CATEGORIES = ['Office', 'School', 'Event', 'Security', 'Warehouse', 'Other'];
 
 export default function CreateGroup() {
   const router = useRouter();
+  const { user } = useAuth();
+  const { t } = useLanguage();
+
+  // Form state
   const [form, setForm] = useState({
-    name: '',
-    category: 'other',
-    address: '',
-    latitude: '',
-    longitude: '',
+    name: '', category: 'Office', address: '',
+    latitude: '', longitude: '',
+    currentLatitude: '', currentLongitude: '', currentAddress: '',
+    adminQrNumber: ''
   });
+  const [addressTab, setAddressTab] = useState('fixed'); // 'fixed' or 'current'
+  const [myQRCodes, setMyQRCodes] = useState([]);
+  const [inviteQRs, setInviteQRs] = useState([]);
+  const [inviteInput, setInviteInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [gpsLoading, setGpsLoading] = useState(false);
+  const [currentGpsLoading, setCurrentGpsLoading] = useState(false);
+
+  // Fetch user's QR codes for Admin QR dropdown
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await qrAPI.getMyQRCodes();
+        setMyQRCodes(res.data || []);
+        if (res.data && res.data.length > 0) {
+          setForm(f => ({ ...f, adminQrNumber: res.data[0].qrId || res.data[0].qrNumber || '' }));
+        }
+      } catch {}
+    })();
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Get current GPS location
-  const getCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      setError('Geolocation not supported by your browser');
-      return;
-    }
+  const getFixedLocation = () => {
     setGpsLoading(true);
-    setError('');
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setForm(prev => ({
-          ...prev,
+        setForm(f => ({
+          ...f,
           latitude: pos.coords.latitude.toFixed(6),
-          longitude: pos.coords.longitude.toFixed(6),
+          longitude: pos.coords.longitude.toFixed(6)
         }));
         setGpsLoading(false);
       },
-      (err) => {
-        setError('Failed to get location: ' + err.message);
-        setGpsLoading(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      () => { setError('GPS location failed'); setGpsLoading(false); },
+      { enableHighAccuracy: true }
     );
+  };
+
+  const getCurrentLocation = () => {
+    setCurrentGpsLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setForm(f => ({
+          ...f,
+          currentLatitude: pos.coords.latitude.toFixed(6),
+          currentLongitude: pos.coords.longitude.toFixed(6),
+          currentAddress: 'GPS: ' + pos.coords.latitude.toFixed(6) + ', ' + pos.coords.longitude.toFixed(6)
+        }));
+        setCurrentGpsLoading(false);
+      },
+      () => { setError('GPS location failed'); setCurrentGpsLoading(false); },
+      { enableHighAccuracy: true }
+    );
+  };
+
+  const addInviteQR = () => {
+    const qr = inviteInput.trim();
+    if (qr && !inviteQRs.includes(qr)) {
+      setInviteQRs([...inviteQRs, qr]);
+      setInviteInput('');
+    }
+  };
+
+  const removeInviteQR = (qr) => {
+    setInviteQRs(inviteQRs.filter(q => q !== qr));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    if (!form.name.trim()) {
-      setError('Group name is required');
-      return;
-    }
-    if (!form.address.trim() || !form.latitude || !form.longitude) {
-      setError('Address and GPS coordinates are required');
-      return;
-    }
-
     setLoading(true);
+    setError('');
     try {
+      // Use current address GPS if tab is 'current' and has coordinates
+      const lat = addressTab === 'current' && form.currentLatitude ? form.currentLatitude : form.latitude;
+      const lng = addressTab === 'current' && form.currentLongitude ? form.currentLongitude : form.longitude;
+      const addr = addressTab === 'current' && form.currentAddress ? form.currentAddress : form.address;
+
       const res = await groupAttendanceAPI.createGroup({
-        name: form.name.trim(),
+        name: form.name,
         category: form.category,
-        fixedAddress: {
-          address: form.address.trim(),
-          latitude: parseFloat(form.latitude),
-          longitude: parseFloat(form.longitude),
-        },
+        address: addr,
+        latitude: parseFloat(lat),
+        longitude: parseFloat(lng),
+        adminQrNumber: form.adminQrNumber
       });
 
-      if (res.data.success) {
-        router.push('/group/' + res.data.data._id);
-      } else {
-        setError(res.data.message || 'Failed to create group');
+      const groupId = res.data?.group?._id || res.data?._id;
+
+      // Add invited QR codes as members
+      if (groupId && inviteQRs.length > 0) {
+        for (const qr of inviteQRs) {
+          try {
+            await groupAttendanceAPI.addMember(groupId, { qrNumber: qr });
+          } catch {}
+        }
       }
+
+      router.push('/group' + (groupId ? '/' + groupId : ''));
     } catch (err) {
-      setError(err.response?.data?.message || 'Server error');
-    } finally {
-      setLoading(false);
+      setError(err.response?.data?.error || 'Failed to create group');
     }
+    setLoading(false);
   };
 
-  const inputStyle = {
-    width: '100%',
-    padding: '12px 16px',
-    background: '#1a1a2e',
-    border: '1px solid #2a2a4a',
-    borderRadius: '8px',
-    color: '#fff',
-    fontSize: '15px',
-    outline: 'none',
-    boxSizing: 'border-box',
-  };
-
-  const labelStyle = {
-    display: 'block',
-    marginBottom: '6px',
-    color: '#aaa',
-    fontSize: '14px',
-    fontWeight: '500',
-  };
+  const inputStyle = 'w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none';
+  const labelStyle = 'block text-sm font-medium text-gray-300 mb-1';
+  const tabActive = 'px-4 py-2 rounded-lg text-sm font-semibold transition-all ';
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0a', color: '#fff', padding: '20px' }}>
-      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px' }}>Create New Group</h1>
-        <p style={{ color: '#888', marginBottom: '30px' }}>Set up a location-based attendance group</p>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-950 to-black text-white px-4 py-6 max-w-lg mx-auto">
+      <button onClick={() => router.back()} className="text-gray-400 mb-4 text-sm hover:text-white">
+        ← Back
+      </button>
 
-        {error && (
-          <div style={{ background: '#ff525220', border: '1px solid #ff5252', borderRadius: '8px', padding: '12px', marginBottom: '20px', color: '#ff5252' }}>
-            {error}
+      <h1 className="text-2xl font-bold mb-6">Create Group</h1>
+
+      {error && (
+        <div className="bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-3 rounded-xl mb-4 text-sm">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+
+        {/* ===== 1. ADMIN QR ===== */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+          <label className={labelStyle}>📍 Admin QR Code *</label>
+          <select
+            name="adminQrNumber"
+            value={form.adminQrNumber}
+            onChange={handleChange}
+            className={inputStyle}
+            required
+          >
+            <option value="">Select your QR Code</option>
+            {myQRCodes.map((qr) => (
+              <option key={qr._id} value={qr.qrId || qr.qrNumber}>
+                {qr.qrId || qr.qrNumber} {qr.label ? '- ' + qr.label : ''}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500 mt-1">This QR will be the admin of the group</p>
+        </div>
+
+        {/* ===== GROUP NAME & CATEGORY ===== */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-4">
+          <div>
+            <label className={labelStyle}>Group Name *</label>
+            <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. Office Team" className={inputStyle} required />
           </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          {/* Group Name */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>Group Name *</label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="e.g. Morning Batch, Office Team A"
-              style={inputStyle}
-              maxLength={100}
-            />
-          </div>
-
-          {/* Category */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>Category</label>
-            <select
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              style={{ ...inputStyle, cursor: 'pointer' }}
-            >
-              {CATEGORIES.map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
-              ))}
+          <div>
+            <label className={labelStyle}>Category</label>
+            <select name="category" value={form.category} onChange={handleChange} className={inputStyle}>
+              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
+        </div>
 
-          {/* Address */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>Fixed Address *</label>
-            <input
-              type="text"
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              placeholder="e.g. 123 Main St, Building A, Floor 2"
-              style={inputStyle}
-            />
-          </div>
+        {/* ===== 2. ADDRESS (Registered) ===== */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-4">
+          <label className={labelStyle}>📌 Address *</label>
+          <input name="address" value={form.address} onChange={handleChange} placeholder="Enter registered address" className={inputStyle} required />
 
-          {/* GPS Coordinates */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>GPS Location *</label>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-              <input
-                type="number"
-                name="latitude"
-                value={form.latitude}
-                onChange={handleChange}
-                placeholder="Latitude"
-                step="any"
-                style={{ ...inputStyle, flex: 1 }}
-              />
-              <input
-                type="number"
-                name="longitude"
-                value={form.longitude}
-                onChange={handleChange}
-                placeholder="Longitude"
-                step="any"
-                style={{ ...inputStyle, flex: 1 }}
-              />
-            </div>
+          {/* Address Tabs */}
+          <div className="flex gap-2 bg-white/5 rounded-xl p-1">
             <button
               type="button"
-              onClick={getCurrentLocation}
-              disabled={gpsLoading}
-              style={{
-                background: '#1a1a2e',
-                color: '#667eea',
-                border: '1px solid #667eea',
-                borderRadius: '8px',
-                padding: '10px 20px',
-                fontSize: '14px',
-                cursor: gpsLoading ? 'wait' : 'pointer',
-                width: '100%',
-              }}
+              onClick={() => setAddressTab('fixed')}
+              className={tabActive + (addressTab === 'fixed' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white')}
             >
-              {gpsLoading ? 'Getting location...' : '📍 Use My Current Location'}
+              📍 Fixed Address
             </button>
-            <p style={{ color: '#666', fontSize: '12px', marginTop: '6px' }}>
-              Members must be within 12 meters of this location to mark attendance
-            </p>
+            <button
+              type="button"
+              onClick={() => setAddressTab('current')}
+              className={tabActive + (addressTab === 'current' ? 'bg-green-600 text-white' : 'text-gray-400 hover:text-white')}
+            >
+              📡 Current Address
+            </button>
           </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '14px',
-              background: loading ? '#555' : 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '10px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: loading ? 'wait' : 'pointer',
-              marginTop: '10px',
-            }}
-          >
-            {loading ? 'Creating...' : 'Create Group'}
-          </button>
-        </form>
+          {/* Fixed Address GPS */}
+          {addressTab === 'fixed' && (
+            <div className="space-y-3">
+              <p className="text-xs text-gray-400">Set the GPS location of your fixed office/address. Scans within 12m will count as ON.</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-400">Latitude</label>
+                  <input name="latitude" value={form.latitude} onChange={handleChange} placeholder="0.000000" className={inputStyle} />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400">Longitude</label>
+                  <input name="longitude" value={form.longitude} onChange={handleChange} placeholder="0.000000" className={inputStyle} />
+                </div>
+              </div>
+              <button type="button" onClick={getFixedLocation} disabled={gpsLoading}
+                className="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium disabled:opacity-50">
+                {gpsLoading ? '📡 Getting GPS...' : '📍 Get Current GPS Location'}
+              </button>
+            </div>
+          )}
 
-        {/* Back */}
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button
-            onClick={() => router.push('/group')}
-            style={{ background: 'none', border: 'none', color: '#667eea', cursor: 'pointer', fontSize: '15px' }}
-          >
-            ← Back to Groups
-          </button>
+          {/* Current Address (for big companies - different location) */}
+          {addressTab === 'current' && (
+            <div className="space-y-3">
+              <p className="text-xs text-gray-400">For large companies where office is far from registered address. Tap below to set current working location. Scans within 12m of THIS location will count as ON.</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-400">Current Lat</label>
+                  <input value={form.currentLatitude} readOnly placeholder="—" className={inputStyle + ' opacity-60'} />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400">Current Lng</label>
+                  <input value={form.currentLongitude} readOnly placeholder="—" className={inputStyle + ' opacity-60'} />
+                </div>
+              </div>
+              {form.currentAddress && (
+                <p className="text-xs text-green-400">✅ {form.currentAddress}</p>
+              )}
+              <button type="button" onClick={getCurrentLocation} disabled={currentGpsLoading}
+                className="w-full py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-medium disabled:opacity-50">
+                {currentGpsLoading ? '📡 Detecting...' : '📡 Set Current Location (GPS)'}
+              </button>
+            </div>
+          )}
         </div>
-      </div>
+
+        {/* ===== 3. QR CODE INVITE ===== */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+          <label className={labelStyle}>🔗 QR Code Invite</label>
+          <p className="text-xs text-gray-400">Add QR codes to this group. Members with these QR codes can scan to clock in/out.</p>
+          <div className="flex gap-2">
+            <input
+              value={inviteInput}
+              onChange={(e) => setInviteInput(e.target.value)}
+              placeholder="Enter QR Code ID (e.g. QR-XXXX)"
+              className={inputStyle + ' flex-1'}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addInviteQR(); } }}
+            />
+            <button type="button" onClick={addInviteQR}
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold whitespace-nowrap">
+              + Add
+            </button>
+          </div>
+          {inviteQRs.length > 0 && (
+            <div className="space-y-2">
+              {inviteQRs.map((qr, i) => (
+                <div key={i} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
+                  <span className="text-sm text-gray-300">📎 {qr}</span>
+                  <button type="button" onClick={() => removeInviteQR(qr)} className="text-red-400 hover:text-red-300 text-xs">
+                    ✕ Remove
+                  </button>
+                </div>
+              ))}
+              <p className="text-xs text-gray-500">{inviteQRs.length} QR code(s) will be invited</p>
+            </div>
+          )}
+        </div>
+
+        {/* Submit */}
+        <button type="submit" disabled={loading}
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-lg disabled:opacity-50 transition-all">
+          {loading ? 'Creating...' : '🚀 Create Group'}
+        </button>
+      </form>
     </div>
   );
 }
