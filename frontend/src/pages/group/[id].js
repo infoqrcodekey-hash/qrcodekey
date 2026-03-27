@@ -298,7 +298,7 @@ export default function GroupDashboard() {
                     </button>
                   </div>
                 </div>
-              )))
+              ))
             )}
           </div>
         )}
