@@ -107,7 +107,7 @@ export default function Home() {
     setSearchResult(null);
     try {
       const API = process.env.NEXT_PUBLIC_API_URL || '';
-      const res = await fetch(`${API}/api/qr/search?qrId=${encodeURIComponent(searchQuery)}&password=${encodeURIComponent(searchPassword)}`);
+      const res = await fetch(`${API}/qr/search?qrId=${encodeURIComponent(searchQuery)}&password=${encodeURIComponent(searchPassword)}`);
       const data = await res.json();
       if (res.ok && data) {
         setSearchResult(data);
