@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { groupAttendanceAPI } from '../../lib/api';
 
 export default function GroupDashboard() {
-  const router = useRouter();
+  const router = useRouter(); 
   const { id } = router.query;
   const { user } = useAuth();
   const [group, setGroup] = useState(null);
