@@ -108,9 +108,11 @@ export default function CreateGroup() {
       const res = await groupAttendanceAPI.createGroup({
         name: form.name,
         category: form.category,
-        address: addr,
-        latitude: parseFloat(lat),
-        longitude: parseFloat(lng),
+        fixedAddress: {
+          address: addr,
+          latitude: parseFloat(lat) || 0,
+          longitude: parseFloat(lng) || 0
+        },
         adminQrNumber: form.adminQrNumber
       });
 
