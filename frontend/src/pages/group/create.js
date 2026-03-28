@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { groupAttendanceAPI, qrAPI } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../context/La nguageContext';
 
 const CATEGORIES = ['Office', 'School', 'Event', 'Security', 'Warehouse', 'Other'];
 
