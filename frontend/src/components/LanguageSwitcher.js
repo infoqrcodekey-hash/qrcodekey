@@ -1,32 +1,34 @@
-// ============================================
+// -----------------------------------------------
 // components/LanguageSwitcher.js - Language Toggle
-// ============================================
-// Simple toggle button: EN ↔ हि
-
+// -----------------------------------------------
 import { useLanguage } from '../context/LanguageContext';
 
-export default function LanguageSwitcher({ className = '' }) {
-  const { lang, switchLanguage, languages } = useLanguage();
+const langOptions = [
+  { code: 'en', label: 'EN' },
+  { code: 'hi', label: 'à¤¹à¤¿' },
+  { code: 'gu', label: 'àªà«' },
+];
 
-  const toggle = () => {
-    const currentIdx = languages.findIndex(l => l.code === lang);
-    const nextIdx = (currentIdx + 1) % languages.length;
-    switchLanguage(languages[nextIdx].code);
-  };
-
-  const current = languages.find(l => l.code === lang);
+export function LanguageSwitcher({ className = '' }) {
+  const { lang, switchLanguage } = useLanguage();
 
   return (
-    <button
-      onClick={toggle}
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold
-        bg-white/10 hover:bg-white/20 text-white/90 hover:text-white
-        border border-white/20 hover:border-white/40
-        transition-all duration-200 backdrop-blur-sm ${className}`}
-      title="Switch Language"
-    >
-      <span className="text-sm">{current?.flag || '🌐'}</span>
-      <span>{current?.label || lang.toUpperCase()}</span>
-    </button>
+    <div className={`flex items-center gap-1 ${className}`}>
+      {langOptions.map((l) => (
+        <button
+          key={l.code}
+          onClick={() => switchLanguage(l.code)}
+          className={`px-2 py-1 rounded text-xs font-bold transition-all ${
+            lang === l.code
+              ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/30'
+              : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'
+          }`}
+        >
+          {l.label}
+        </button>
+      ))}
+    </div>
   );
 }
+
+export default LanguageSwitcher;
