@@ -1,7 +1,7 @@
 // -----------------------------------------------
 // controllers/groupAttendanceController.js
 // -----------------------------------------------
-// Group Attendance Module â Admin-controlled, location-based QR attendance
+// Group Attendance Module Ã¢ÂÂ Admin-controlled, location-based QR attendance
 
 const Group = require('../models/Group');
 const { GroupScanLog } = require('../models/Group');
@@ -56,7 +56,7 @@ exports.createGroup = async (req, res) => {
       adminQrNumber: userQrNumber,
       adminName: fullUser.name || fullUser.email,
       name: name.trim(),
-      category: category || 'other',
+      category: (category || 'other').toLowerCase(),
       fixedAddress: {
         address: fixedAddress.address,
         latitude: fixedAddress.latitude,
