@@ -1,9 +1,10 @@
 // -----------------------------------------------
 // controllers/groupAttendanceController.js
 // -----------------------------------------------
-// Group Attendance Module — Admin-controlled, location-based QR attendance
+// Group Attendance Module â Admin-controlled, location-based QR attendance
 
-const { Group, GroupScanLog } = require('../models/Group');
+const Group = require('../models/Group');
+const { GroupScanLog } = require('../models/Group');
 
 // Helper: Haversine distance in meters
 function haversineDistance(lat1, lon1, lat2, lon2) {
