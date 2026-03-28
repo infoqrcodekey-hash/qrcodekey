@@ -1,10 +1,9 @@
 // -----------------------------------------------
 // controllers/groupAttendanceController.js
 // -----------------------------------------------
-// Group Attendance Module Ã¢ÂÂ Admin-controlled, location-based QR attendance
+// Group Attendance Module — Admin-controlled, location-based QR attendance
 
-const Group = require('../models/Group');
-const { GroupScanLog } = require('../models/Group');
+const { Group, GroupScanLog } = require('../models/Group');
 
 // Helper: Haversine distance in meters
 function haversineDistance(lat1, lon1, lat2, lon2) {
@@ -32,31 +31,19 @@ exports.createGroup = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Name and full address (address, latitude, longitude) are required' });
     }
 
-    // Get user's QR number from QRCode collection
+    // Get user's QR number from their profile
     const User = require('../models/User');
-    const QRCode = require('../models/QRCode');
     const fullUser = await User.findById(user.id);
-    if (!fullUser) {
-      return res.status(400).json({ success: false, message: 'User not found' });
-    }
-
-    // Look up QR from request body or find user's first QR code
-    const { adminQrNumber } = req.body;
-    let userQrNumber = adminQrNumber;
-    if (!userQrNumber) {
-      const userQR = await QRCode.findOne({ owner: user.id });
-      if (!userQR) {
-        return res.status(400).json({ success: false, message: 'You must have a Personal QR number to create a group' });
-      }
-      userQrNumber = userQR.qrId;
+    if (!fullUser || !fullUser.qrNumber) {
+      return res.status(400).json({ success: false, message: 'You must have a Personal QR number to create a group' });
     }
 
     const group = await Group.create({
       admin: user.id,
-      adminQrNumber: userQrNumber,
+      adminQrNumber: fullUser.qrNumber,
       adminName: fullUser.name || fullUser.email,
       name: name.trim(),
-      category: (category || 'other').toLowerCase(),
+      category: category || 'other',
       fixedAddress: {
         address: fixedAddress.address,
         latitude: fixedAddress.latitude,
@@ -318,6 +305,7 @@ exports.processScan = async (req, res) => {
         groupId: group._id,
         memberId: req.user.id,
         memberName: member.name,
+        qrNumber: member.qrNumber,
         action,
         isPresent: group.members[memberIndex].isPresent,
         timestamp: new Date()
@@ -336,6 +324,50 @@ exports.processScan = async (req, res) => {
     });
   } catch (error) {
     console.error('processScan error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Get recent scan activity for a group (live feed)
+// @route   GET /api/group-attendance/:id/recent-scans
+// @access  Private (admin only)
+exports.getRecentScans = async (req, res) => {
+  try {
+    const group = await Group.findById(req.params.id);
+
+    if (!group) {
+      return res.status(404).json({ success: false, message: 'Group not found' });
+    }
+
+    if (group.admin.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Only group admin can view scans' });
+    }
+
+    // Get today's scans (last 24 hours), limited to 50 most recent
+    const since = new Date();
+    since.setHours(since.getHours() - 24);
+
+    const recentScans = await GroupScanLog.find({
+      group: group._id,
+      isValid: true,
+      timestamp: { $gte: since }
+    })
+      .populate('member', 'name email qrNumber')
+      .sort({ timestamp: -1 })
+      .limit(50);
+
+    const scans = recentScans.map(scan => ({
+      _id: scan._id,
+      memberName: scan.member?.name || 'Unknown',
+      qrNumber: scan.member?.qrNumber || '',
+      action: scan.action,
+      timestamp: scan.timestamp,
+      distance: scan.distanceFromGroup
+    }));
+
+    res.json({ success: true, data: scans });
+  } catch (error) {
+    console.error('getRecentScans error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
