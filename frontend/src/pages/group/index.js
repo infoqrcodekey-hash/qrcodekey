@@ -11,7 +11,7 @@ export default function GroupList() {
   const { user } = useAuth();
   const [adminGroups, setAdminGroups] = useState([]);
   const [memberGroups, setMemberGroups] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);  
 
   useEffect(() => {
     fetchGroups();
