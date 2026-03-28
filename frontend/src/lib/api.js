@@ -147,17 +147,24 @@ export const groupAttendanceAPI = {
   toggleAttendance: (groupId) => api.put(`/group-attendance/${groupId}/toggle`),
   processScan: (groupId, data) => api.post(`/group-attendance/${groupId}/scan`, data),
 
+  // Live activity feed
+  getRecentScans: (groupId) => api.get(`/group-attendance/${groupId}/recent-scans`),
+
   // Reports
-  getAttendanceSummary: (groupId, month, year) => api.get(`/group-attendance/${groupId}/summary?month=${month}&year=${year}`),
-  getMonthlyReport: (groupId, month, year) => api.get(`/group-attendance/${groupId}/monthly-report?month=${month}&year=${year}`),
-  exportCSV: (groupId, month, year) => api.get(`/group-attendance/${groupId}/export-csv?month=${month}&year=${year}`, { responseType: 'blob' }),
+  getAttendanceSummary: (groupId, month, year) =>
+    api.get(`/group-attendance/${groupId}/summary?month=${month}&year=${year}`),
+  getMonthlyReport: (groupId, month, year) =>
+    api.get(`/group-attendance/${groupId}/monthly-report?month=${month}&year=${year}`),
+  exportCSV: (groupId, month, year) =>
+    api.get(`/group-attendance/${groupId}/export-csv?month=${month}&year=${year}`, { responseType: 'blob' }),
 };
 
 // ============================================
 // NOTIFICATION APIs
 // ============================================
 export const notificationAPI = {
-  getAll: (page = 1, unreadOnly = false) => api.get(`/notifications?page=${page}&unreadOnly=${unreadOnly}`),
+  getAll: (page = 1, unreadOnly = false) =>
+    api.get(`/notifications?page=${page}&unreadOnly=${unreadOnly}`),
   getUnreadCount: () => api.get('/notifications/unread-count'),
   getSettings: (orgId) => api.get(`/notifications/settings/${orgId}`),
   markAsRead: (id) => api.put(`/notifications/${id}/read`),
