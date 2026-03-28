@@ -15,6 +15,7 @@ const {
   removeMember,
   toggleAttendance,
   processScan,
+  getRecentScans,
   getAttendanceSummary,
   getMonthlyReport,
   exportCSV,
@@ -37,6 +38,7 @@ router.delete('/:id/remove-member/:memberId', removeMember);
 // Attendance
 router.put('/:id/toggle', toggleAttendance);
 router.post('/:id/scan', processScan);
+router.get('/:id/recent-scans', getRecentScans);
 
 // Reports
 router.get('/:id/summary', getAttendanceSummary);
